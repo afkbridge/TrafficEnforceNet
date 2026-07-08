@@ -48,7 +48,7 @@ body{
 
 .sidebar{
 
-    width:270px;
+    width:230px;
 
     background:linear-gradient(
     180deg,
@@ -118,11 +118,11 @@ body{
 
     gap:15px;
 
-    padding:15px;
+    padding:12px 18px;
 
-    margin-bottom:15px;
+    margin-bottom:8px;
 
-    border-radius:12px;
+    border-radius:15px;
 
     cursor:pointer;
 
@@ -273,5 +273,351 @@ body{
     height:45px;
 
     border-radius:50%;
+
+}
+
+/* ==================================================
+   PAGE HEADER
+================================================== */
+
+.dashboard-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.page-title{
+    font-size:30px;
+    font-weight:700;
+    color:#183153;
+    margin:0;
+}
+
+.page-subtitle{
+    margin-top:5px;
+    color:#8B97A8;
+    font-size:14px;
+}
+
+/* ==================================================
+   GLOBAL DASHBOARD CARD
+================================================== */
+
+.dashboard-card{
+
+    background:#ffffff;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.06);
+
+    border:none;
+
+    transition:.25s ease;
+
+    height:100%;
+
+}
+
+.dashboard-card:hover{
+
+    transform:translateY(-2px);
+
+}
+
+/* ==================================================
+   STATISTIC CARDS
+================================================== */
+
+.stat-card{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    height:110px;
+
+}
+
+.stat-title{
+
+    display:block;
+
+    font-size:14px;
+
+    color:#8A95A8;
+
+    margin-bottom:8px;
+
+}
+
+.stat-number{
+
+    font-size:32px;
+
+    font-weight:700;
+
+    color:#163B73;
+
+    margin:0;
+
+}
+
+/* ==================================================
+   ICONS
+================================================== */
+
+.card-icon{
+
+    width:56px;
+
+    height:56px;
+
+    border-radius:16px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.card-icon i{
+
+    font-size:22px;
+
+}
+
+.blue{
+
+    background:#EAF2FF;
+
+    color:#0D6EFD;
+
+}
+
+.green{
+
+    background:#E7F8EE;
+
+    color:#17A34A;
+
+}
+
+.orange{
+
+    background:#FFF4E5;
+
+    color:#F59E0B;
+
+}
+
+.purple{
+
+    background:#F2ECFF;
+
+    color:#7C3AED;
+
+}
+
+/* ==================================================
+   SECTION HEADER
+================================================== */
+
+.section-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:20px;
+
+}
+
+.section-header h5{
+
+    font-size:17px;
+
+    font-weight:600;
+
+    color:#183153;
+
+    margin:0;
+
+}
+
+.btn-view{
+
+    border:none;
+
+    background:#EDF4FF;
+
+    color:#0D6EFD;
+
+    padding:7px 14px;
+
+    border-radius:10px;
+
+    font-size:13px;
+
+    font-weight:600;
+
+}
+
+/* ==================================================
+   CHARTS
+================================================== */
+
+.chart-card{
+
+    height:370px;
+
+}
+
+canvas{
+
+    width:100%!important;
+
+    height:280px!important;
+
+}
+
+/* ==================================================
+   MAP
+================================================== */
+
+.map-card{
+
+    height:360px;
+
+}
+
+#map{
+
+    width:100%;
+
+    height:270px;
+
+    border-radius:15px;
+
+    background:#EEF3FA;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    color:#94A3B8;
+
+}
+
+/* ==================================================
+   TABLE
+================================================== */
+
+.table-card{
+
+    height:360px;
+
+}
+
+.table{
+
+    margin-bottom:0;
+
+}
+
+.table thead th{
+
+    border:none;
+
+    background:#F8FAFD;
+
+    color:#6C788B;
+
+    font-size:13px;
+
+    font-weight:600;
+
+    padding:14px;
+
+}
+
+.table tbody td{
+
+    padding:16px 14px;
+
+    border-top:1px solid #EEF2F7;
+
+    font-size:14px;
+
+    color:#374151;
+
+}
+
+.table tbody tr:hover{
+
+    background:#F8FBFF;
+
+}
+
+/* ==================================================
+   RESPONSIVE
+================================================== */
+
+@media(max-width:1200px){
+
+    .chart-card,
+    .map-card,
+    .table-card{
+
+        height:auto;
+
+    }
+
+}
+
+@media(max-width:768px){
+
+    .content{
+
+        padding:20px;
+
+    }
+
+    .dashboard-header{
+
+        flex-direction:column;
+
+        align-items:flex-start;
+
+    }
+
+    .page-title{
+
+        font-size:24px;
+
+    }
+
+    .stat-card{
+
+        height:95px;
+
+    }
+
+    .stat-number{
+
+        font-size:26px;
+
+    }
 
 }
