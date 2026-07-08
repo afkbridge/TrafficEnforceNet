@@ -19,17 +19,22 @@ class AuthenticatedSessionController extends Controller
         return view('auth.login');
     }
 
+
     /**
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Authenticate the user
         $request->authenticate();
 
+        // Regenerate session for security
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        // Redirect to TrafficEnforceNet dashboard
+        return redirect('/admin/dashboard');
     }
+
 
     /**
      * Destroy an authenticated session.

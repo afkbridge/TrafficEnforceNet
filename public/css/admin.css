@@ -1,12 +1,13 @@
-/* ===========================
+/* ==================================================
    RESET
-=========================== */
+================================================== */
 
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
 }
+
 
 body{
 
@@ -16,9 +17,12 @@ body{
 
 }
 
-/* ===========================
+
+
+/* ==================================================
    LAYOUT
-=========================== */
+================================================== */
+
 
 .wrapper{
 
@@ -28,6 +32,7 @@ body{
 
 }
 
+
 .main{
 
     flex:1;
@@ -36,24 +41,28 @@ body{
 
 }
 
+
 .content{
 
-    padding:30px;
+    padding:25px;
 
 }
 
-/* ===========================
+
+
+/* ==================================================
    SIDEBAR
-=========================== */
+================================================== */
+
 
 .sidebar{
 
     width:230px;
 
     background:linear-gradient(
-    180deg,
-    #0057D9,
-    #0046B5
+        180deg,
+        #0057D9,
+        #0046B5
     );
 
     color:white;
@@ -66,15 +75,18 @@ body{
 
 }
 
-/* Logo */
+
+
+/* LOGO */
 
 .logo{
 
     text-align:center;
 
-    margin-bottom:50px;
+    margin-bottom:45px;
 
 }
+
 
 .logo img{
 
@@ -86,6 +98,7 @@ body{
 
 }
 
+
 .logo h2{
 
     margin-top:10px;
@@ -96,6 +109,7 @@ body{
 
 }
 
+
 .logo span{
 
     font-size:14px;
@@ -104,11 +118,19 @@ body{
 
 }
 
+
+
+/* MENU */
+
+
 .menu{
 
     list-style:none;
 
+    padding:0;
+
 }
+
 
 .menu li{
 
@@ -130,11 +152,13 @@ body{
 
 }
 
+
 .menu li:hover{
 
     background:#1565D8;
 
 }
+
 
 .menu li.active{
 
@@ -144,6 +168,24 @@ body{
 
 }
 
+
+.menu li a{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    width:100%;
+
+    text-decoration:none;
+
+    color:inherit;
+
+}
+
+
 .menu i{
 
     width:22px;
@@ -151,6 +193,11 @@ body{
     text-align:center;
 
 }
+
+
+
+/* PROFILE */
+
 
 .profile{
 
@@ -170,6 +217,7 @@ body{
 
 }
 
+
 .profile img{
 
     width:55px;
@@ -178,13 +226,19 @@ body{
 
     border-radius:50%;
 
+    object-fit:cover;
+
 }
+
 
 .profile h4{
 
     font-size:15px;
 
+    margin:0;
+
 }
+
 
 .profile small{
 
@@ -192,15 +246,20 @@ body{
 
 }
 
-/* ===========================
+
+
+/* ==================================================
    TOPBAR
-=========================== */
+================================================== */
+
 
 .topbar{
 
-    height:90px;
+    height:80px;
 
     background:white;
+
+    padding:0 30px;
 
     display:flex;
 
@@ -208,65 +267,106 @@ body{
 
     align-items:center;
 
-    padding:0 30px;
-
-    box-shadow:0 3px 10px rgba(0,0,0,.05);
+    border-bottom:1px solid #EAECEF;
 
 }
 
-.topbar h2{
 
-    color:#003E99;
+
+.topbar-left h3{
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#1E3A8A;
+
+    margin:0;
 
 }
 
-.topbar p{
 
-    color:#888;
+
+.topbar-left p{
+
+    margin:0;
+
+    color:#8A94A6;
+
+    font-size:14px;
 
 }
 
-.top-actions{
+
+
+.topbar-right{
 
     display:flex;
 
     align-items:center;
 
-    gap:15px;
+    gap:18px;
 
 }
 
-.top-actions input{
 
-    width:250px;
 
-    padding:10px 15px;
+/* SEARCH */
 
-    border:none;
 
-    background:#F4F7FC;
+.search-box{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    background:#F5F7FB;
+
+    padding:10px 18px;
 
     border-radius:12px;
 
 }
 
-.top-actions button{
 
-    width:45px;
-
-    height:45px;
+.search-box input{
 
     border:none;
 
-    background:#F4F7FC;
+    outline:none;
 
-    border-radius:50%;
+    background:transparent;
 
-    cursor:pointer;
+    width:220px;
 
 }
 
-.top-actions img{
+
+.search-box i{
+
+    color:#7B8794;
+
+}
+
+
+
+/* USER */
+
+
+.user-info{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+
+.user-info img{
 
     width:45px;
 
@@ -274,35 +374,69 @@ body{
 
     border-radius:50%;
 
+    object-fit:cover;
+
 }
 
+
+.user-info h6{
+
+    margin:0;
+
+    font-weight:600;
+
+}
+
+
+.user-info small{
+
+    color:#888;
+
+}
+
+
+
 /* ==================================================
-   PAGE HEADER
+   DASHBOARD HEADER
 ================================================== */
+
 
 .dashboard-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+
     margin-bottom:25px;
+
 }
+
 
 .page-title{
+
     font-size:30px;
+
     font-weight:700;
+
     color:#183153;
+
     margin:0;
+
 }
+
 
 .page-subtitle{
+
     margin-top:5px;
+
     color:#8B97A8;
+
     font-size:14px;
+
 }
 
+
+
 /* ==================================================
-   GLOBAL DASHBOARD CARD
+   DASHBOARD CARDS
 ================================================== */
+
 
 .dashboard-card{
 
@@ -314,23 +448,18 @@ body{
 
     box-shadow:0 4px 12px rgba(0,0,0,.06);
 
-    border:none;
-
-    transition:.25s ease;
+    width:100%;
 
     height:100%;
 
 }
 
-.dashboard-card:hover{
 
-    transform:translateY(-2px);
-
-}
 
 /* ==================================================
    STATISTIC CARDS
 ================================================== */
+
 
 .stat-card{
 
@@ -340,9 +469,10 @@ body{
 
     align-items:center;
 
-    height:110px;
+    min-height:120px;
 
 }
+
 
 .stat-title{
 
@@ -352,9 +482,10 @@ body{
 
     color:#8A95A8;
 
-    margin-bottom:8px;
+    font-weight:500;
 
 }
+
 
 .stat-number{
 
@@ -364,13 +495,14 @@ body{
 
     color:#163B73;
 
-    margin:0;
+    margin-top:10px;
 
 }
 
-/* ==================================================
-   ICONS
-================================================== */
+
+
+/* ICONS */
+
 
 .card-icon{
 
@@ -388,11 +520,14 @@ body{
 
 }
 
+
 .card-icon i{
 
     font-size:22px;
 
 }
+
+
 
 .blue{
 
@@ -402,6 +537,8 @@ body{
 
 }
 
+
+
 .green{
 
     background:#E7F8EE;
@@ -409,6 +546,8 @@ body{
     color:#17A34A;
 
 }
+
+
 
 .orange{
 
@@ -418,6 +557,8 @@ body{
 
 }
 
+
+
 .purple{
 
     background:#F2ECFF;
@@ -426,9 +567,12 @@ body{
 
 }
 
+
+
 /* ==================================================
    SECTION HEADER
 ================================================== */
+
 
 .section-header{
 
@@ -442,6 +586,7 @@ body{
 
 }
 
+
 .section-header h5{
 
     font-size:17px;
@@ -453,6 +598,8 @@ body{
     margin:0;
 
 }
+
+
 
 .btn-view{
 
@@ -472,15 +619,19 @@ body{
 
 }
 
+
+
 /* ==================================================
-   CHARTS
+   CHART
 ================================================== */
+
 
 .chart-card{
 
-    height:370px;
+    height:380px;
 
 }
+
 
 canvas{
 
@@ -490,21 +641,25 @@ canvas{
 
 }
 
+
+
 /* ==================================================
    MAP
 ================================================== */
 
+
 .map-card{
 
-    height:360px;
+    height:380px;
 
 }
+
 
 #map{
 
     width:100%;
 
-    height:270px;
+    height:280px;
 
     border-radius:15px;
 
@@ -512,29 +667,34 @@ canvas{
 
     display:flex;
 
-    align-items:center;
-
     justify-content:center;
+
+    align-items:center;
 
     color:#94A3B8;
 
 }
 
+
+
 /* ==================================================
    TABLE
 ================================================== */
 
+
 .table-card{
 
-    height:360px;
+    height:380px;
 
 }
+
 
 .table{
 
     margin-bottom:0;
 
 }
+
 
 .table thead th{
 
@@ -552,6 +712,8 @@ canvas{
 
 }
 
+
+
 .table tbody td{
 
     padding:16px 14px;
@@ -564,29 +726,95 @@ canvas{
 
 }
 
+
+
 .table tbody tr:hover{
 
     background:#F8FBFF;
 
 }
 
+
+
+/* ==================================================
+   BOOTSTRAP GRID FIX
+================================================== */
+
+
+.container-fluid{
+
+    padding-left:0;
+
+    padding-right:0;
+
+}
+
+
+.row{
+
+    margin-left:0;
+
+    margin-right:0;
+
+}
+
+
+.row > div{
+
+    display:flex;
+
+}
+
+
+.row > div .dashboard-card{
+
+    flex:1;
+
+}
+
+
+
 /* ==================================================
    RESPONSIVE
 ================================================== */
 
+
 @media(max-width:1200px){
 
-    .chart-card,
-    .map-card,
-    .table-card{
 
-        height:auto;
+    .sidebar{
+
+        width:210px;
 
     }
 
+
 }
 
+
+
+@media(max-width:992px){
+
+
+    .topbar{
+
+        flex-direction:column;
+
+        height:auto;
+
+        padding:20px;
+
+        gap:15px;
+
+    }
+
+
+}
+
+
+
 @media(max-width:768px){
+
 
     .content{
 
@@ -594,13 +822,6 @@ canvas{
 
     }
 
-    .dashboard-header{
-
-        flex-direction:column;
-
-        align-items:flex-start;
-
-    }
 
     .page-title{
 
@@ -608,16 +829,12 @@ canvas{
 
     }
 
-    .stat-card{
-
-        height:95px;
-
-    }
 
     .stat-number{
 
         font-size:26px;
 
     }
+
 
 }
