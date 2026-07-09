@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ViolationController;
+use App\Http\Controllers\Admin\EnforcerController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -19,8 +20,13 @@ Route::get('/dashboard', function () {
 
 Route::middleware('auth')->group(function () {
 
+    // Violations
     Route::resource('violations', ViolationController::class);
 
+    // Enforcers
+    Route::resource('enforcers', EnforcerController::class);
+
+    // Profile
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
@@ -31,13 +37,11 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
 
-Route::get('/violations/{id}/edit', 
-    [ViolationController::class, 'edit']
-)->name('violations.edit');
+// Keep these since your Violation module is already using them
+Route::get('/violations/{id}/edit', [ViolationController::class, 'edit'])
+    ->name('violations.edit');
 
-
-Route::put('/violations/{id}', 
-    [ViolationController::class, 'update']
-)->name('violations.update');
+Route::put('/violations/{id}', [ViolationController::class, 'update'])
+    ->name('violations.update');

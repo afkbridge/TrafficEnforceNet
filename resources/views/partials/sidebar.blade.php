@@ -34,11 +34,11 @@
              </a>
         </li>
 
-        <li>
-            <a href="#">
-                <i class="fas fa-user-shield"></i>
-                <span>Enforcers</span>
-            </a>
+        <li class="{{ request()->routeIs('enforcers.*') ? 'active' : '' }}">
+             <a href="{{ route('enforcers.index') }}">
+             <i class="fas fa-user-shield"></i>
+             <span>Enforcers</span>
+              </a>
         </li>
 
         <li>
