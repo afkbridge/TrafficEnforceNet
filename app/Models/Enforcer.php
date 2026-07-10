@@ -8,6 +8,7 @@ use App\Models\User;
 class Enforcer extends Model
 {
     protected $fillable = [
+        'user_id',
         'badge_number',
         'first_name',
         'middle_name',
@@ -16,7 +17,6 @@ class Enforcer extends Model
         'email',
         'position',
         'employment_status',
-        'user_id',
     ];
     public function user()
     {

@@ -4,10 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Enforcer;
-use Illuminate\Http\Request;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class EnforcerController extends Controller
 {
@@ -17,7 +17,7 @@ class EnforcerController extends Controller
         $position = $request->position;
         $status = $request->status;
 
-        $enforcers = Enforcer::query();
+        $enforcers = Enforcer::with('user');
 
         // Search
         if ($search) {
@@ -46,15 +46,9 @@ class EnforcerController extends Controller
         // Dashboard Summary Cards
         $totalEnforcers = Enforcer::count();
 
-        $activeEnforcers = Enforcer::where(
-            'employment_status',
-            'Active'
-        )->count();
+        $activeEnforcers = Enforcer::where('employment_status', 'Active')->count();
 
-        $inactiveEnforcers = Enforcer::where(
-            'employment_status',
-            'Inactive'
-        )->count();
+        $inactiveEnforcers = Enforcer::where('employment_status', 'Inactive')->count();
 
         // Placeholder until login tracking is implemented
         $onlineEnforcers = 0;
@@ -79,28 +73,27 @@ class EnforcerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'badge_number' => 'required|unique:enforcers',
+            'badge_number' => 'required|unique:enforcers,badge_number',
             'first_name' => 'required',
             'last_name' => 'required',
             'position' => 'required',
             'employment_status' => 'required',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|confirmed',
+            'password' => 'required|min:8|confirmed',
         ]);
-
 
         DB::transaction(function () use ($request) {
 
-            // Create user account first
+            // Create User Account
             $user = User::create([
-                'role_id' => 2, // enforcer role (we will verify this later)
+                'role_id' => 2,
                 'name' => $request->first_name . ' ' . $request->last_name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'account_status' => 'Active',
             ]);
 
-
-            // Create enforcer profile
+            // Create Enforcer Profile
             Enforcer::create([
                 'user_id' => $user->id,
                 'badge_number' => $request->badge_number,
@@ -114,7 +107,6 @@ class EnforcerController extends Controller
             ]);
         });
 
-
         return redirect()
             ->route('enforcers.index')
             ->with('success', 'Enforcer and account created successfully.');
@@ -123,6 +115,13 @@ class EnforcerController extends Controller
     public function edit(Enforcer $enforcer)
     {
         return view('admin.enforcers.edit', compact('enforcer'));
+    }
+
+    public function account(Enforcer $enforcer)
+    {
+        $enforcer->load('user');
+
+        return view('admin.enforcers.account', compact('enforcer'));
     }
 
     public function update(Request $request, Enforcer $enforcer)
@@ -136,8 +135,7 @@ class EnforcerController extends Controller
             'email' => 'nullable|email',
         ]);
 
-
-        // Update enforcer profile
+        // Update Enforcer Profile
         $enforcer->update([
             'badge_number' => $request->badge_number,
             'first_name' => $request->first_name,
@@ -149,16 +147,13 @@ class EnforcerController extends Controller
             'employment_status' => $request->employment_status,
         ]);
 
-
-        // Update linked user account
+        // Update Linked User Account
         if ($enforcer->user) {
-
             $enforcer->user->update([
                 'name' => $request->first_name . ' ' . $request->last_name,
                 'email' => $request->email,
             ]);
         }
-
 
         return redirect()
             ->route('enforcers.index')
@@ -167,10 +162,55 @@ class EnforcerController extends Controller
 
     public function destroy(Enforcer $enforcer)
     {
-        $enforcer->delete();
+        DB::transaction(function () use ($enforcer) {
+
+            if ($enforcer->user) {
+                $enforcer->user->delete();
+            }
+
+            $enforcer->delete();
+        });
 
         return redirect()
             ->route('enforcers.index')
             ->with('success', 'Enforcer deleted successfully.');
     }
+    public function resetPassword(Request $request, Enforcer $enforcer)
+{
+    $request->validate([
+        'password' => [
+            'required',
+            'min:8',
+            'confirmed'
+        ],
+    ]);
+
+
+    if (!$enforcer->user_id) {
+
+        return back()->with('error', 'No account linked to this enforcer.');
+
+    }
+
+
+    $user = User::find($enforcer->user_id);
+
+
+    if (!$user) {
+
+        return back()->with('error', 'User account not found.');
+
+    }
+
+
+    $user->update([
+        'password' => Hash::make($request->password)
+    ]);
+
+
+    return back()->with(
+        'success',
+        'Password reset successfully.'
+    );
+}
 }
