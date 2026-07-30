@@ -22,19 +22,6 @@
 
     <div class="topbar-right">
 
-        <!-- Search -->
-
-        <div class="search-box">
-
-            <i class="fas fa-search"></i>
-
-            <input
-                type="text"
-                placeholder="Search..."
-            >
-
-        </div>
-
         <!-- Notifications -->
 
         <button class="top-icon">

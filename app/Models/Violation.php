@@ -29,12 +29,6 @@ class Violation extends Model
         return $this->belongsTo(Driver::class);
     }
 
-    public function index()
-    {
-    $violations = Violation::with('driver')->get();
-
-    return view('admin.violations.index', compact('violations'));
-    }   
     
     /**
      * Vehicle involved.

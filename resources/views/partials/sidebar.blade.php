@@ -37,23 +37,21 @@
         <li class="{{ request()->routeIs('enforcers.*') ? 'active' : '' }}">
              <a href="{{ route('enforcers.index') }}">
              <i class="fas fa-user-shield"></i>
-             <span>Enforcers</span>
+             <span>Enforcer Management</span>
               </a>
         </li>
 
-        <li>
-            <a href="#">
-                <i class="fas fa-chart-line"></i>
-                <span>Reports</span>
-            </a>
-        </li>
+       <li class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
 
-        <li>
-            <a href="#">
-                <i class="fas fa-users"></i>
-                <span>User Management</span>
-            </a>
-        </li>
+    <a href="{{ route('admin.reports.index') }}">
+
+        <i class="fas fa-chart-bar"></i>
+
+        <span>Reports</span>
+
+    </a>
+
+</li>
 
         <li>
             <a href="#">

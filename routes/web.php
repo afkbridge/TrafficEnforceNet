@@ -2,9 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ViolationController;
 use App\Http\Controllers\Admin\EnforcerController;
+use App\Http\Controllers\Admin\ReportController;
 
 
 /*
@@ -48,6 +50,17 @@ Route::middleware('auth')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/admin/reports', [ReportController::class, 'index'])
+        ->name('admin.reports.index');
+
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Violation Management
     |--------------------------------------------------------------------------
     */
@@ -65,11 +78,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('enforcers', EnforcerController::class);
 
 
+
     // Enforcer Account Information
     Route::get('/enforcers/{enforcer}/account',
         [EnforcerController::class, 'account']
     )
     ->name('enforcers.account');
+
 
 
     // Reset Enforcer Password
