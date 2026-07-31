@@ -23,17 +23,39 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        // Authenticate the user
-        $request->authenticate();
+   public function store(LoginRequest $request)
+{
+    $request->authenticate();
 
-        // Regenerate session for security
-        $request->session()->regenerate();
+    $request->session()->regenerate();
 
-        // Redirect to TrafficEnforceNet dashboard
-        return redirect('/admin/dashboard');
+
+    $user = auth()->user();
+
+
+    if ($user->role->name === 'Administrator') {
+
+        return redirect()->route('admin.dashboard');
+
     }
+
+
+    if ($user->role->name === 'POSO Enforcer') {
+
+        return redirect()->route('enforcer.dashboard');
+
+    }
+
+
+    if ($user->role->name === 'BPLO Personnel') {
+
+        return redirect()->route('bplo.dashboard');
+
+    }
+
+
+    return redirect('/');
+}
 
 
     /**

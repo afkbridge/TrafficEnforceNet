@@ -39,7 +39,7 @@ class ViolationSeeder extends Seeder
             'latitude' => 14.3230,
             'longitude' => 120.9050,
             'remarks' => 'Driver failed to present license',
-            'status' => 'Settled',
+            'status' => 'Completed',
         ]);
 
 
@@ -71,7 +71,7 @@ class ViolationSeeder extends Seeder
             'latitude' => 14.3250,
             'longitude' => 120.9120,
             'remarks' => 'Ignored traffic signal',
-            'status' => 'Settled',
+            'status' => 'Completed',
         ]);
 
 

@@ -1,47 +1,245 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="en">
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+<head>
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+<meta charset="UTF-8">
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
+<title>
+TrafficEnforceNet | Office Login
+</title>
 
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
 
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
+@vite([
+'resources/css/app.css',
+'resources/js/app.js'
+])
 
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
 
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</head>
+
+
+<body class="bg-[#F1F5F9]">
+
+
+<div class="min-h-screen flex items-center justify-center px-6">
+
+
+<div class="w-full max-w-md">
+
+
+<!-- Logo/Header -->
+
+<div class="text-center mb-8">
+
+
+<div class="mx-auto w-20 h-20 rounded-full 
+bg-[#005fbf] flex items-center justify-center">
+
+
+<span class="text-white text-3xl">
+🚦
+</span>
+
+
+</div>
+
+
+
+<h1 class="mt-5 text-3xl font-bold text-[#1E293B]">
+
+TrafficEnforceNet
+
+</h1>
+
+
+<p class="mt-2 text-[#64748B]">
+
+Office Authentication Portal
+
+</p>
+
+
+<p class="text-sm text-[#64748B]">
+
+Public Order and Safety Office
+<br>
+Tarlac City
+
+</p>
+
+
+</div>
+
+
+
+<!-- Login Card -->
+
+<div class="bg-white rounded-2xl shadow-lg p-8">
+
+
+@if(session('status'))
+
+<div class="mb-4 text-sm text-green-600">
+
+{{ session('status') }}
+
+</div>
+
+@endif
+
+
+
+<form method="POST" action="{{ route('login') }}">
+
+@csrf
+
+
+
+<!-- Email -->
+
+<div>
+
+<label class="block text-sm font-medium text-[#1E293B]">
+
+Email Address
+
+</label>
+
+
+<input
+type="email"
+name="email"
+value="{{ old('email') }}"
+required
+autofocus
+
+class="mt-2 w-full rounded-lg border-gray-300
+focus:border-[#005fbf]
+focus:ring-[#005fbf]"
+>
+
+
+@error('email')
+
+<p class="text-sm text-red-500 mt-2">
+
+{{ $message }}
+
+</p>
+
+@enderror
+
+
+</div>
+
+
+
+
+<!-- Password -->
+
+<div class="mt-5">
+
+
+<label class="block text-sm font-medium text-[#1E293B]">
+
+Password
+
+</label>
+
+
+
+<input
+type="password"
+name="password"
+required
+
+class="mt-2 w-full rounded-lg border-gray-300
+focus:border-[#005fbf]
+focus:ring-[#005fbf]"
+>
+
+
+@error('password')
+
+<p class="text-sm text-red-500 mt-2">
+
+{{ $message }}
+
+</p>
+
+@enderror
+
+
+</div>
+
+
+
+
+<!-- Remember -->
+
+<div class="mt-5 flex items-center">
+
+
+<input
+type="checkbox"
+name="remember"
+class="rounded text-[#005fbf]"
+>
+
+
+<span class="ml-2 text-sm text-[#64748B]">
+
+Remember me
+
+</span>
+
+
+</div>
+
+
+
+<!-- Button -->
+
+<button
+type="submit"
+
+class="mt-7 w-full bg-[#005fbf]
+text-white py-3 rounded-xl
+font-semibold
+hover:bg-[#004a99]
+transition">
+
+
+Sign In
+
+
+</button>
+
+
+
+</form>
+
+
+</div>
+
+
+
+<p class="text-center text-xs text-[#64748B] mt-6">
+
+Restricted access. Authorized personnel only.
+
+</p>
+
+
+</div>
+
+
+</div>
+
+
+</body>
+
+</html>

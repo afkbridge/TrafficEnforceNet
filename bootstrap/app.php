@@ -10,9 +10,18 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware): void {
+   ->withMiddleware(function (Middleware $middleware): void {
+
+  $middleware->alias([
+    'role' => \App\Http\Middleware\RoleMiddleware::class,
+    'prevent-back' => \App\Http\Middleware\PreventBackHistory::class,
+]);
+
+    $middleware->redirectGuestsTo('/office/login');
+
+})
         //
-    })
+  
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
