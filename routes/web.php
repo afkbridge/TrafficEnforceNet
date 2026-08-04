@@ -70,6 +70,7 @@ Route::get('/bplo/dashboard', [BPLODashboardController::class, 'index'])
     ->name('bplo.dashboard');
 
 
+
 /*
 |--------------------------------------------------------------------------
 | Smart Dashboard Redirect
@@ -80,29 +81,26 @@ Route::get('/dashboard', function () {
 
     $user = auth()->user();
 
+
     if ($user->role->name === 'Administrator') {
 
         return redirect()->route('admin.dashboard');
-
     }
 
 
     if ($user->role->name === 'POSO Enforcer') {
 
         return redirect()->route('enforcer.dashboard');
-
     }
 
 
     if ($user->role->name === 'BPLO Personnel') {
 
         return redirect()->route('bplo.dashboard');
-
     }
 
 
     return redirect('/');
-
 })->middleware('auth')->name('dashboard');
 
 
@@ -133,6 +131,14 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
+    // Export Violations to Excel
+    Route::get(
+        '/violations/export',
+        [ViolationController::class, 'export']
+    )->name('admin.violations.export');
+
+
+    // Violation CRUD
     Route::resource('violations', ViolationController::class);
 
 
@@ -179,7 +185,6 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
-
 });
 
 

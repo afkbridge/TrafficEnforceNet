@@ -4,272 +4,276 @@
 
 @section('content')
 
-<div class="container-fluid">
+    <div class="container-fluid">
 
 
-    <!-- PAGE HEADER -->
-    <div class="mb-4">
+        <!-- PAGE HEADER -->
+        <!-- PAGE HEADER -->
+        <div class="mb-4 d-flex justify-content-between align-items-center">
 
-        <h2 class="fw-bold">
-            Violation Records
-        </h2>
+            <div>
+                <h2 class="fw-bold">
+                    Violation Records
+                </h2>
 
-        <p class="text-muted">
-            Monitor and review recorded traffic violations.
-        </p>
+                <p class="text-muted">
+                    Monitor and review recorded traffic violations.
+                </p>
+            </div>
 
-    </div>
 
-<div class="card shadow-sm mb-3">
+            <div>
 
-<div class="card-body">
+                <a href="{{ route('admin.violations.export', [
+                    'filter' => request('filter'),
+                    'date' => request('date'),
+                ]) }}"
+                    class="btn btn-success">
 
-<form method="GET" action="{{ route('violations.index') }}"
-      class="row g-3 align-items-end">
+                    <i class="fa-solid fa-file-excel"></i>
+                    Export Excel
 
+                </a>
 
-<div class="col-md-3">
+            </div>
 
-<label class="form-label">
-Filter
-</label>
+        </div>
 
-<select name="filter" class="form-select">
+        <div class="card shadow-sm mb-3">
 
-<option value="">
-All Records
-</option>
+            <div class="card-body">
 
-<option value="today"
-{{ request('filter') == 'today' ? 'selected' : '' }}>
-Today
-</option>
+                <form method="GET" action="{{ route('violations.index') }}" class="row g-3 align-items-end">
 
-</select>
 
-</div>
+                    <div class="col-md-3">
 
+                        <label class="form-label">
+                            Filter
+                        </label>
 
+                        <select name="filter" class="form-select">
 
-<div class="col-md-3">
+                            <option value="">
+                                All Records
+                            </option>
 
-<label class="form-label">
-Specific Date
-</label>
+                            <option value="today" {{ request('filter') == 'today' ? 'selected' : '' }}>
+                                Today
+                            </option>
 
-<input type="date"
-name="date"
-class="form-control"
-value="{{ request('date') }}">
+                        </select>
 
-</div>
+                    </div>
 
 
 
-<div class="col-md-2">
+                    <div class="col-md-3">
 
-<button class="btn btn-primary w-100">
+                        <label class="form-label">
+                            Specific Date
+                        </label>
 
-<i class="fa-solid fa-filter"></i>
-Filter
+                        <input type="date" name="date" class="form-control" value="{{ request('date') }}">
 
-</button>
+                    </div>
 
-</div>
 
 
+                    <div class="col-md-2">
 
-<div class="col-md-2">
+                        <button class="btn btn-primary w-100">
 
-<a href="{{ route('violations.index') }}"
-class="btn btn-light w-100">
+                            <i class="fa-solid fa-filter"></i>
+                            Filter
 
-Reset
+                        </button>
 
-</a>
+                    </div>
 
-</div>
 
 
-</form>
+                    <div class="col-md-2">
 
-</div>
+                        <a href="{{ route('violations.index') }}" class="btn btn-light w-100">
 
-</div>
+                            Reset
 
-    <!-- TABLE CARD -->
-    <div class="card shadow-sm">
+                        </a>
 
-        <div class="card-body">
+                    </div>
 
 
-            <div class="table-responsive">
+                </form>
 
-                <table class="table table-hover align-middle">
+            </div>
 
+        </div>
 
-                    <thead>
+        <!-- TABLE CARD -->
+        <div class="card shadow-sm">
 
-                        <tr>
+            <div class="card-body">
 
-                            <th>
-                                Ticket No.
-                            </th>
 
-                            <th>
-                                Driver
-                            </th>
+                <div class="table-responsive">
 
-                            <th>
-                                 Address
-                            </th>
+                    <table class="table table-hover align-middle">
 
-                            <th>
-                                Vehicle
-                            </th>
 
-                            <th>
-                                Violation
-                            </th>
+                        <thead>
 
-                            <th>
-                                Location
-                            </th>
+                            <tr>
 
-                            <th>
-                                Date
-                            </th>
+                                <th>
+                                    Ticket No.
+                                </th>
 
-                            <th>
-                                Status
-                            </th>
+                                <th>
+                                    Driver
+                                </th>
 
-                            <th>
-                                Action
-                            </th>
+                                <th>
+                                    Address
+                                </th>
 
-                        </tr>
+                                <th>
+                                    Vehicle
+                                </th>
 
-                    </thead>
+                                <th>
+                                    Violation
+                                </th>
 
+                                <th>
+                                    Location
+                                </th>
 
+                                <th>
+                                    Date
+                                </th>
 
-                    <tbody>
+                                <th>
+                                    Status
+                                </th>
 
+                                <th>
+                                    Action
+                                </th>
 
-                    @forelse($violations as $violation)
+                            </tr>
 
+                        </thead>
 
-                        <tr>
 
 
-                            <td>
-                                {{ $violation->ticket_number }}
-                            </td>
+                        <tbody>
 
 
+                            @forelse($violations as $violation)
+                                <tr>
 
-                            <td>
-                                 {{ $violation->driver->full_name ?? 'N/A' }}
-                            </td>
 
-                            <td>
-                                 {{ $violation->driver->address ?? 'N/A' }}
-</td>
+                                    <td>
+                                        {{ $violation->ticket_number }}
+                                    </td>
 
-                            <td>
 
-                                @if($violation->vehicle)
 
-                                    {{ $violation->vehicle->plate_number }}
+                                    <td>
+                                        {{ $violation->driver->full_name ?? 'N/A' }}
+                                    </td>
 
-                                @else
+                                    <td>
+                                        {{ $violation->driver->address ?? 'N/A' }}
+                                    </td>
 
-                                    N/A
+                                    <td>
 
-                                @endif
+                                        @if ($violation->vehicle)
+                                            {{ $violation->vehicle->plate_number }}
+                                        @else
+                                            N/A
+                                        @endif
 
-                            </td>
+                                    </td>
 
 
 
-                            <td>
+                                    <td>
 
-                                @if($violation->violationType)
+                                        @if ($violation->violationType)
+                                            {{ $violation->violationType->name }}
+                                        @else
+                                            N/A
+                                        @endif
 
-                                    {{ $violation->violationType->name }}
+                                    </td>
 
-                                @else
 
-                                    N/A
 
-                                @endif
+                                    <td>
+                                        {{ $violation->location }}
+                                    </td>
 
-                            </td>
 
 
+                                    <td>
+                                        {{ $violation->violation_date }}
+                                    </td>
 
-                            <td>
-                                {{ $violation->location }}
-                            </td>
 
 
+                                    <td>
 
-                            <td>
-                                {{ $violation->violation_date }}
-                            </td>
+                                        <span class="badge bg-warning">
 
+                                            {{ $violation->status }}
 
+                                        </span>
 
-                            <td>
+                                    </td>
 
-                                <span class="badge bg-warning">
 
-                                    {{ $violation->status }}
 
-                                </span>
+                                    <td>
 
-                            </td>
+                                        <a href="{{ route('violations.show', $violation->id) }}"
+                                            class="btn btn-sm btn-primary">
 
+                                            View
 
+                                        </a>
 
-                            <td>
+                                    </td>
 
-                                <a href="{{ route('violations.show', $violation->id) }}"
-                                 class="btn btn-sm btn-primary">
 
-                                 View
+                                </tr>
 
-                                </a>
 
-                            </td>
 
+                            @empty
 
-                        </tr>
 
+                                <tr>
 
+                                    <td colspan="9" class="text-center">
 
-                    @empty
+                                        No violation records found.
 
+                                    </td>
 
-                        <tr>
+                                </tr>
+                            @endforelse
 
-                            <td colspan="9" class="text-center">
 
-                                No violation records found.
+                        </tbody>
 
-                            </td>
 
-                        </tr>
+                    </table>
 
 
-                    @endforelse
-
-
-                    </tbody>
-
-
-                </table>
+                </div>
 
 
             </div>
@@ -279,9 +283,6 @@ Reset
 
 
     </div>
-
-
-</div>
 
 
 @endsection

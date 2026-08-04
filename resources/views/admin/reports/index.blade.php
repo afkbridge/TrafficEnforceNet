@@ -4,272 +4,161 @@
 
 @section('content')
 
-<div class="container-fluid">
+<div class="container-fluid px-4 pt-2">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
-
+    <!-- Header (kept compact) -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h2 class="fw-bold">
-                <i class="fas fa-chart-line"></i>
+            <h2 class="fw-bold mb-1">
+                <i class="fas fa-chart-line me-2 text-primary"></i>
                 Reports Dashboard
             </h2>
-
-            <p class="text-muted">
+            <p class="text-muted mb-0">
                 Monitor traffic violation statistics and generate reports.
             </p>
         </div>
-
     </div>
 
-
-    <!-- Summary Cards -->
-    <div class="row g-4">
-
+    <!-- Summary Cards - larger & wider -->
+    <div class="row g-3 mb-4">
 
         <!-- Total Violations -->
-        <div class="col-md-3">
-
-            <div class="card shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-                            <h6 class="text-muted">
-                                Total Violations
-                            </h6>
-
-                            <h2 class="fw-bold">
-                                {{ $totalViolations }}
-                            </h2>
-                        </div>
-
-
-                        <div>
-                            <i class="fas fa-file-lines fa-2x text-danger"></i>
-                        </div>
-
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-4 px-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-2 text-uppercase fw-semibold">Total Violations</p>
+                        <h2 class="fw-bold mb-0 display-6">{{ $totalViolations }}</h2>
                     </div>
-
+                    <div class="bg-danger bg-opacity-10 rounded-3 p-3">
+                        <i class="fas fa-file-lines fa-2x text-danger"></i>
+                    </div>
                 </div>
-
             </div>
-
         </div>
 
-
-
-        <!-- Today -->
-        <div class="col-md-3">
-
-            <div class="card shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <h6 class="text-muted">
-                                Today's Violations
-                            </h6>
-
-                            <h2 class="fw-bold">
-                                {{ $todayViolations }}
-                            </h2>
-
-                        </div>
-
-
+        <!-- Today's Violations -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-4 px-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-2 text-uppercase fw-semibold">Today's Violations</p>
+                        <h2 class="fw-bold mb-0 display-6">{{ $todayViolations }}</h2>
+                    </div>
+                    <div class="bg-primary bg-opacity-10 rounded-3 p-3">
                         <i class="fas fa-calendar-day fa-2x text-primary"></i>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
-
-
-        <!-- Monthly -->
-        <div class="col-md-3">
-
-            <div class="card shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <div class="d-flex justify-content-between">
-
-                        <div>
-
-                            <h6 class="text-muted">
-                                This Month
-                            </h6>
-
-                            <h2 class="fw-bold">
-                                {{ $monthlyViolations }}
-                            </h2>
-
-                        </div>
-
-
+        <!-- This Month -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-4 px-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-2 text-uppercase fw-semibold">This Month</p>
+                        <h2 class="fw-bold mb-0 display-6">{{ $monthlyViolations }}</h2>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-3 p-3">
                         <i class="fas fa-chart-bar fa-2x text-success"></i>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
-
-
-        <!-- Common Violation -->
-        <div class="col-md-3">
-
-            <div class="card shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <h6 class="text-muted">
-                        Most Common Violation
-                    </h6>
-
-
-                    @if($mostCommonViolation && $mostCommonViolation->violationType)
-
-                    <h5 class="fw-bold">
-                        {{ $mostCommonViolation->violationType->name }}
-                    </h5>
-
-                    @else
-
-                    <h5>
-                        No Data
-                    </h5>
-
-                    @endif
-
-
+        <!-- Most Common Violation -->
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body py-4 px-4 d-flex align-items-center justify-content-between">
+                    <div>
+                        <p class="text-muted small mb-2 text-uppercase fw-semibold">Most Common</p>
+                        <h4 class="fw-bold mb-0">
+                            @if($mostCommonViolation && $mostCommonViolation->violationType)
+                                {{ $mostCommonViolation->violationType->name }}
+                            @else
+                                No Data
+                            @endif
+                        </h4>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded-3 p-3">
+                        <i class="fas fa-exclamation-triangle fa-2x text-warning"></i>
+                    </div>
                 </div>
-
             </div>
-
         </div>
-
 
     </div>
 
+    <!-- Charts Row -->
+    <div class="row g-3 mb-4">
 
-
-    <!-- Analytics Placeholder -->
-    <div class="row mt-5">
-
-
-        <div class="col-md-8">
-
-            <div class="card shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <h5>
-                        <i class="fas fa-chart-column"></i>
+        <!-- Monthly Trends -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-chart-column me-2 text-primary"></i>
                         Monthly Violation Trends
                     </h5>
-
-
-                    <div class="text-center text-muted py-5">
-
-                        Chart will be displayed here.
-
-                    </div>
-
-
                 </div>
-
+                <div class="card-body">
+                    <div class="d-flex flex-column align-items-center justify-content-center text-muted py-5">
+                        <i class="fas fa-chart-line fa-3x mb-3 opacity-25"></i>
+                        <p class="mb-0">Chart will be displayed here.</p>
+                        <small class="text-muted">Connect your chart library to visualize monthly trends</small>
+                    </div>
+                </div>
             </div>
-
         </div>
 
-
-
-        <div class="col-md-4">
-
-
-            <div class="card shadow-sm border-0">
-
-
-                <div class="card-body">
-
-
-                    <h5>
-                        <i class="fas fa-chart-pie"></i>
+        <!-- Violation Distribution -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-3 pb-0">
+                    <h5 class="mb-0 fw-semibold">
+                        <i class="fas fa-chart-pie me-2 text-primary"></i>
                         Violation Distribution
                     </h5>
-
-
-                    <div class="text-center text-muted py-5">
-
-                        Chart will be displayed here.
-
-                    </div>
-
-
                 </div>
-
-
+                <div class="card-body">
+                    <div class="d-flex flex-column align-items-center justify-content-center text-muted py-5">
+                        <i class="fas fa-chart-pie fa-3x mb-3 opacity-25"></i>
+                        <p class="mb-0">Chart will be displayed here.</p>
+                        <small class="text-muted">Pie chart of violation types</small>
+                    </div>
+                </div>
             </div>
-
-
         </div>
-
 
     </div>
 
-
-
-
-    <!-- Report Generator -->
-
-    <div class="card shadow-sm border-0 mt-4">
-
-
+    <!-- Generate Report -->
+    <div class="card border-0 shadow-sm">
         <div class="card-body">
-
-
-            <h5>
-                <i class="fas fa-file-export"></i>
-                Generate Report
-            </h5>
-
-
-            <p class="text-muted">
-                Export traffic violation reports based on selected criteria.
-            </p>
-
-
-
-            <button class="btn btn-danger">
-                <i class="fas fa-file-pdf"></i>
-                Export PDF
-            </button>
-
-
-            <button class="btn btn-success">
-                <i class="fas fa-file-excel"></i>
-                Export Excel
-            </button>
-
-
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                <div>
+                    <h5 class="mb-1 fw-semibold">
+                        <i class="fas fa-file-export me-2 text-primary"></i>
+                        Generate Report
+                    </h5>
+                    <p class="text-muted mb-0">
+                        Export traffic violation reports based on selected criteria.
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-danger px-4">
+                        <i class="fas fa-file-pdf me-2"></i>
+                        Export PDF
+                    </button>
+                    <button class="btn btn-success px-4">
+                        <i class="fas fa-file-excel me-2"></i>
+                        Export Excel
+                    </button>
+                </div>
+            </div>
         </div>
-
-
     </div>
-
 
 </div>
 
