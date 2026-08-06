@@ -10,11 +10,8 @@ class Vehicle extends Model
         'driver_id',
         'plate_number',
         'vehicle_type',
-        'brand',
-        'model',
-        'color',
-        'engine_number',
-        'chassis_number',
+        'region_number',
+        'owner_name',
     ];
 
     /**

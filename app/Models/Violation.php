@@ -18,7 +18,7 @@ class Violation extends Model
         'latitude',
         'longitude',
         'remarks',
-        'status',
+        'ticket_image',
     ];
 
     /**

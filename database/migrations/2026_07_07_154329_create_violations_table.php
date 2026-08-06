@@ -49,6 +49,7 @@ return new class extends Migration
         $table->decimal('longitude', 10, 7)->nullable();
 
         $table->text('remarks')->nullable();
+        $table->string('ticket_image')->nullable();
 
         // Workflow Status
         $table->enum('status', [

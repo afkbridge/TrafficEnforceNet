@@ -10,32 +10,34 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('vehicles', function (Blueprint $table) {
-        $table->id();
+    {
+        Schema::create('vehicles', function (Blueprint $table) {
 
-        $table->foreignId('driver_id')
-              ->constrained()
-              ->cascadeOnUpdate()
-              ->cascadeOnDelete();
+            $table->id();
 
-        $table->string('plate_number')->unique();
+            $table->foreignId('driver_id')
+                ->constrained()
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
 
-        $table->string('vehicle_type');
+            $table->string('plate_number')->unique();
 
-        $table->string('brand');
+            // Optional fields (not present on POSO ticket)
+            $table->string('vehicle_type')->nullable();
 
-        $table->string('model');
+            $table->string('brand')->nullable();
 
-        $table->string('color')->nullable();
+            $table->string('model')->nullable();
 
-        $table->string('engine_number')->nullable();
+            $table->string('color')->nullable();
 
-        $table->string('chassis_number')->nullable();
+            $table->string('engine_number')->nullable();
 
-        $table->timestamps();
-    });
-}
+            $table->string('chassis_number')->nullable();
+
+            $table->timestamps();
+        });
+    }
 
     /**
      * Reverse the migrations.

@@ -89,10 +89,7 @@ class ViolationTypeSeeder extends Seeder
                 'description' => 'Unauthorized public utility vehicle'
             ],
 
-            [
-                'name' => 'Others',
-                'description' => 'Other traffic violations'
-            ],
+            
 
         ];
 
