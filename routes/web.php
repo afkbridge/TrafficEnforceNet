@@ -86,7 +86,6 @@ Route::get('/dashboard', function () {
     }
 
     return redirect('/');
-
 })->middleware('auth')->name('dashboard');
 
 /*
@@ -138,10 +137,10 @@ Route::middleware('auth')->group(function () {
     )->name('enforcers.resetPassword');
 
     /*
-    |--------------------------------------------------------------------------
-    | Enforcer Violation Module
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| Enforcer Violation Module
+|--------------------------------------------------------------------------
+*/
 
     Route::middleware('role:POSO Enforcer')->group(function () {
 
@@ -161,11 +160,29 @@ Route::middleware('auth')->group(function () {
         )->name('enforcer.violations.index');
 
         Route::get(
+            '/enforcer/violations/{id}',
+            [EnforcerViolationController::class, 'show']
+        )->name('enforcer.violations.show');
+
+        Route::get(
             '/enforcer/success',
             [EnforcerViolationController::class, 'success']
         )->name('enforcer.success');
-
     });
+
+
+    // --------------------------------------------------------------------------
+    // Enforcer Profile
+    // --------------------------------------------------------------------------
+
+    Route::get('/enforcer/profile', function () {
+        return view('enforcer.profile', [
+            'user' => auth()->user()
+        ]);
+    })->middleware(['auth', 'role:POSO Enforcer', 'prevent-back'])
+        ->name('enforcer.profile');
+
+
 
     /*
     |--------------------------------------------------------------------------
@@ -189,4 +206,4 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

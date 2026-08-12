@@ -19,44 +19,35 @@ class AuthenticatedSessionController extends Controller
         return view('auth.login');
     }
 
-
     /**
      * Handle an incoming authentication request.
      */
-   public function store(LoginRequest $request)
-{
-    $request->authenticate();
+    public function store(LoginRequest $request)
+    {
+        $request->authenticate();
 
-    $request->session()->regenerate();
+        $request->session()->regenerate();
 
+        $user = auth()->user();
 
-    $user = auth()->user();
+        // Administrator
+        if ($user->role->name === 'Administrator') {
+            return redirect()->route('admin.dashboard');
+        }
 
+        // POSO Enforcer
+        if ($user->role->name === 'POSO Enforcer') {
+            return redirect()->route('enforcer.dashboard');
+        }
 
-    if ($user->role->name === 'Administrator') {
+        // BPLO Personnel
+        if ($user->role->name === 'BPLO Personnel') {
+            return redirect()->route('bplo.dashboard');
+        }
 
-        return redirect()->route('admin.dashboard');
-
+        // Fallback
+        return redirect('/');
     }
-
-
-    if ($user->role->name === 'POSO Enforcer') {
-
-        return redirect()->route('enforcer.dashboard');
-
-    }
-
-
-    if ($user->role->name === 'BPLO Personnel') {
-
-        return redirect()->route('bplo.dashboard');
-
-    }
-
-
-    return redirect('/');
-}
-
 
     /**
      * Destroy an authenticated session.
@@ -69,6 +60,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // Redirect every account type back to Office Login
+        return redirect()->route('login');
     }
 }
+

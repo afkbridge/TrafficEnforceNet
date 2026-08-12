@@ -96,7 +96,7 @@
                 <div>
 
                     <h4 class="font-bold text-[#0B2545]">
-                        My Violations
+                        Recorded Violations
                     </h4>
 
                     <p class="text-sm text-gray-500 mt-1">

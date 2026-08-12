@@ -19,6 +19,7 @@ class Violation extends Model
         'longitude',
         'remarks',
         'ticket_image',
+        'status',
     ];
 
     /**
@@ -29,7 +30,7 @@ class Violation extends Model
         return $this->belongsTo(Driver::class);
     }
 
-    
+
     /**
      * Vehicle involved.
      */
