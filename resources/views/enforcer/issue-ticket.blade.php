@@ -866,6 +866,6 @@
 
     </div>
 
-@vite('resources/js/enforcer/issue-ticket.js') 
+@vite('resources/js/app.js')
 
 @endsection

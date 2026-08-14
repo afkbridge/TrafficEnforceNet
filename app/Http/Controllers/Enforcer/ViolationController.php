@@ -15,6 +15,12 @@ use App\Models\ViolationImage;
 
 class ViolationController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | VIOLATIONS LIST
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request)
     {
         $query = Violation::with([
@@ -24,17 +30,32 @@ class ViolationController extends Controller
         ])
             ->where('user_id', Auth::id());
 
-        // TODAY FILTER
+        /*
+        |--------------------------------------------------------------------------
+        | TODAY FILTER
+        |--------------------------------------------------------------------------
+        */
+
         if ($request->filter === 'today') {
             $query->whereDate(
                 'violation_date',
-                now()->setTimezone('Asia/Manila')->toDateString()
+                now()
+                    ->setTimezone('Asia/Manila')
+                    ->toDateString()
             );
         }
 
-        // PICK A DATE FILTER
+        /*
+        |--------------------------------------------------------------------------
+        | PICK A DATE FILTER
+        |--------------------------------------------------------------------------
+        */
+
         if ($request->filled('date')) {
-            $query->whereDate('violation_date', $request->date);
+            $query->whereDate(
+                'violation_date',
+                $request->date
+            );
         }
 
         $violations = $query
@@ -48,6 +69,12 @@ class ViolationController extends Controller
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE / ISSUE TICKET PAGE
+    |--------------------------------------------------------------------------
+    */
+
     public function create()
     {
         $violationTypes = ViolationType::orderBy('name')->get();
@@ -58,8 +85,20 @@ class ViolationController extends Controller
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | STORE VIOLATION
+    |--------------------------------------------------------------------------
+    */
+
     public function store(Request $request)
     {
+        /*
+        |--------------------------------------------------------------------------
+        | VALIDATION
+        |--------------------------------------------------------------------------
+        */
+
         $request->validate([
             'ticket_number' => [
                 'nullable',
@@ -76,6 +115,14 @@ class ViolationController extends Controller
             'plate_number' => 'required|string|max:50',
 
             'violation_type_id' => 'required',
+
+            'location' => 'nullable|string|max:500',
+
+            'latitude' => 'nullable|numeric',
+
+            'longitude' => 'nullable|numeric',
+
+            'remarks' => 'nullable|string',
 
             'ticket_image' => 'nullable|image|max:5120',
 
@@ -159,10 +206,11 @@ class ViolationController extends Controller
             $newViolationType = ViolationType::create([
                 'name' => $request->other_violation,
                 'description' =>
-                'Added by enforcer during citation',
+                    'Added by enforcer during citation',
             ]);
 
             $violationTypeId = $newViolationType->id;
+
         } else {
 
             $violationTypeId =
@@ -177,50 +225,111 @@ class ViolationController extends Controller
 
         $violation = Violation::create([
 
+            /*
+            |--------------------------------------------------------------------------
+            | TICKET NUMBER
+            |--------------------------------------------------------------------------
+            */
+
             'ticket_number' =>
-            $request->ticket_number
-                ??
+                $request->ticket_number
+                    ??
                 'TN-' . strtoupper(Str::random(8)),
 
+            /*
+            |--------------------------------------------------------------------------
+            | DRIVER / VEHICLE
+            |--------------------------------------------------------------------------
+            */
+
             'driver_id' =>
-            $driver->id,
+                $driver->id,
 
             'vehicle_id' =>
-            $vehicle->id,
+                $vehicle->id,
 
             'violation_type_id' =>
-            $violationTypeId,
+                $violationTypeId,
+
+            /*
+            |--------------------------------------------------------------------------
+            | ENFORCER
+            |--------------------------------------------------------------------------
+            */
 
             'user_id' =>
-            Auth::id(),
+                Auth::id(),
+
+            /*
+            |--------------------------------------------------------------------------
+            | DATE / TIME
+            |--------------------------------------------------------------------------
+            */
 
             'violation_date' =>
-            now()
-                ->setTimezone('Asia/Manila')
-                ->format('Y-m-d'),
+                now()
+                    ->setTimezone('Asia/Manila')
+                    ->format('Y-m-d'),
 
             'violation_time' =>
-            now()
-                ->setTimezone('Asia/Manila')
-                ->format('H:i:s'),
+                now()
+                    ->setTimezone('Asia/Manila')
+                    ->format('H:i:s'),
+
+            /*
+            |--------------------------------------------------------------------------
+            | LOCATION / GPS
+            |--------------------------------------------------------------------------
+            |
+            | Location is required by the database.
+            | If GPS/address is unavailable, we save a fallback value
+            | instead of NULL so the ticket can still be recorded.
+            |
+            */
 
             'location' =>
-            $request->location,
+                $request->location
+                    ??
+                'Location not available',
 
             'latitude' =>
-            $request->latitude,
+                $request->latitude
+                    ??
+                null,
 
             'longitude' =>
-            $request->longitude,
+                $request->longitude
+                    ??
+                null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | REMARKS
+            |--------------------------------------------------------------------------
+            */
 
             'remarks' =>
-            $request->remarks,
+                $request->remarks
+                    ??
+                null,
+
+            /*
+            |--------------------------------------------------------------------------
+            | TICKET IMAGE
+            |--------------------------------------------------------------------------
+            */
 
             'ticket_image' =>
-            $ticketImagePath,
+                $ticketImagePath,
+
+            /*
+            |--------------------------------------------------------------------------
+            | STATUS
+            |--------------------------------------------------------------------------
+            */
 
             'status' =>
-            'Pending',
+                'Pending',
         ]);
 
         /*
@@ -243,10 +352,10 @@ class ViolationController extends Controller
 
                 ViolationImage::create([
                     'violation_id' =>
-                    $violation->id,
+                        $violation->id,
 
                     'image_path' =>
-                    $imagePath,
+                        $imagePath,
                 ]);
             }
         }
@@ -264,6 +373,13 @@ class ViolationController extends Controller
                 'Traffic citation successfully recorded.'
             );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SHOW VIOLATION
+    |--------------------------------------------------------------------------
+    */
+
     public function show(string $id)
     {
         $violation = Violation::with([
@@ -273,7 +389,10 @@ class ViolationController extends Controller
             'images',
             'user'
         ])
-            ->where('user_id', Auth::id())
+            ->where(
+                'user_id',
+                Auth::id()
+            )
             ->findOrFail($id);
 
         return view(
@@ -282,10 +401,22 @@ class ViolationController extends Controller
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | EDIT
+    |--------------------------------------------------------------------------
+    */
+
     public function edit(string $id)
     {
         //
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
 
     public function update(
         Request $request,
@@ -294,13 +425,27 @@ class ViolationController extends Controller
         //
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | DELETE
+    |--------------------------------------------------------------------------
+    */
+
     public function destroy(string $id)
     {
         //
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | SUCCESS PAGE
+    |--------------------------------------------------------------------------
+    */
+
     public function success()
     {
-        return view('enforcer.success');
+        return view(
+            'enforcer.success'
+        );
     }
 }
