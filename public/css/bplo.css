@@ -814,52 +814,117 @@ body {
 
 
 
-/* =========================================================
-   TABLE
-========================================================= */
-
 .violation-table-wrapper {
+    width: 100%;
     overflow-x: auto;
+    overflow-y: hidden;
 }
-
 
 .violation-table {
     width: 100%;
+    min-width: 1120px;
 
     border-collapse: collapse;
+    table-layout: auto;
 }
-
 
 .violation-table thead {
     background: #f1f5f9;
 }
 
-
 .violation-table th {
-    padding: 13px 17px;
+    padding: 11px 9px;
 
     color: #0f2742;
 
-    font-size: 12px;
-
+    font-size: 11px;
     font-weight: 700;
 
     text-align: left;
+    white-space: nowrap;
 }
 
-
 .violation-table td {
-    padding: 14px 17px;
+    padding: 11px 9px;
 
-    border-bottom:
-        1px solid #edf1f5;
+    border-bottom: 1px solid #edf1f5;
 
     color: #475569;
 
-    font-size: 12px;
+    font-size: 11px;
 
     vertical-align: middle;
 }
+
+/* Ticket ID */
+.violation-table th:nth-child(1),
+.violation-table td:nth-child(1) {
+    min-width: 100px;
+}
+
+/* Violator */
+.violation-table th:nth-child(2),
+.violation-table td:nth-child(2) {
+    min-width: 115px;
+}
+
+/* Vehicle */
+.violation-table th:nth-child(3),
+.violation-table td:nth-child(3) {
+    min-width: 105px;
+}
+
+/* Violation Type */
+.violation-table th:nth-child(4),
+.violation-table td:nth-child(4) {
+    min-width: 115px;
+}
+
+/* Officer */
+.violation-table th:nth-child(5),
+.violation-table td:nth-child(5) {
+    min-width: 100px;
+}
+
+/* Date & Time */
+.violation-table th:nth-child(6),
+.violation-table td:nth-child(6) {
+    min-width: 105px;
+    white-space: nowrap;
+}
+
+/* Location */
+.violation-table th:nth-child(7),
+.violation-table td:nth-child(7) {
+    min-width: 100px;
+    max-width: 135px;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* Remarks */
+.violation-table th:nth-child(8),
+.violation-table td:nth-child(8) {
+    min-width: 105px;
+    max-width: 145px;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* Status */
+.violation-table th:nth-child(9),
+.violation-table td:nth-child(9) {
+    min-width: 165px;
+}
+
+/* Action */
+.violation-table th:nth-child(10),
+.violation-table td:nth-child(10) {
+    min-width: 105px;
+}
+
 
 
 
@@ -1742,4 +1807,39 @@ body.modal-open {
 
     color: #0877c9;
     font-size: 20px;
+}
+/* =========================================================
+   COMPACT TABLE CONTROLS
+========================================================= */
+
+.status-controls,
+.table-actions {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.status-select {
+    min-width: 95px;
+    height: 31px;
+
+    padding: 0 7px;
+
+    font-size: 11px;
+}
+
+.save-status-btn {
+    height: 31px;
+
+    padding: 0 10px;
+
+    font-size: 10px;
+}
+
+.view-violation-btn,
+.copy-violation-btn {
+    height: 28px;
+
+    padding: 0 9px;
+
+    font-size: 10px;
 }
