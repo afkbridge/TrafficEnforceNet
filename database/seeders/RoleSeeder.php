@@ -12,19 +12,36 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::create([
-            'name' => 'Administrator',
-            'description' => 'System administrator'
-        ]);
+        Role::updateOrCreate(
+            ['id' => 1],
+            [
+                'name' => 'Administrator',
+                'description' => 'POSO administrator'
+            ]
+        );
 
-        Role::create([
-            'name' => 'POSO Enforcer',
-            'description' => 'Traffic enforcement officer'
-        ]);
+        Role::updateOrCreate(
+            ['id' => 2],
+            [
+                'name' => 'POSO Enforcer',
+                'description' => 'Traffic enforcement officer'
+            ]
+        );
 
-        Role::create([
-            'name' => 'BPLO Personnel',
-            'description' => 'Business permit and licensing office personnel'
-        ]);
+        Role::updateOrCreate(
+            ['id' => 3],
+            [
+                'name' => 'BPLO Personnel',
+                'description' => 'Business permit and licensing office personnel'
+            ]
+        );
+
+        Role::updateOrCreate(
+            ['id' => 4],
+            [
+                'name' => 'Super Administrator',
+                'description' => 'System account and user management administrator'
+            ]
+        );
     }
 }

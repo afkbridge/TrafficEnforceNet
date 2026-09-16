@@ -15,6 +15,10 @@ use App\Http\Controllers\Enforcer\ViolationController as EnforcerViolationContro
 use App\Http\Controllers\BPLO\DashboardController as BPLODashboardController;
 use App\Http\Controllers\BPLO\ViolationController as BPLOViolationController;
 
+use App\Http\Controllers\SuperAdmin\UserManagementController;
+
+use App\Http\Controllers\Admin\ViolationTypeController;
+use App\Http\Controllers\Admin\SettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +51,17 @@ Route::get('/office', function () {
 Route::get('/admin/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'role:Administrator', 'prevent-back'])
     ->name('admin.dashboard');
+
+
+/*
+|--------------------------------------------------------------------------
+| Super Admin - User Management
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/super-admin/users', [UserManagementController::class, 'index'])
+    ->middleware(['auth', 'role:Super Administrator', 'prevent-back'])
+    ->name('super-admin.users');
 
 
 /*
@@ -108,6 +123,10 @@ Route::get('/dashboard', function () {
         return redirect()->route('bplo.dashboard');
     }
 
+    if ($user->role->name === 'Super Administrator') {
+        return redirect()->route('super-admin.users');
+    }
+
     return redirect('/');
 
 })->middleware('auth')->name('dashboard');
@@ -144,12 +163,37 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('violations', ViolationController::class);
 
+    Route::get('/admin/settings', function () {
+        return view('admin.settings.index');
+    })->name('admin.settings');
+
+    Route::put('/admin/settings/account', [SettingsController::class, 'updateAccount'])
+        ->name('admin.settings.account');
+
+    Route::put('/admin/settings/password', [SettingsController::class, 'updatePassword'])
+        ->name('admin.settings.password');
+
+    Route::get('/admin/settings/violation-types', [ViolationTypeController::class, 'index'])
+        ->name('admin.violation-types.index');
+
+    Route::post('/admin/settings/violation-types', [ViolationTypeController::class, 'store'])
+        ->name('admin.violation-types.store');
+
+    Route::put('/admin/settings/violation-types/{violationType}', [ViolationTypeController::class, 'update'])
+        ->name('admin.violation-types.update');
+
+    Route::delete('/admin/settings/violation-types/{violationType}', [ViolationTypeController::class, 'destroy'])
+        ->name('admin.violation-types.destroy');
+
+
 
     /*
-    |--------------------------------------------------------------------------
-    | Enforcer Management
-    |--------------------------------------------------------------------------
-    */
+
+   
+|--------------------------------------------------------------------------
+| Enforcer Management
+|--------------------------------------------------------------------------
+*/
 
     Route::resource('enforcers', EnforcerController::class);
 
@@ -162,6 +206,60 @@ Route::middleware('auth')->group(function () {
         '/enforcers/{enforcer}/reset-password',
         [EnforcerController::class, 'resetPassword']
     )->name('enforcers.resetPassword');
+
+
+    /*
+|--------------------------------------------------------------------------
+| Administrator & BPLO User Management
+|--------------------------------------------------------------------------
+*/
+
+    /*
+|--------------------------------------------------------------------------
+| Create Administrator / BPLO Account
+|--------------------------------------------------------------------------
+*/
+
+    Route::post(
+        '/users/staff',
+        [EnforcerController::class, 'storeStaff']
+    )->name('users.staff.store');
+
+
+    /*
+|--------------------------------------------------------------------------
+| Reset Administrator / BPLO Password
+|--------------------------------------------------------------------------
+*/
+
+    Route::put(
+        '/users/{user}/reset-password',
+        [EnforcerController::class, 'resetStaffPassword']
+    )->name('users.staff.resetPassword');
+
+
+    /*
+|--------------------------------------------------------------------------
+| Enable / Disable Administrator / BPLO Account
+|--------------------------------------------------------------------------
+*/
+
+    Route::patch(
+        '/users/{user}/toggle-status',
+        [EnforcerController::class, 'toggleStaffStatus']
+    )->name('users.staff.toggleStatus');
+
+
+    /*
+|--------------------------------------------------------------------------
+| Delete Administrator / BPLO Account
+|--------------------------------------------------------------------------
+*/
+
+    Route::delete(
+        '/users/{user}',
+        [EnforcerController::class, 'destroyStaff']
+    )->name('users.staff.destroy');
 
 
     /*
@@ -196,6 +294,16 @@ Route::middleware('auth')->group(function () {
             '/enforcer/success',
             [EnforcerViolationController::class, 'success']
         )->name('enforcer.success');
+
+        Route::post('/enforcer/heartbeat', function () {
+            auth()->user()->update([
+                'last_seen_at' => now(),
+            ]);
+
+            return response()->json([
+                'success' => true,
+            ]);
+        })->name('enforcer.heartbeat');
     });
 
 
@@ -241,4 +349,5 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
+require __DIR__ . '/auth.php';
 require __DIR__ . '/auth.php';

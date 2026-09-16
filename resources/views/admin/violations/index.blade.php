@@ -6,60 +6,82 @@
 
     <div class="container-fluid">
 
-
-        <!-- PAGE HEADER -->
-        <!-- PAGE HEADER -->
+        
+        {{-- PAGE HEADER --}}
         <div class="mb-4 d-flex justify-content-between align-items-center">
-
             <div>
-                <h2 class="fw-bold">
+                <h2 class="fw-bold mb-1">
                     Violation Records
                 </h2>
 
-                <p class="text-muted">
+                <p class="text-muted mb-0">
                     Monitor and review recorded traffic violations.
                 </p>
             </div>
 
-
             <div>
-
                 <a href="{{ route('admin.violations.export', [
-                    'filter' => request('filter'),
-                    'date' => request('date'),
+                    'search' => request('search'),
+                    'status' => request('status'),
+                    'date_from' => request('date_from'),
+                    'date_to' => request('date_to'),
                 ]) }}"
                     class="btn btn-success">
 
-                    <i class="fa-solid fa-file-excel"></i>
+                    <i class="fa-solid fa-file-excel me-1"></i>
                     Export Excel
 
                 </a>
-
             </div>
-
         </div>
 
-        <div class="card shadow-sm mb-3">
 
+        {{-- FILTER CARD --}}
+        <div class="card shadow-sm mb-4">
             <div class="card-body">
 
                 <form method="GET" action="{{ route('violations.index') }}" class="row g-3 align-items-end">
 
+                    {{-- SEARCH --}}
+                    <div class="col-md-4">
 
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Filter
+                        <label for="search" class="form-label fw-semibold">
+                            Search
                         </label>
 
-                        <select name="filter" class="form-select">
+                        <div class="input-group">
+
+                            <span class="input-group-text bg-white">
+                                <i class="fa-solid fa-magnifying-glass text-muted"></i>
+                            </span>
+
+                            <input type="text" id="search" name="search" class="form-control"
+                                placeholder="Ticket, driver, license, or plate..." value="{{ request('search') }}">
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- STATUS --}}
+                    <div class="col-md-2">
+
+                        <label for="status" class="form-label fw-semibold">
+                            Status
+                        </label>
+
+                        <select name="status" id="status" class="form-select">
 
                             <option value="">
-                                All Records
+                                All Statuses
                             </option>
 
-                            <option value="today" {{ request('filter') == 'today' ? 'selected' : '' }}>
-                                Today
+                            <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>
+                                Pending
+                            </option>
+
+                            <option value="Settled" {{ request('status') == 'Settled' ? 'selected' : '' }}>
+                                Settled
                             </option>
 
                         </select>
@@ -67,61 +89,66 @@
                     </div>
 
 
+                    {{-- FROM DATE --}}
+                    <div class="col-md-2">
 
-                    <div class="col-md-3">
-
-                        <label class="form-label">
-                            Specific Date
+                        <label for="date_from" class="form-label fw-semibold">
+                            From Date
                         </label>
 
-                        <input type="date" name="date" class="form-control" value="{{ request('date') }}">
+                        <input type="date" name="date_from" id="date_from" class="form-control"
+                            value="{{ request('date_from') }}">
 
                     </div>
 
 
-
+                    {{-- TO DATE --}}
                     <div class="col-md-2">
 
-                        <button class="btn btn-primary w-100">
+                        <label for="date_to" class="form-label fw-semibold">
+                            To Date
+                        </label>
 
-                            <i class="fa-solid fa-filter"></i>
+                        <input type="date" name="date_to" id="date_to" class="form-control"
+                            value="{{ request('date_to') }}">
+
+                    </div>
+
+
+                    {{-- BUTTONS --}}
+                    <div class="col-md-2 d-flex gap-2">
+
+                        <button type="submit" class="btn btn-primary flex-fill">
+
+                            <i class="fa-solid fa-filter me-1"></i>
                             Filter
 
                         </button>
 
-                    </div>
+                        <a href="{{ route('violations.index') }}" class="btn btn-light border">
 
-
-
-                    <div class="col-md-2">
-
-                        <a href="{{ route('violations.index') }}" class="btn btn-light w-100">
-
-                            Reset
+                            <i class="fa-solid fa-rotate-left"></i>
 
                         </a>
 
                     </div>
 
-
                 </form>
 
             </div>
-
         </div>
 
-        <!-- TABLE CARD -->
+
+        {{-- TABLE CARD --}}
         <div class="card shadow-sm">
 
             <div class="card-body">
 
-
                 <div class="table-responsive">
 
-                    <table class="table table-hover align-middle">
+                    <table class="table table-hover align-middle mb-0">
 
-
-                        <thead>
+                        <thead class="table-light">
 
                             <tr>
 
@@ -134,11 +161,7 @@
                                 </th>
 
                                 <th>
-                                    Address
-                                </th>
-
-                                <th>
-                                    Vehicle
+                                    Plate No.
                                 </th>
 
                                 <th>
@@ -157,7 +180,7 @@
                                     Status
                                 </th>
 
-                                <th>
+                                <th class="text-center">
                                     Action
                                 </th>
 
@@ -166,123 +189,156 @@
                         </thead>
 
 
-
                         <tbody>
-
 
                             @forelse($violations as $violation)
                                 <tr>
 
+                                    {{-- TICKET --}}
+                                    <td class="fw-semibold">
 
-                                    <td>
                                         {{ $violation->ticket_number }}
+
                                     </td>
 
 
-
+                                    {{-- DRIVER --}}
                                     <td>
+
                                         {{ $violation->driver->full_name ?? 'N/A' }}
+
                                     </td>
 
-                                    <td>
-                                        {{ $violation->driver->address ?? 'N/A' }}
-                                    </td>
 
+                                    {{-- PLATE --}}
                                     <td>
 
                                         @if ($violation->vehicle)
-                                            {{ $violation->vehicle->plate_number }}
+                                            <span class="fw-semibold">
+                                                {{ $violation->vehicle->plate_number }}
+                                            </span>
                                         @else
-                                            N/A
+                                            <span class="text-muted">
+                                                N/A
+                                            </span>
                                         @endif
 
                                     </td>
 
 
-
+                                    {{-- VIOLATION --}}
                                     <td>
 
-                                        @if ($violation->violationType)
-                                            {{ $violation->violationType->name }}
-                                        @else
-                                            N/A
-                                        @endif
+                                        {{ $violation->violationType->name ?? 'N/A' }}
 
                                     </td>
 
 
-
-                                    <td>
-                                        {{ $violation->location }}
-                                    </td>
-
-
-
-                                    <td>
-                                        {{ $violation->violation_date }}
-                                    </td>
-
-
-
+                                    {{-- LOCATION --}}
                                     <td>
 
-                                        <span class="badge bg-warning">
+                                        <span title="{{ $violation->location }}">
 
-                                            {{ $violation->status }}
+                                            {{ \Illuminate\Support\Str::limit($violation->location, 30) }}
 
                                         </span>
 
                                     </td>
 
 
-
+                                    {{-- DATE --}}
                                     <td>
 
-                                        <a href="{{ route('violations.show', $violation->id) }}"
-                                            class="btn btn-sm btn-primary">
-
-                                            View
-
-                                        </a>
+                                        {{ \Carbon\Carbon::parse($violation->violation_date)->format('M d, Y') }}
 
                                     </td>
 
 
+                                    {{-- STATUS --}}
+                                    <td>
+
+                                        @php
+                                            $status = strtolower($violation->status ?? '');
+                                        @endphp
+
+                                        @if ($status === 'pending')
+                                            <span class="badge bg-warning text-dark">
+                                                Pending
+                                            </span>
+                                        @elseif($status === 'settled')
+                                            <span class="badge bg-success">
+                                                Settled
+                                            </span>
+                                        @else
+                                            <span class="badge bg-secondary">
+                                                {{ $violation->status ?? 'Unknown' }}
+                                            </span>
+                                        @endif
+
+                                    </td>
+
+
+                                    {{-- ACTION --}}
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center gap-1">
+                                            <a href="{{ route('violations.show', $violation->id) }}"
+                                                class="btn btn-sm btn-primary" title="View violation">
+                                                <i class="fa-solid fa-eye"></i>
+                                                <span class="d-none d-lg-inline ms-1">
+                                                    View
+                                                </span>
+                                            </a>
+                                        </div>
+                                    </td>
+
                                 </tr>
-
-
 
                             @empty
 
-
                                 <tr>
 
-                                    <td colspan="9" class="text-center">
+                                    <td colspan="8" class="text-center py-5">
 
-                                        No violation records found.
+                                        <div class="text-muted">
+
+                                            <i class="fa-solid fa-file-circle-xmark fa-2x mb-3"></i>
+
+                                            <div class="fw-semibold">
+                                                No violation records found.
+                                            </div>
+
+                                            <small>
+                                                Try adjusting your search or filters.
+                                            </small>
+
+                                        </div>
 
                                     </td>
 
                                 </tr>
                             @endforelse
 
-
                         </tbody>
 
-
                     </table>
-
 
                 </div>
 
 
+                {{-- PAGINATION --}}
+                @if ($violations->hasPages())
+                    <div class="mt-4 d-flex justify-content-center">
+
+                        {{ $violations->links() }}
+
+                    </div>
+                @endif
+
             </div>
 
-
         </div>
-
+        
 
     </div>
-
 
 @endsection
