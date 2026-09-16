@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\ViolationsExport;
 use App\Http\Controllers\Controller;
 use App\Models\Violation;
+use App\Models\ViolationType;
 use Illuminate\Http\Request;
-use App\Exports\ViolationsExport;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ViolationController extends Controller
@@ -16,42 +17,67 @@ class ViolationController extends Controller
             'driver',
             'vehicle',
             'violationType',
-            'user'
+            'user',
         ]);
 
+        // Search by ticket number, driver name,
+        // license number, or vehicle plate number.
+        if ($request->filled('search')) {
+            $search = $request->search;
 
-        // Filter today's violations
-        if ($request->filter == 'today') {
+            $query->where(function ($q) use ($search) {
+                $q->where('ticket_number', 'like', '%' . $search . '%')
+                    ->orWhereHas('driver', function ($driverQuery) use ($search) {
+                        $driverQuery
+                            ->where('first_name', 'like', '%' . $search . '%')
+                            ->orWhere('middle_name', 'like', '%' . $search . '%')
+                            ->orWhere('last_name', 'like', '%' . $search . '%')
+                            ->orWhere('license_number', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
+                        $vehicleQuery->where(
+                            'plate_number',
+                            'like',
+                            '%' . $search . '%'
+                        );
+                    });
+            });
+        }
 
+        // Filter by status.
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter from date.
+        if ($request->filled('date_from')) {
             $query->whereDate(
                 'violation_date',
-                today()
+                '>=',
+                $request->date_from
             );
         }
 
-
-        // Filter specific date
-        if ($request->date) {
-
+        // Filter to date.
+        if ($request->filled('date_to')) {
             $query->whereDate(
                 'violation_date',
-                $request->date
+                '<=',
+                $request->date_to
             );
         }
 
-
+        // Get violation records with pagination.
         $violations = $query
-            ->latest()
-            ->get();
-
+            ->latest('violation_date')
+            ->paginate(10)
+            ->withQueryString();
 
         return view(
             'admin.violations.index',
             compact('violations')
         );
     }
-
-
 
     public function show(string $id)
     {
@@ -60,19 +86,14 @@ class ViolationController extends Controller
             'vehicle',
             'violationType',
             'user',
-            'images'
-        ])
-            ->findOrFail($id);
-
+            'images',
+        ])->findOrFail($id);
 
         return view(
             'admin.violations.show',
             compact('violation')
         );
     }
-
-
-
 
     public function edit($id)
     {
@@ -81,13 +102,10 @@ class ViolationController extends Controller
             'vehicle',
             'violationType',
             'user',
-            'images'
-        ])
-            ->findOrFail($id);
+            'images',
+        ])->findOrFail($id);
 
-
-        $violationTypes = \App\Models\ViolationType::all();
-
+        $violationTypes = ViolationType::all();
 
         return view(
             'admin.violations.edit',
@@ -98,96 +116,61 @@ class ViolationController extends Controller
         );
     }
 
-
-
-
-
     public function update(Request $request, $id)
     {
         $violation = Violation::with([
             'driver',
-            'vehicle'
-        ])
-            ->findOrFail($id);
-
-
+            'vehicle',
+        ])->findOrFail($id);
 
         $request->validate([
-
             // Violation validation
             'violation_type_id' => 'required',
             'status' => 'required',
-
 
             // Driver validation
             'first_name' => 'required',
             'last_name' => 'required',
             'license_number' => 'required',
             'address' => 'required',
-
         ]);
 
-
-
-        // Update violation record
+        // Update violation record.
         $violation->update([
-
             'violation_type_id' => $request->violation_type_id,
             'status' => $request->status,
-            'remarks' => $request->remarks
-
+            'remarks' => $request->remarks,
         ]);
 
-
-
-
-        // Update driver information
+        // Update driver information.
         if ($violation->driver) {
-
             $violation->driver->update([
-
                 'first_name' => $request->first_name,
-
                 'middle_name' => $request->middle_name,
-
                 'last_name' => $request->last_name,
-
                 'license_number' => $request->license_number,
-
                 'address' => $request->address,
-
                 'contact_number' => $request->contact_number,
-
-                'license_type' => $request->license_type
-
+                'license_type' => $request->license_type,
             ]);
         }
 
-
-
         return redirect()
-
             ->route('violations.show', $id)
-
             ->with(
                 'success',
                 'Violation updated successfully.'
             );
     }
 
-
-
-
-
-    /**
-     * Export violations to Excel
-     */
     public function export(Request $request)
     {
         return Excel::download(
             new ViolationsExport(
-                $request->filter,
-                $request->date
+                $request->search,
+                $request->status,
+                $request->date_from,
+                $request->date_to
             ),
             'traffic_violation_records.xlsx'
         );

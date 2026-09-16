@@ -29,32 +29,32 @@
 
         <li class="{{ request()->routeIs('violations.index') ? 'active' : '' }}">
             <a href="{{ route('violations.index') }}">
-             <i class="fa-solid fa-file-lines"></i>
-            <span>Violation Records</span>
-             </a>
+                <i class="fa-solid fa-file-lines"></i>
+                <span>Violation Records</span>
+            </a>
         </li>
 
         <li class="{{ request()->routeIs('enforcers.*') ? 'active' : '' }}">
-             <a href="{{ route('enforcers.index') }}">
-             <i class="fas fa-user-shield"></i>
-             <span>Enforcer Management</span>
-              </a>
+            <a href="{{ route('enforcers.index') }}">
+                <i class="fas fa-user-shield"></i>
+                <span>Enforcer Management</span>
+            </a>
         </li>
 
-       <li class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
+        <li class="{{ request()->routeIs('admin.reports.*') ? 'active' : '' }}">
 
-    <a href="{{ route('admin.reports.index') }}">
+            <a href="{{ route('admin.reports.index') }}">
 
-        <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-chart-bar"></i>
 
-        <span>Reports</span>
+                <span>Reports</span>
 
-    </a>
+            </a>
 
-</li>
+        </li>
 
-        <li>
-            <a href="#">
+        <li class="{{ request()->routeIs('admin.settings') ? 'active' : '' }}">
+            <a href="{{ route('admin.settings') }}">
                 <i class="fas fa-gear"></i>
                 <span>Settings</span>
             </a>

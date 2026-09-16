@@ -23,73 +23,93 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="row mb-4">
+        <div class="row justify-content-center g-3 mb-4">
 
-            <div class="col-lg-3 col-md-6 mb-3">
+            <!-- Total Enforcers -->
+            <div class="col-xl-3 col-lg-3 col-md-5 col-sm-6">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card-body py-3 px-4">
+
+                        <div class="d-flex align-items-center justify-content-between">
+
                             <div>
-                                <h6 class="text-muted mb-1">Total Enforcers</h6>
-                                <h2 class="fw-bold mb-0">{{ $totalEnforcers }}</h2>
+                                <div class="text-muted small fw-semibold mb-1">
+                                    Total Enforcers
+                                </div>
+
+                                <h3 class="fw-bold mb-0 text-dark">
+                                    {{ $totalEnforcers }}
+                                </h3>
                             </div>
-                            <div class="fs-1 text-primary">
-                                <i class="fas fa-users"></i>
+
+                            <div class="rounded-3 bg-primary bg-opacity-10 p-3">
+                                <i class="fas fa-users text-primary fs-5"></i>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6 mb-3">
+
+            <!-- Online Enforcers -->
+            <div class="col-xl-3 col-lg-3 col-md-5 col-sm-6">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card-body py-3 px-4">
+
+                        <div class="d-flex align-items-center justify-content-between">
+
                             <div>
-                                <h6 class="text-muted mb-1">Active Employees</h6>
-                                <h2 class="fw-bold text-success mb-0">{{ $activeEnforcers }}</h2>
+                                <div class="text-muted small fw-semibold mb-1">
+                                    Online Enforcers
+                                </div>
+
+                                <h3 class="fw-bold mb-0 text-success">
+                                    {{ $onlineEnforcers }}
+                                </h3>
                             </div>
-                            <div class="fs-1 text-success">
-                                <i class="fas fa-user-check"></i>
+
+                            <div class="rounded-3 bg-success bg-opacity-10 p-3">
+                                <i class="fas fa-circle text-success fs-5"></i>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-1">Inactive Employees</h6>
-                                <h2 class="fw-bold text-danger mb-0">{{ $inactiveEnforcers }}</h2>
-                            </div>
-                            <div class="fs-1 text-danger">
-                                <i class="fas fa-user-times"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            <div class="col-lg-3 col-md-6 mb-3">
+            <!-- Offline Enforcers -->
+            <div class="col-xl-3 col-lg-3 col-md-5 col-sm-6">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
+                    <div class="card-body py-3 px-4">
+
+                        <div class="d-flex align-items-center justify-content-between">
+
                             <div>
-                                <h6 class="text-muted mb-1">Online Enforcers</h6>
-                                <h2 class="fw-bold text-info mb-0">{{ $onlineEnforcers }}</h2>
+                                <div class="text-muted small fw-semibold mb-1">
+                                    Offline Enforcers
+                                </div>
+
+                                <h3 class="fw-bold mb-0 text-secondary">
+                                    {{ $offlineEnforcers }}
+                                </h3>
                             </div>
-                            <div class="fs-1 text-info">
-                                <i class="fas fa-circle"></i>
+
+                            <div class="rounded-3 bg-secondary bg-opacity-10 p-3">
+                                <i class="fas fa-circle text-secondary fs-5"></i>
                             </div>
+
                         </div>
+
                     </div>
                 </div>
             </div>
 
         </div>
+
 
         <!-- Search & Filters -->
         <div class="card shadow-sm mb-4">
@@ -259,11 +279,20 @@
                                     </td>
 
                                     <td>
-
-                                        <span class="badge bg-secondary">
-                                            Offline
-                                        </span>
-
+                                        @if (
+                                            $enforcer->user &&
+                                                $enforcer->user->last_seen_at &&
+                                                $enforcer->user->last_seen_at->greaterThanOrEqualTo(now()->subMinute()))
+                                            <span class="badge rounded-pill bg-success px-3 py-2">
+                                                <i class="fas fa-circle me-1" style="font-size: 7px;"></i>
+                                                Online
+                                            </span>
+                                        @else
+                                            <span class="badge rounded-pill bg-secondary px-3 py-2">
+                                                <i class="fas fa-circle me-1" style="font-size: 7px;"></i>
+                                                Offline
+                                            </span>
+                                        @endif
                                     </td>
 
                                     <td class="text-center">

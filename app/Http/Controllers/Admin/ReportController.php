@@ -34,48 +34,82 @@ class ReportController extends Controller
         */
 
         if ($request->filled('date_from')) {
-            $query->whereDate('violation_date', '>=', $request->date_from);
+            $query->whereDate(
+                'violation_date',
+                '>=',
+                $request->date_from
+            );
         }
 
         if ($request->filled('date_to')) {
-            $query->whereDate('violation_date', '<=', $request->date_to);
+            $query->whereDate(
+                'violation_date',
+                '<=',
+                $request->date_to
+            );
         }
 
         if ($request->filled('violation_type')) {
-            $query->where('violation_type_id', $request->violation_type);
+            $query->where(
+                'violation_type_id',
+                $request->violation_type
+            );
         }
 
         if ($request->filled('officer')) {
-            $query->where('user_id', $request->officer);
-        }
-
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('location')) {
-            $query->where('location', $request->location);
+            $query->where(
+                'user_id',
+                $request->officer
+            );
         }
 
         /*
         |--------------------------------------------------------------------------
-        | Summary Cards (Filtered)
+        | NOTE ABOUT STATUS
+        |--------------------------------------------------------------------------
+        |
+        | Status is handled by BPLO, so it is intentionally NOT included
+        | in the Admin/POSO Reports analytics or filters.
+        |
+        */
+
+        if ($request->filled('location')) {
+            $query->where(
+                'location',
+                $request->location
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Summary Cards
         |--------------------------------------------------------------------------
         */
 
         $totalViolations = (clone $query)->count();
 
         $todayViolations = (clone $query)
-            ->whereDate('violation_date', Carbon::today())
+            ->whereDate(
+                'violation_date',
+                Carbon::today()
+            )
             ->count();
 
         $monthlyViolations = (clone $query)
-            ->whereMonth('violation_date', Carbon::now()->month)
-            ->whereYear('violation_date', Carbon::now()->year)
+            ->whereMonth(
+                'violation_date',
+                Carbon::now()->month
+            )
+            ->whereYear(
+                'violation_date',
+                Carbon::now()->year
+            )
             ->count();
 
         $mostCommonViolation = (clone $query)
-            ->selectRaw('violation_type_id, COUNT(*) as total')
+            ->selectRaw(
+                'violation_type_id, COUNT(*) as total'
+            )
             ->whereNotNull('violation_type_id')
             ->groupBy('violation_type_id')
             ->orderByDesc('total')
@@ -83,59 +117,116 @@ class ReportController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Monthly Trend (Temporary)
+        | Monthly Violation Trend
         |--------------------------------------------------------------------------
         */
 
-        $monthlyTrend = Violation::select(
-                DB::raw('MONTH(violation_date) as month'),
-                DB::raw('COUNT(*) as total')
+        $monthlyTrend = (clone $query)
+            ->select(
+                DB::raw(
+                    'MONTH(violation_date) as month'
+                ),
+                DB::raw(
+                    'COUNT(*) as total'
+                )
             )
-            ->whereYear('violation_date', Carbon::now()->year)
+            ->whereNotNull('violation_date')
             ->groupBy('month')
             ->orderBy('month')
             ->get();
 
         /*
         |--------------------------------------------------------------------------
-        | Violation Type Distribution (Temporary)
+        | Violation Type Distribution
         |--------------------------------------------------------------------------
         */
 
-        $violationTypes = Violation::with('violationType')
+        $violationTypes = (clone $query)
+            ->with('violationType')
             ->select(
                 'violation_type_id',
                 DB::raw('COUNT(*) as total')
             )
+            ->whereNotNull('violation_type_id')
             ->groupBy('violation_type_id')
+            ->orderByDesc('total')
             ->get();
 
         /*
         |--------------------------------------------------------------------------
-        | Status Summary (Temporary)
+        | Violations By Location
         |--------------------------------------------------------------------------
+        |
+        | Used by the "Violations by Location" chart.
+        |
         */
 
-        $statusSummary = Violation::select(
-                'status',
+        $locationData = (clone $query)
+            ->select(
+                'location',
                 DB::raw('COUNT(*) as total')
             )
-            ->groupBy('status')
+            ->whereNotNull('location')
+            ->where('location', '!=', '')
+            ->groupBy('location')
+            ->orderByDesc('total')
             ->get();
 
         /*
         |--------------------------------------------------------------------------
-        | Filter Dropdown Data
+        | Violations By Officer
+        |--------------------------------------------------------------------------
+        |
+        | Uses the user who encoded/recorded the violation.
+        |
+        */
+
+        $officerData = (clone $query)
+            ->join(
+                'users',
+                'violations.user_id',
+                '=',
+                'users.id'
+            )
+            ->select(
+                'violations.user_id',
+                'users.name',
+                DB::raw('COUNT(violations.id) as total')
+            )
+            ->whereNotNull('violations.user_id')
+            ->groupBy(
+                'violations.user_id',
+                'users.name'
+            )
+            ->orderByDesc('total')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter Dropdown - Violation Types
         |--------------------------------------------------------------------------
         */
 
-        $filterViolationTypes = ViolationType::orderBy('name')->get();
+        $filterViolationTypes = ViolationType::orderBy('name')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter Dropdown - POSO Officers
+        |--------------------------------------------------------------------------
+        */
 
         $filterOfficers = User::whereHas('role', function ($q) {
                 $q->where('name', 'POSO Enforcer');
             })
             ->orderBy('name')
             ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Filter Dropdown - Locations
+        |--------------------------------------------------------------------------
+        */
 
         $filterLocations = Violation::select('location')
             ->whereNotNull('location')
@@ -155,9 +246,13 @@ class ReportController extends Controller
             'todayViolations',
             'monthlyViolations',
             'mostCommonViolation',
+
             'monthlyTrend',
             'violationTypes',
-            'statusSummary',
+
+            'locationData',
+            'officerData',
+
             'filterViolationTypes',
             'filterOfficers',
             'filterLocations'
