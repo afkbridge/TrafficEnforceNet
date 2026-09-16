@@ -1,9 +1,7 @@
-<div class="sidebar">
+<aside class="bplo-sidebar">
 
-
-    <div class="logo">
-
-        <img src="{{ asset('images/logo/logo.png') }}">
+    {{-- ================= BRAND ================= --}}
+    <div class="bplo-brand">
 
         <h2>
             TrafficEnforceNet
@@ -16,83 +14,96 @@
     </div>
 
 
+    {{-- ================= NAVIGATION ================= --}}
+    <nav class="bplo-navigation">
 
-    <ul class="menu">
 
+        {{-- DASHBOARD --}}
+        <a
+            href="{{ route('bplo.dashboard') }}"
+            class="bplo-nav-item {{ request()->routeIs('bplo.dashboard') ? 'active' : '' }}"
+        >
 
-        <li class="{{ request()->routeIs('bplo.dashboard') ? 'active' : '' }}">
+            <i class="fa-regular fa-square"></i>
 
-            <a href="{{ route('bplo.dashboard') }}">
-
-                <i class="fas fa-house"></i>
-
+            <span>
                 Dashboard
+            </span>
 
-            </a>
-
-        </li>
-
+        </a>
 
 
-        <li>
+        {{-- VIOLATION REVIEW --}}
+        <a
+            href="{{ route('bplo.violations.index') }}"
+            class="bplo-nav-item {{ request()->routeIs('bplo.violations.*') ? 'active' : '' }}"
+        >
 
-            <a href="#">
+            <i class="fa-solid fa-list"></i>
 
-                <i class="fas fa-file-lines"></i>
-
+            <span>
                 Violation Review
+            </span>
 
-            </a>
-
-        </li>
-
-
-    </ul>
+        </a>
 
 
+    </nav>
 
 
-    <div class="profile">
+    {{-- ================= BOTTOM ================= --}}
+    <div class="bplo-sidebar-footer">
 
 
-        <img src="{{ asset('images/avatars/avatar.png') }}">
+        {{-- USER --}}
+        <div class="bplo-profile">
+
+            <div class="bplo-profile-icon">
+
+                <i class="fa-solid fa-user"></i>
+
+            </div>
 
 
-        <div class="profile-info">
+            <div class="bplo-profile-info">
 
-            <h4>
-                {{ Auth::user()->name }}
-            </h4>
+                <strong>
+                    {{ auth()->user()->name ?? 'BPLO Admin' }}
+                </strong>
 
-            <small>
-                BPLO Personnel
-            </small>
+                <span>
+                    {{ auth()->user()->role->name ?? 'BPLO Personnel' }}
+                </span>
 
+            </div>
 
         </div>
 
 
-    </div>
-
-
-
-    <div class="logout">
-
-        <form method="POST" action="{{ route('logout') }}">
+        {{-- LOGOUT --}}
+        <form
+            method="POST"
+            action="{{ route('logout') }}"
+        >
 
             @csrf
 
-            <button type="submit">
+            <button
+                type="submit"
+                class="bplo-logout-btn"
+            >
 
-                <i class="fas fa-right-from-bracket"></i>
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
 
-                Logout
+                <span>
+                    Logout
+                </span>
 
             </button>
 
         </form>
 
+
     </div>
 
-
-</div>
+</aside>
