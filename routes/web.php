@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 use App\Http\Controllers\ProfileController;
 
 use App\Http\Controllers\Admin\DashboardController;
@@ -12,10 +13,14 @@ use App\Http\Controllers\Enforcer\DashboardController as EnforcerDashboardContro
 use App\Http\Controllers\Enforcer\ViolationController as EnforcerViolationController;
 
 use App\Http\Controllers\BPLO\DashboardController as BPLODashboardController;
+use App\Http\Controllers\BPLO\ViolationController as BPLOViolationController;
+
 use App\Http\Controllers\SuperAdmin\UserManagementController;
 
 use App\Http\Controllers\Admin\ViolationTypeController;
 use App\Http\Controllers\Admin\SettingsController;
+
+use App\Http\Controllers\PublicPortal\SearchController;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,6 +32,10 @@ Route::get('/', function () {
     return view('landing');
 })->name('landing');
 
+Route::get('/check-ticket', [SearchController::class, 'check'])
+    ->name('public.ticket.check');
+
+
 /*
 |--------------------------------------------------------------------------
 | Office Portal
@@ -36,6 +45,7 @@ Route::get('/', function () {
 Route::get('/office', function () {
     return view('office.index');
 })->name('office.portal');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -72,13 +82,28 @@ Route::get('/enforcer/dashboard', [EnforcerDashboardController::class, 'index'])
 
 /*
 |--------------------------------------------------------------------------
-| BPLO Dashboard
+| BPLO Routes
 |--------------------------------------------------------------------------
 */
 
 Route::get('/bplo/dashboard', [BPLODashboardController::class, 'index'])
     ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
     ->name('bplo.dashboard');
+
+
+// BPLO Violation Review
+Route::get('/bplo/violations', [BPLOViolationController::class, 'index'])
+    ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
+    ->name('bplo.violations.index');
+
+
+// BPLO Update Violation Status
+Route::patch(
+    '/bplo/violations/{violation}/status',
+    [BPLOViolationController::class, 'updateStatus']
+)
+    ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
+    ->name('bplo.violations.status');
 
 
 /*
@@ -108,6 +133,7 @@ Route::get('/dashboard', function () {
     }
 
     return redirect('/');
+
 })->middleware('auth')->name('dashboard');
 
 
@@ -303,12 +329,16 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::get('/enforcer/profile', function () {
+
         return view('enforcer.profile', [
             'user' => auth()->user()
         ]);
-    })->middleware(['auth', 'role:POSO Enforcer', 'prevent-back'])
-        ->name('enforcer.profile');
 
+    })->middleware([
+        'auth',
+        'role:POSO Enforcer',
+        'prevent-back'
+    ])->name('enforcer.profile');
 
     /*
     |--------------------------------------------------------------------------
@@ -333,4 +363,6 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
+require __DIR__ . '/auth.php';
+require __DIR__ . '/auth.php';
 require __DIR__ . '/auth.php';

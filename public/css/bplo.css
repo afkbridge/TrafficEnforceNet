@@ -1,193 +1,389 @@
-/* ==========================================
-   BPLO DASHBOARD
-========================================== */
+/* =========================================================
+   GENERAL BPLO LAYOUT
+========================================================= */
 
-.bplo-dashboard {
-    padding: 25px;
+* {
+    box-sizing: border-box;
 }
 
-/* ==========================================
-   HEADER
-========================================== */
+body {
+    margin: 0;
 
-.bplo-header {
-    margin-bottom: 25px;
-}
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
-.bplo-header h1 {
-    color: #004783;
-
-    font-size: 30px;
-
-    font-weight: 700;
-}
-
-.bplo-header p {
-    color: #64748b;
-
-    font-size: 14px;
-}
-
-/* ==========================================
-   SUMMARY CARDS
-========================================== */
-
-.bplo-cards {
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    gap: 25px;
-
-    margin-bottom: 30px;
-}
-
-.bplo-card {
-    background: #ffffff;
-
-    border-radius: 15px;
-
-    padding: 30px;
-
-    text-align: center;
-
-    min-height: 160px;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-
-    border-top: 5px solid #005aa9;
-}
-
-.bplo-card h5 {
-    color: #64748b;
-
-    font-size: 14px;
-
-    margin-bottom: 20px;
-}
-
-.bplo-card h2 {
-    color: #005fbf;
-
-    font-size: 42px;
-
-    font-weight: 700;
-}
-
-.bplo-card.pending {
-    border-top-color: #e09a00;
-}
-
-.bplo-card.pending h2 {
-    color: #e09a00;
-}
-
-/* ==========================================
-   VIOLATION REVIEW BOX
-========================================== */
-
-.bplo-table-card {
-    overflow-x: auto;
-    background: #ffffff;
-
-    border-radius: 15px;
-
-    padding: 25px;
-
-    margin-top: 20px;
-
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-
-    overflow: hidden;
-}
-
-.bplo-table-card h3 {
-    color: #004783;
-
-    font-size: 20px;
-
-    font-weight: 600;
-
-    margin-bottom: 20px;
-}
-
-.bplo-table-card table {
-    width: 100%;
-
-    min-width: 1100px;
-    border-collapse: collapse;
-}
-
-.bplo-table-card th {
     background: #f1f5f9;
 
     color: #334155;
-
-    padding: 15px;
-
-    font-size: 13px;
-
-    text-align: left;
 }
 
-.bplo-table-card td {
-    padding: 15px;
 
-    border-bottom: 1px solid #e5e7eb;
+.wrapper {
+    display: flex;
 
-    font-size: 13px;
+    min-height: 100vh;
 }
 
-.bplo-table-card tr:hover {
-    background: #f8fbff;
+
+.main {
+    margin-left: 235px;
+
+    width: calc(100% - 235px);
+
+    min-height: 100vh;
+
+    background: #f1f5f9;
 }
 
-/* ==========================================
-   STATUS BADGES
-========================================== */
 
-.status {
-    padding: 6px 12px;
-
-    border-radius: 20px;
-
-    font-size: 12px;
-
-    font-weight: 600;
-
-    display: inline-block;
+.content {
+    padding: 20px 35px 40px;
 }
 
-.status.pending {
-    background: #fef3c7;
 
-    color: #92400e;
-}
 
-.status.approved {
-    background: #dcfce7;
+/* =========================================================
+   SIDEBAR
+========================================================= */
 
-    color: #166534;
-}
+.bplo-sidebar {
+    position: fixed;
 
-.status.rejected {
-    background: #fee2e2;
+    top: 0;
+    left: 0;
 
-    color: #991b1b;
-}
+    width: 235px;
+    height: 100vh;
 
-/* ==========================================
-   VIEW BUTTON
-========================================== */
+    background: #0866a8;
 
-.view-btn {
-    background: #005fbf;
+    display: flex;
+    flex-direction: column;
+
+    padding: 25px 7px 12px;
 
     color: white;
 
-    width: 35px;
+    z-index: 1000;
+}
 
-    height: 35px;
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.bplo-brand {
+    text-align: center;
+
+    margin-bottom: 37px;
+}
+
+
+.bplo-brand h2 {
+    margin: 0;
+
+    color: white;
+
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+.bplo-brand span {
+    display: block;
+
+    margin-top: 3px;
+
+    color: white;
+
+    font-size: 10px;
+    font-weight: 600;
+}
+
+
+
+/* =========================================================
+   SIDEBAR NAVIGATION
+========================================================= */
+
+.bplo-navigation {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+
+.bplo-nav-item {
+    width: 100%;
+
+    min-height: 50px;
+
+    padding: 0 18px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    color: white;
+
+    text-decoration: none;
+
+    border-radius: 6px;
+
+    font-size: 15px;
+
+    transition: 0.2s;
+}
+
+
+.bplo-nav-item i {
+    width: 18px;
+
+    text-align: center;
+
+    font-size: 13px;
+}
+
+
+.bplo-nav-item:hover {
+    color: white;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.10
+    );
+}
+
+
+.bplo-nav-item.active {
+    background: white;
+
+    color: #07579a;
+
+    font-weight: 700;
+}
+
+
+
+/* =========================================================
+   SIDEBAR FOOTER
+========================================================= */
+
+.bplo-sidebar-footer {
+    margin-top: auto;
+}
+
+
+.bplo-profile {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+
+    padding: 10px 12px;
+
+    margin-bottom: 10px;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.13
+    );
+
+    border-radius: 7px;
+}
+
+
+.bplo-profile-icon {
+    width: 34px;
+    height: 34px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background: #71a7cf;
+
+    color: #5849a7;
+}
+
+
+.bplo-profile-info {
+    min-width: 0;
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+.bplo-profile-info strong {
+    color: white;
+
+    font-size: 12px;
+}
+
+
+.bplo-profile-info span {
+    color: #e6f0f8;
+
+    font-size: 9px;
+}
+
+
+.bplo-sidebar-footer form {
+    width: 100%;
+}
+
+
+.bplo-logout-btn {
+    width: 100%;
+
+    height: 45px;
+
+    border: none;
+
+    border-radius: 6px;
+
+    background: rgba(
+        255,
+        255,
+        255,
+        0.10
+    );
+
+    color: white;
+
+    padding: 0 15px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+
+.bplo-logout-btn:hover {
+    background: rgba(
+        255,
+        255,
+        255,
+        0.17
+    );
+}
+
+
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.bplo-topbar {
+    height: 78px;
+
+    background: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: flex-end;
+
+    padding: 0 30px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+
+    position: relative;
+
+    z-index: 100;
+}
+
+
+.topbar-right {
+    margin-left: auto;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+}
+
+
+
+/* =========================================================
+   CURRENT DATE
+========================================================= */
+
+.topbar-date {
+    background: white;
+
+    padding: 11px 17px;
+
+    border-radius: 6px;
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.08);
+
+    color: #475569;
+
+    font-size: 12px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+
+/* =========================================================
+   NOTIFICATION BELL
+========================================================= */
+
+.bplo-notification {
+    position: relative;
+}
+
+
+.notification-bell {
+    position: relative;
+
+    width: 42px;
+    height: 42px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: #1e293b;
+
+    font-size: 19px;
 
     display: flex;
 
@@ -195,21 +391,1455 @@
 
     justify-content: center;
 
+    cursor: pointer;
+}
+
+
+.notification-bell:hover {
+    background: #f1f5f9;
+}
+
+
+.notification-badge {
+    position: absolute;
+
+    top: 1px;
+    right: 0;
+
+    min-width: 18px;
+    height: 18px;
+
+    padding: 0 4px;
+
+    border-radius: 20px;
+
+    border: 2px solid white;
+
+    background: #dc2626;
+
+    color: white;
+
+    font-size: 9px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+}
+
+
+
+/* =========================================================
+   NOTIFICATION DROPDOWN
+========================================================= */
+
+.notification-dropdown {
+    display: none;
+
+    position: absolute;
+
+    top: 52px;
+    right: 0;
+
+    width: 360px;
+
+    background: white;
+
     border-radius: 8px;
 
-    text-decoration: none;
+    border: 1px solid #e5e7eb;
+
+    box-shadow:
+        0 12px 30px
+        rgba(0, 0, 0, 0.15);
+
+    overflow: hidden;
+
+    z-index: 9999;
 }
 
-.view-btn:hover {
-    opacity: 0.85;
+
+.notification-dropdown.show {
+    display: block;
 }
 
-/* ==========================================
+
+.notification-dropdown-header {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 15px 17px;
+
+    border-bottom:
+        1px solid #e5e7eb;
+}
+
+
+.notification-dropdown-header h4 {
+    margin: 0;
+
+    color: #07579a;
+
+    font-size: 17px;
+}
+
+
+.mark-read-btn {
+    border: none;
+
+    background: transparent;
+
+    color: #0877c9;
+
+    font-size: 12px;
+
+    cursor: pointer;
+}
+
+
+.notification-item {
+    display: flex;
+
+    gap: 11px;
+
+    padding: 13px 17px;
+
+    border-bottom:
+        1px solid #eef2f7;
+}
+
+
+.notification-item.unread {
+    background: #f5faff;
+}
+
+
+.notification-dot {
+    width: 8px;
+    height: 8px;
+
+    margin-top: 5px;
+
+    border-radius: 50%;
+
+    background: #0877c9;
+
+    flex-shrink: 0;
+}
+
+
+.notification-content strong {
+    font-size: 13px;
+
+    color: #1e293b;
+}
+
+
+.notification-content p {
+    margin: 2px 0;
+
+    font-size: 12px;
+
+    color: #475569;
+}
+
+
+.notification-content small {
+    font-size: 10px;
+
+    color: #94a3b8;
+}
+
+
+.notification-empty {
+    padding: 25px;
+
+    text-align: center;
+
+    color: #94a3b8;
+}
+
+
+
+/* =========================================================
+   HIDE TOPBAR USER SECTION
+
+   The screenshot only needs:
+   notification + date.
+========================================================= */
+
+.topbar-user {
+    display: none;
+}
+
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.bplo-page-header {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: flex-start;
+
+    margin-bottom: 23px;
+}
+
+
+.bplo-page-header h1 {
+    margin: 0;
+
+    color: #07579a;
+
+    font-size: 30px;
+
+    font-weight: 700;
+}
+
+
+.bplo-page-header p {
+    margin: 2px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+
+
+/* =========================================================
+   SUMMARY CARDS
+========================================================= */
+
+.bplo-summary {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 20px;
+
+    margin-bottom: 25px;
+}
+
+
+.summary-card {
+    height: 120px;
+
+    background: white;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 7px 16px
+        rgba(15, 23, 42, 0.08);
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-top:
+        4px solid #0877c9;
+}
+
+
+.summary-card h5 {
+    margin: 0 0 3px;
+
+    color: #07579a;
+
+    font-size: 12px;
+
+    font-weight: 700;
+}
+
+
+.summary-card p {
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+
+.summary-card h2 {
+    margin: 3px 0 0;
+
+    color: #0877c9;
+
+    font-size: 30px;
+
+    font-weight: 700;
+}
+
+
+.pending-card {
+    border-top-color: #e7a000;
+}
+
+
+.pending-card h2 {
+    color: #e7a000;
+}
+
+
+.completed-card {
+    border-top-color: #198754;
+}
+
+
+.completed-card h2 {
+    color: #198754;
+}
+
+
+
+/* =========================================================
+   VIOLATION CARD
+========================================================= */
+
+.violation-card {
+    background: white;
+
+    border-radius: 9px;
+
+    box-shadow:
+        0 7px 16px
+        rgba(15, 23, 42, 0.07);
+
+    overflow: hidden;
+}
+
+
+
+/* =========================================================
+   VIOLATION HEADER
+========================================================= */
+
+.violation-card-header {
+    min-height: 83px;
+
+    padding: 20px 22px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+
+.violation-title h3 {
+    margin: 0;
+
+    color: #07579a;
+
+    font-size: 18px;
+
+    font-weight: 700;
+}
+
+
+.violation-title p {
+    margin: 1px 0 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+
+
+/* =========================================================
+   SEARCH / FILTER
+========================================================= */
+
+.violation-tools {
+    display: flex;
+
+    align-items: center;
+
+    gap: 9px;
+}
+
+
+.violation-tools input {
+    width: 210px;
+
+    height: 38px;
+
+    padding: 0 12px;
+
+    border:
+        1px solid #d5dde6;
+
+    border-radius: 6px;
+
+    outline: none;
+
+    font-size: 12px;
+}
+
+
+.violation-tools select {
+    width: 125px;
+
+    height: 38px;
+
+    padding: 0 11px;
+
+    border:
+        1px solid #d5dde6;
+
+    border-radius: 6px;
+
+    background: white;
+
+    font-size: 12px;
+}
+
+
+
+.violation-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.violation-table {
+    width: 100%;
+    min-width: 1120px;
+
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.violation-table thead {
+    background: #f1f5f9;
+}
+
+.violation-table th {
+    padding: 11px 9px;
+
+    color: #0f2742;
+
+    font-size: 11px;
+    font-weight: 700;
+
+    text-align: left;
+    white-space: nowrap;
+}
+
+.violation-table td {
+    padding: 11px 9px;
+
+    border-bottom: 1px solid #edf1f5;
+
+    color: #475569;
+
+    font-size: 11px;
+
+    vertical-align: middle;
+}
+
+/* Ticket ID */
+.violation-table th:nth-child(1),
+.violation-table td:nth-child(1) {
+    min-width: 100px;
+}
+
+/* Violator */
+.violation-table th:nth-child(2),
+.violation-table td:nth-child(2) {
+    min-width: 115px;
+}
+
+/* Vehicle */
+.violation-table th:nth-child(3),
+.violation-table td:nth-child(3) {
+    min-width: 105px;
+}
+
+/* Violation Type */
+.violation-table th:nth-child(4),
+.violation-table td:nth-child(4) {
+    min-width: 115px;
+}
+
+/* Officer */
+.violation-table th:nth-child(5),
+.violation-table td:nth-child(5) {
+    min-width: 100px;
+}
+
+/* Date & Time */
+.violation-table th:nth-child(6),
+.violation-table td:nth-child(6) {
+    min-width: 105px;
+    white-space: nowrap;
+}
+
+/* Location */
+.violation-table th:nth-child(7),
+.violation-table td:nth-child(7) {
+    min-width: 100px;
+    max-width: 135px;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* Remarks */
+.violation-table th:nth-child(8),
+.violation-table td:nth-child(8) {
+    min-width: 105px;
+    max-width: 145px;
+
+    white-space: normal;
+    overflow-wrap: break-word;
+}
+
+/* Status */
+.violation-table th:nth-child(9),
+.violation-table td:nth-child(9) {
+    min-width: 165px;
+}
+
+/* Action */
+.violation-table th:nth-child(10),
+.violation-table td:nth-child(10) {
+    min-width: 105px;
+}
+
+
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status-controls {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.status-select {
+    min-width: 116px;
+
+    height: 35px;
+
+    padding: 0 10px;
+
+    border:
+        1px solid #d5dde6;
+
+    border-radius: 6px;
+
+    background: white;
+
+    color: #475569;
+
+    font-size: 12px;
+}
+
+
+.save-status-btn {
+    height: 35px;
+
+    padding: 0 14px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background: #198754;
+
+    color: white;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.save-status-btn:hover {
+    background: #157347;
+}
+
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.table-actions {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+}
+
+
+.view-violation-btn {
+    height: 30px;
+
+    padding: 0 12px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background: #e6f3fc;
+
+    color: #0877c9;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.copy-violation-btn {
+    height: 30px;
+
+    padding: 0 12px;
+
+    border: none;
+
+    border-radius: 5px;
+
+    background: #0877c9;
+
+    color: white;
+
+    font-size: 11px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+
+.copy-violation-btn:hover {
+    background: #0665ad;
+}
+
+
+.copy-violation-btn.copied {
+    background: #198754;
+}
+
+
+.empty-table-row td {
+    text-align: center;
+
+    padding: 25px;
+}
+
+
+
+/* =========================================================
    RESPONSIVE
-========================================== */
+========================================================= */
 
-@media (max-width: 900px) {
-    .bplo-cards {
+@media (max-width: 1000px) {
+
+    .bplo-summary {
         grid-template-columns: 1fr;
     }
+
+
+    .violation-card-header {
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+
+    .violation-tools {
+        width: 100%;
+    }
+
+
+    .violation-tools input {
+        flex: 1;
+    }
+
+}
+/* =====================================================
+   BPLO VIOLATION REVIEW PAGE
+   ===================================================== */
+
+.review-page {
+    width: 100%;
+}
+
+
+/* PAGE HEADER */
+
+.review-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 22px;
+}
+
+.review-page-header h1 {
+    margin: 0;
+
+    color: #075fa5;
+
+    font-size: 30px;
+    font-weight: 700;
+}
+
+.review-page-header p {
+    margin: 3px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+}
+
+
+/* =====================================================
+   FILTER TABS
+   ===================================================== */
+
+.review-tabs {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    margin-bottom: 18px;
+}
+
+.review-tab {
+    min-width: 92px;
+    height: 36px;
+
+    padding: 0 18px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #ffffff;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+
+    color: #64748b;
+
+    text-decoration: none;
+
+    font-size: 12px;
+
+    transition: 0.2s;
+}
+
+.review-tab:hover {
+    background: #f8fafc;
+    color: #075fa5;
+}
+
+.review-tab.active {
+    background: #0868ad;
+    border-color: #0868ad;
+
+    color: #ffffff;
+
+    font-weight: 600;
+}
+
+
+/* =====================================================
+   SUCCESS MESSAGE
+   ===================================================== */
+
+.review-success {
+    margin-bottom: 15px;
+
+    padding: 11px 15px;
+
+    background: #d1e7dd;
+
+    border: 1px solid #badbcc;
+    border-radius: 6px;
+
+    color: #0f5132;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   TABLE CARD
+   ===================================================== */
+
+.review-table-card {
+    width: 100%;
+
+    background: #ffffff;
+
+    border-radius: 9px;
+
+    box-shadow:
+        0 5px 16px rgba(15, 23, 42, 0.08);
+
+    overflow: hidden;
+}
+
+
+/* HEADER */
+
+.review-table-header {
+    min-height: 88px;
+
+    padding: 20px 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.review-table-header h2 {
+    margin: 0;
+
+    color: #075fa5;
+
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.review-table-header p {
+    margin: 2px 0 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   SEARCH
+   ===================================================== */
+
+.review-search-form {
+    margin: 0;
+}
+
+.review-search {
+    width: 210px;
+    height: 38px;
+
+    padding: 0 12px;
+
+    background: #ffffff;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+
+    color: #475569;
+
+    font-size: 12px;
+
+    outline: none;
+}
+
+.review-search::placeholder {
+    color: #64748b;
+}
+
+.review-search:focus {
+    border-color: #0877c9;
+
+    box-shadow:
+        0 0 0 2px rgba(8, 119, 201, 0.08);
+}
+
+
+/* =====================================================
+   TABLE
+   ===================================================== */
+
+.review-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.review-table {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+.review-table thead {
+    background: #f1f5f9;
+}
+
+.review-table th {
+    padding: 13px 17px;
+
+    color: #0f2742;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    text-align: left;
+
+    white-space: nowrap;
+}
+
+.review-table td {
+    padding: 14px 17px;
+
+    border-bottom: 1px solid #edf1f5;
+
+    color: #475569;
+
+    font-size: 12px;
+
+    vertical-align: middle;
+}
+
+.review-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =====================================================
+   STATUS
+   ===================================================== */
+
+.review-status-form {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    margin: 0;
+}
+
+.review-status-form select {
+    width: 117px;
+    height: 35px;
+
+    padding: 0 10px;
+
+    background: #ffffff;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+
+    color: #475569;
+
+    font-size: 12px;
+
+    outline: none;
+}
+
+.review-save-btn {
+    height: 35px;
+
+    padding: 0 14px;
+
+    border: none;
+    border-radius: 5px;
+
+    background: #198754;
+
+    color: #ffffff;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.review-save-btn:hover {
+    background: #157347;
+}
+
+
+/* =====================================================
+   ACTION BUTTONS
+   ===================================================== */
+
+.review-actions {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+}
+
+.review-view-btn,
+.review-copy-btn {
+    height: 30px;
+
+    padding: 0 12px;
+
+    border: none;
+    border-radius: 5px;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.review-view-btn {
+    background: #e6f3fc;
+
+    color: #0877c9;
+}
+
+.review-view-btn:hover {
+    background: #d5ebfa;
+}
+
+.review-copy-btn {
+    background: #0877c9;
+
+    color: #ffffff;
+}
+
+.review-copy-btn:hover {
+    background: #0665ad;
+}
+
+
+/* =====================================================
+   EMPTY TABLE
+   ===================================================== */
+
+.review-empty {
+    padding: 30px !important;
+
+    text-align: center;
+
+    color: #94a3b8 !important;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 900px) {
+
+    .review-table-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .review-search-form,
+    .review-search {
+        width: 100%;
+    }
+
+}
+/* =========================================================
+   BPLO VIOLATION DETAILS MODAL
+========================================================= */
+
+/* Prevent page scrolling while modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   MODAL BACKGROUND / OVERLAY
+========================================================= */
+
+.violation-modal-overlay {
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 23, 42, 0.45);
+
+    z-index: 99999;
+}
+
+
+/* Show modal when JavaScript adds .show */
+.violation-modal-overlay.show {
+    display: flex;
+}
+
+
+/* =========================================================
+   MODAL BOX
+========================================================= */
+
+.violation-modal {
+    width: 650px;
+    max-width: 100%;
+
+    background: #ffffff;
+
+    border-radius: 7px;
+
+    box-shadow:
+        0 20px 50px rgba(15, 23, 42, 0.25);
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   MODAL HEADER
+========================================================= */
+
+.violation-modal-header {
+    min-height: 72px;
+
+    padding: 0 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid #e2e8f0;
+}
+
+
+.violation-modal-header h2 {
+    margin: 0;
+
+    color: #075fa5;
+
+    font-size: 21px;
+    font-weight: 700;
+}
+
+
+/* X BUTTON */
+
+.violation-modal-x {
+    width: 35px;
+    height: 35px;
+
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: transparent;
+
+    color: #64748b;
+
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+
+    cursor: pointer;
+}
+
+
+.violation-modal-x:hover {
+    color: #1e293b;
+}
+
+
+/* =========================================================
+   MODAL BODY
+========================================================= */
+
+.violation-modal-body {
+    padding: 20px 24px 25px;
+}
+
+
+/* EACH INFORMATION ROW */
+
+.violation-detail-row {
+    min-height: 41px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    border-bottom: 1px solid #e5e7eb;
+}
+
+
+/* LEFT LABEL */
+
+.violation-detail-row span {
+    color: #64748b;
+
+    font-size: 13px;
+    font-weight: 400;
+}
+
+
+/* RIGHT VALUE */
+
+.violation-detail-row strong {
+    color: #27364a;
+
+    font-size: 13px;
+    font-weight: 700;
+
+    text-align: right;
+
+    word-break: break-word;
+}
+
+
+/* =========================================================
+   MODAL FOOTER
+========================================================= */
+
+.violation-modal-footer {
+    min-height: 72px;
+
+    padding: 15px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 10px;
+
+    border-top: 1px solid #e2e8f0;
+}
+
+
+/* =========================================================
+   CLOSE + COPY BUTTONS
+========================================================= */
+
+.violation-modal-close,
+.violation-modal-copy {
+    height: 42px;
+
+    padding: 0 18px;
+
+    border: none;
+    border-radius: 6px;
+
+    font-size: 13px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+/* CLOSE BUTTON */
+
+.violation-modal-close {
+    background: #e9eef3;
+
+    color: #475569;
+}
+
+
+.violation-modal-close:hover {
+    background: #dce4eb;
+}
+
+
+/* COPY INFORMATION BUTTON */
+
+.violation-modal-copy {
+    background: #0877c9;
+
+    color: #ffffff;
+
+    font-weight: 600;
+}
+
+
+.violation-modal-copy:hover {
+    background: #0665ad;
+}
+
+
+/* =========================================================
+   MOBILE RESPONSIVE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .violation-modal-overlay {
+        padding: 15px;
+    }
+
+
+    .violation-modal {
+        width: 100%;
+    }
+
+
+    .violation-modal-header {
+        min-height: 65px;
+
+        padding: 0 18px;
+    }
+
+
+    .violation-modal-body {
+        padding: 15px 18px 20px;
+    }
+
+
+    .violation-detail-row {
+        align-items: flex-start;
+        flex-direction: column;
+
+        gap: 4px;
+
+        padding: 10px 0;
+    }
+
+
+    .violation-detail-row strong {
+        text-align: left;
+    }
+
+
+    .violation-modal-footer {
+        padding: 12px 15px;
+    }
+
+}
+/* =========================================================
+   VIOLATION REVIEW - ALL TIME COUNTER
+========================================================= */
+
+.review-total-counter {
+    width: 300px;
+    min-height: 135px;
+    margin: 0 0 22px 0;
+    padding: 20px 22px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: #ffffff;
+    border-left: 5px solid #0877c9;
+    border-radius: 7px;
+
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.review-total-counter-info p {
+    margin: 0 0 7px 0;
+
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.review-total-counter-info h2 {
+    margin: 0;
+
+    color: #075fa5;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.review-total-counter-info span {
+    display: block;
+    margin-top: 6px;
+
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.review-total-counter-icon {
+    width: 48px;
+    height: 48px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #e8f3fb;
+    border-radius: 50%;
+
+    color: #0877c9;
+    font-size: 20px;
+}
+/* =========================================================
+   COMPACT TABLE CONTROLS
+========================================================= */
+
+.status-controls,
+.table-actions {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.status-select {
+    min-width: 95px;
+    height: 31px;
+
+    padding: 0 7px;
+
+    font-size: 11px;
+}
+
+.save-status-btn {
+    height: 31px;
+
+    padding: 0 10px;
+
+    font-size: 10px;
+}
+
+.view-violation-btn,
+.copy-violation-btn {
+    height: 28px;
+
+    padding: 0 9px;
+
+    font-size: 10px;
 }
