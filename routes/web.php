@@ -20,6 +20,8 @@ use App\Http\Controllers\SuperAdmin\UserManagementController;
 use App\Http\Controllers\Admin\ViolationTypeController;
 use App\Http\Controllers\Admin\SettingsController;
 
+use App\Http\Controllers\PublicPortal\SearchController;
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -29,6 +31,9 @@ use App\Http\Controllers\Admin\SettingsController;
 Route::get('/', function () {
     return view('landing');
 })->name('landing');
+
+Route::get('/check-ticket', [SearchController::class, 'check'])
+    ->name('public.ticket.check');
 
 
 /*
