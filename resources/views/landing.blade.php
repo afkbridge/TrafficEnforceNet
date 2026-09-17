@@ -371,7 +371,7 @@
     <section class="relative overflow-hidden"
         style="
         background: linear-gradient(135deg, #003b73 0%, #005fbf 50%, #0072ce 100%);
-        min-height: 450px;
+        min-height: 300px;
     ">
         <div class="relative max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center py-32">
             <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center w-full">
