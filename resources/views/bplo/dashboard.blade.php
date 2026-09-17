@@ -133,15 +133,18 @@
 
                 <thead>
 
-                    <tr>
-                        <th>Ticket ID</th>
-                        <th>Name</th>
-                        <th>Violation Type</th>
-                        <th>Officer</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
+       <tr>
+    <th>Ticket ID</th>
+    <th>Violator</th>
+    <th>Vehicle</th>
+    <th>Violation Type</th>
+    <th>Officer</th>
+    <th>Date & Time</th>
+    <th>Location</th>
+    <th>Remarks</th>
+    <th>Status</th>
+    <th>Action</th>
+</tr>
 
                 </thead>
 
@@ -172,12 +175,33 @@
 
 
                         $formattedDate = $violation->violation_date
-                            ? \Carbon\Carbon::parse(
-                                $violation->violation_date
-                            )->format('M d, Y')
-                            : 'N/A';
+    ? \Carbon\Carbon::parse(
+        $violation->violation_date
+    )->format('M d, Y')
+    : 'N/A';
 
-                    @endphp
+$formattedTime = $violation->violation_time
+    ? \Carbon\Carbon::parse(
+        $violation->violation_time
+    )->format('h:i A')
+    : 'N/A';
+
+$vehicleInfo = $violation->vehicle
+    ? collect([
+        $violation->vehicle->plate_number,
+        $violation->vehicle->vehicle_type,
+    ])->filter()->implode(' - ')
+    : 'N/A';
+
+$vehicleInfo = $vehicleInfo ?: 'N/A';
+
+$locationInfo =
+    $violation->location ?: 'N/A';
+
+$remarksInfo =
+    $violation->remarks ?: 'N/A';
+
+@endphp
 
 
                     <tr
@@ -185,36 +209,48 @@
                     >
 
                         {{-- TICKET --}}
-                        <td>
-                            {{ $violation->ticket_number }}
-                        </td>
+<td>
+    {{ $violation->ticket_number }}
+</td>
 
+{{-- VIOLATOR --}}
+<td>
+    {{ $driverName }}
+</td>
 
-                        {{-- NAME --}}
-                        <td>
-                            {{ $driverName }}
-                        </td>
+{{-- VEHICLE --}}
+<td>
+    {{ $vehicleInfo }}
+</td>
 
+{{-- VIOLATION TYPE --}}
+<td>
+    {{ $violationName }}
+</td>
 
-                        {{-- VIOLATION --}}
-                        <td>
-                            {{ $violationName }}
-                        </td>
+{{-- OFFICER --}}
+<td>
+    {{ $officerName }}
+</td>
 
+{{-- DATE & TIME --}}
+<td>
+    {{ $formattedDate }}
+    <br>
+    <small>{{ $formattedTime }}</small>
+</td>
 
-                        {{-- OFFICER --}}
-                        <td>
-                            {{ $officerName }}
-                        </td>
+{{-- LOCATION --}}
+<td>
+    {{ $locationInfo }}
+</td>
 
+{{-- REMARKS --}}
+<td>
+    {{ $remarksInfo }}
+</td>
 
-                        {{-- DATE --}}
-                        <td>
-                            {{ $formattedDate }}
-                        </td>
-
-
-                        {{-- STATUS --}}
+{{-- STATUS --}}
 <td>
 
     <form
@@ -264,18 +300,22 @@
                             <div class="table-actions">
 
                                 {{-- VIEW --}}
-                                <button
-                                    type="button"
-                                    class="view-violation-btn violation-view-trigger"
-                                    data-ticket="{{ $violation->ticket_number }}"
-                                    data-name="{{ $driverName }}"
-                                    data-violation="{{ $violationName }}"
-                                    data-officer="{{ $officerName }}"
-                                    data-date="{{ $formattedDate }}"
-                                    data-status="{{ $violation->status }}"
-                                >
-                                    View
-                                </button>
+<button
+    type="button"
+    class="view-violation-btn violation-view-trigger"
+    data-ticket="{{ $violation->ticket_number }}"
+    data-name="{{ $driverName }}"
+    data-vehicle="{{ $vehicleInfo }}"
+    data-violation="{{ $violationName }}"
+    data-officer="{{ $officerName }}"
+    data-date="{{ $formattedDate }}"
+    data-time="{{ $formattedTime }}"
+    data-location="{{ $locationInfo }}"
+    data-remarks="{{ $remarksInfo }}"
+    data-status="{{ $violation->status }}"
+>
+    View
+</button>
 
 
                                 {{-- COPY --}}
@@ -303,7 +343,7 @@
 
                     <tr class="empty-table-row">
 
-                        <td colspan="7">
+                        <td colspan="10">
                             No violation records available.
                         </td>
 

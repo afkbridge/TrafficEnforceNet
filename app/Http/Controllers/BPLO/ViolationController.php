@@ -26,7 +26,6 @@ class ViolationController extends Controller
             'user'
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | Filter by Status
@@ -37,7 +36,6 @@ class ViolationController extends Controller
             $query->where('status', $status);
         }
 
-
         /*
         |--------------------------------------------------------------------------
         | Search
@@ -45,7 +43,6 @@ class ViolationController extends Controller
         */
 
         if (!empty($search)) {
-
             $query->where(function ($q) use ($search) {
 
                 // Search ticket number
@@ -53,32 +50,23 @@ class ViolationController extends Controller
 
                     // Search driver
                     ->orWhereHas('driver', function ($driver) use ($search) {
-
                         $driver->where('first_name', 'like', "%{$search}%")
                             ->orWhere('middle_name', 'like', "%{$search}%")
                             ->orWhere('last_name', 'like', "%{$search}%")
                             ->orWhere('license_number', 'like', "%{$search}%");
-
                     })
 
                     // Search violation type
                     ->orWhereHas('violationType', function ($type) use ($search) {
-
                         $type->where('name', 'like', "%{$search}%");
-
                     })
 
                     // Search officer
                     ->orWhereHas('user', function ($user) use ($search) {
-
                         $user->where('name', 'like', "%{$search}%");
-
                     });
-
             });
-
         }
-
 
         /*
         |--------------------------------------------------------------------------
@@ -90,7 +78,6 @@ class ViolationController extends Controller
             ->orderBy('violation_date', 'desc')
             ->orderBy('violation_time', 'desc')
             ->get();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -104,6 +91,29 @@ class ViolationController extends Controller
 
         $allTimeViolations = Violation::count();
 
+        /*
+        |--------------------------------------------------------------------------
+        | Notification Data
+        |--------------------------------------------------------------------------
+        |
+        | Used by the BPLO topbar notification bell.
+        |
+        */
+
+        $pendingViolations = Violation::where('status', 'Pending')
+            ->count();
+
+        $recentViolations = Violation::with([
+            'driver',
+            'vehicle',
+            'violationType',
+            'user'
+        ])
+            ->where('status', 'Pending')
+            ->orderBy('violation_date', 'desc')
+            ->orderBy('violation_time', 'desc')
+            ->take(5)
+            ->get();
 
         /*
         |--------------------------------------------------------------------------
@@ -115,10 +125,11 @@ class ViolationController extends Controller
             'violations',
             'status',
             'search',
-            'allTimeViolations'
+            'allTimeViolations',
+            'pendingViolations',
+            'recentViolations'
         ));
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -138,7 +149,6 @@ class ViolationController extends Controller
             'status' => ['required', 'in:Pending,Completed'],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | Update Database
@@ -147,7 +157,6 @@ class ViolationController extends Controller
 
         $violation->status = $validated['status'];
         $violation->save();
-
 
         /*
         |--------------------------------------------------------------------------
