@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>TrafficEnforceNet | POSO Tarlac City</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -305,25 +304,19 @@
     ================================= -->
 
     <header class="sticky top-0 z-50 bg-[#005fbf] text-white shadow-lg">
-
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-
             <div class="flex items-center justify-between h-16">
 
                 <!-- Brand -->
 
                 <a href="/" class="flex items-center gap-2.5 min-w-0">
-
                     <div
                         class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white flex items-center justify-center overflow-hidden shadow-sm flex-shrink-0">
-
                         <img src="{{ asset('images/logo/logo.png') }}" alt="TrafficEnforceNet Logo"
                             class="w-[82%] h-[82%] object-contain">
-
                     </div>
 
                     <div class="min-w-0">
-
                         <div class="font-bold text-base sm:text-lg leading-tight tracking-tight">
                             TrafficEnforceNet
                         </div>
@@ -331,15 +324,12 @@
                         <div class="text-[9px] sm:text-[10px] text-blue-100 uppercase tracking-wider">
                             POSO Tarlac City
                         </div>
-
                     </div>
-
                 </a>
 
                 <!-- Navigation -->
 
                 <nav class="hidden sm:flex items-center gap-5 lg:gap-7 text-sm font-medium">
-
                     <a href="#services" class="text-blue-50 hover:text-white transition">
                         Services
                     </a>
@@ -355,39 +345,43 @@
                     <a href="#about" class="text-blue-50 hover:text-white transition">
                         About
                     </a>
-
                 </nav>
 
             </div>
-
         </div>
-
     </header>
 
 
     <!-- ================================
-     HERO
-================================= -->
+         HERO
+    ================================= -->
+
     <section class="relative overflow-hidden"
         style="
-        background: linear-gradient(135deg, #003b73 0%, #005fbf 50%, #0072ce 100%);
-        min-height: 300px;
-    ">
+            background: linear-gradient(135deg, #003b73 0%, #005fbf 50%, #0072ce 100%);
+            min-height: 200px;
+        ">
+
         <div class="relative max-w-7xl mx-auto px-6 lg:px-12 h-full flex items-center py-32">
+
             <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center w-full">
 
                 <!-- LEFT CONTENT -->
+
                 <div class="text-white">
+
                     <br>
+
                     <div
                         class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-8">
+
                         <span class="w-2 h-2 rounded-full bg-green-400"></span>
+
                         <span class="text-sm font-medium">
                             Traffic Management System
                         </span>
+
                     </div>
-
-
 
                     <p class="text-xl sm:text-2xl text-blue-100 leading-relaxed max-w-2xl mb-6">
                         A digital platform supporting the
@@ -401,6 +395,7 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row gap-4">
+
                         <a href="#ticket-status"
                             class="inline-flex items-center justify-center px-8 py-4 bg-white text-[#005fbf] font-bold rounded-xl shadow-lg hover:bg-blue-50 transition">
                             Check Ticket Status
@@ -410,11 +405,12 @@
                             class="inline-flex items-center justify-center px-8 py-4 border-2 border-white/40 text-white font-bold rounded-xl hover:bg-white/10 transition">
                             How It Works
                         </a>
-                    </div>
 
+                    </div>
                 </div>
 
                 <!-- RIGHT LOGO -->
+
                 <div class="flex justify-center lg:justify-end">
                     <div class="poso-logo-circle">
                         <img src="{{ asset('images/logo/POSOlogo.png') }}" alt="POSO Tarlac City Logo"
@@ -451,7 +447,6 @@
                 </p>
 
             </div>
-
 
             <div class="grid md:grid-cols-3 gap-6">
 
@@ -544,30 +539,33 @@
                 </div>
 
             </div>
-
         </div>
-
     </section>
 
 
     <!-- ================================
-     TICKET SEARCH
-================================= -->
+         TICKET SEARCH
+    ================================= -->
+
     <section id="ticket-status" class="py-16 px-6 bg-white">
 
         <div class="max-w-4xl mx-auto">
 
             <!-- BLUE SEARCH CARD -->
+
             <div class="relative overflow-hidden rounded-3xl bg-[#005fbf] shadow-xl">
 
                 <!-- Decorative circles -->
+
                 <div class="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-white/10"></div>
                 <div class="absolute -left-20 -bottom-32 w-72 h-72 rounded-full bg-white/5"></div>
 
                 <div class="relative p-8 sm:p-12 text-center">
 
                     <!-- Icon -->
+
                     <div class="mx-auto w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center mb-5">
+
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-white" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
 
@@ -575,9 +573,11 @@
                                 d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 
                         </svg>
+
                     </div>
 
                     <!-- Heading -->
+
                     <h2 class="text-2xl sm:text-3xl font-bold text-white">
                         Check Your Traffic Violation
                     </h2>
@@ -588,17 +588,20 @@
 
 
                     <!-- SEARCH FORM -->
+
                     <form action="{{ route('public.ticket.check') }}" method="GET"
                         class="w-full max-w-2xl mx-auto mt-7">
 
                         <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
 
                             <!-- Ticket Number Input -->
+
                             <input type="text" name="ticket_number" placeholder="Enter Ticket Number"
-                                autocomplete="off"
+                                autocomplete="off" value="{{ old('ticket_number') }}"
                                 class="w-full sm:flex-1 sm:max-w-md rounded-xl bg-white border-2 border-white px-5 py-3.5 text-sm text-[#1E293B] placeholder-slate-400 shadow-lg focus:outline-none focus:ring-4 focus:ring-white/30">
 
                             <!-- Search Button -->
+
                             <button type="submit"
                                 class="w-full sm:w-auto bg-white text-[#005fbf] px-7 py-3.5 rounded-xl font-bold text-sm hover:bg-blue-50 transition shadow-lg whitespace-nowrap">
 
@@ -607,31 +610,33 @@
                             </button>
 
                         </div>
-
                     </form>
 
 
                     <!-- Helper Text -->
+
                     <p class="mt-4 text-xs text-blue-100">
                         Please enter the ticket number exactly as indicated on your citation.
                     </p>
 
                 </div>
-
             </div>
 
 
             <!-- ================================
-             TICKET NOT FOUND
-        ================================= -->
+                 TICKET NOT FOUND
+            ================================= -->
+
             @if (session('ticket_not_found'))
-                <div class="mt-6 bg-white rounded-3xl border border-red-200 shadow-md overflow-hidden">
+                <div id="ticket-not-found"
+                    class="mt-6 bg-white rounded-3xl border border-red-200 shadow-md overflow-hidden">
 
                     <div class="p-6 sm:p-7">
 
                         <div class="flex items-start gap-4">
 
                             <!-- Error Icon -->
+
                             <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center">
 
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-red-600" fill="none"
@@ -646,6 +651,7 @@
 
 
                             <!-- Error Text -->
+
                             <div class="min-w-0">
 
                                 <h3 class="font-bold text-red-700">
@@ -659,26 +665,26 @@
                             </div>
 
                         </div>
-
                     </div>
-
                 </div>
             @endif
 
 
             <!-- ================================
-             TICKET RESULT
-        ================================= -->
+                 TICKET RESULT
+            ================================= -->
+
             @if (session('ticket_result'))
                 @php
                     $ticket = session('ticket_result');
-                    $status = strtolower($ticket->status ?? 'pending');
+                    $status = $ticket->status;
                 @endphp
 
-
-                <div class="mt-6 bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden">
+                <div id="ticket-result"
+                    class="mt-6 bg-white rounded-3xl border border-slate-200 shadow-lg overflow-hidden">
 
                     <!-- Result Header -->
+
                     <div class="px-6 sm:px-8 py-6 border-b border-slate-200">
 
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -697,25 +703,27 @@
 
 
                             <!-- Status Badge -->
+
                             <span
                                 class="inline-flex w-fit px-4 py-2 rounded-full text-xs font-bold
-                            {{ $status === 'settled' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                                {{ $status === 'settled' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
 
-                                {{ ucfirst($ticket->status ?? 'Pending') }}
+                               {{ $status }}
 
                             </span>
 
                         </div>
-
                     </div>
 
 
                     <!-- Result Details -->
+
                     <div class="p-6 sm:p-8">
 
                         <div class="grid sm:grid-cols-2 gap-x-8 gap-y-6">
 
                             <!-- Violation -->
+
                             <div>
 
                                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -730,6 +738,7 @@
 
 
                             <!-- Date -->
+
                             <div>
 
                                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -737,13 +746,16 @@
                                 </p>
 
                                 <p class="mt-1.5 text-sm font-semibold text-slate-800">
+
                                     {{ $ticket->violation_date ? \Carbon\Carbon::parse($ticket->violation_date)->format('F d, Y') : 'Not available' }}
+
                                 </p>
 
                             </div>
 
 
                             <!-- Time -->
+
                             <div>
 
                                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -751,13 +763,16 @@
                                 </p>
 
                                 <p class="mt-1.5 text-sm font-semibold text-slate-800">
+
                                     {{ $ticket->violation_time ? \Carbon\Carbon::parse($ticket->violation_time)->format('h:i A') : 'Not available' }}
+
                                 </p>
 
                             </div>
 
 
                             <!-- Location -->
+
                             <div>
 
                                 <p class="text-xs font-semibold uppercase tracking-wider text-slate-400">
@@ -771,11 +786,11 @@
                             </div>
 
                         </div>
-
                     </div>
 
 
                     <!-- Privacy Notice -->
+
                     <div class="px-6 sm:px-8 py-4 bg-slate-50 border-t border-slate-200">
 
                         <p class="text-xs text-slate-500 leading-relaxed">
@@ -789,7 +804,6 @@
             @endif
 
         </div>
-
     </section>
 
 
@@ -822,6 +836,8 @@
 
                 <!-- Main Image -->
 
+        <!-- ===================== TICKET SEARCH ===================== -->
+    <section id="ticket-search" class="py-10 px-6">
                 <div class="gallery-main" id="galleryMain">
 
                     <img id="posoGalleryImage" src="{{ asset('images/poso2.jpg') }}" alt="POSO Tarlac City"
@@ -830,19 +846,127 @@
                     <div class="gallery-gradient"></div>
 
 
+            <form action="{{ route('landing') }}" method="GET"
+                class="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center">
+
+                <input type="text"
+                    name="ticket_number"
+                    value="{{ request('ticket_number') }}"
+                    placeholder="Enter Ticket Number"
+                    required
+                    class="w-full sm:w-80 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005fbf] focus:border-transparent">
                     <!-- Counter -->
 
                     <div class="gallery-counter">
-
                         <span id="posoGalleryCounter">
                             1 / 9
                         </span>
-
                     </div>
 
 
                     <!-- Previous -->
 
+            @if(request()->filled('ticket_number'))
+
+                @if($violation)
+
+                    <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-left">
+
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+
+                            <div>
+                                <p class="text-xs text-[#64748B] uppercase tracking-wide">
+                                    Ticket Number
+                                </p>
+                                <p class="font-bold text-lg text-[#1E293B]">
+                                    {{ $violation->ticket_number }}
+                                </p>
+                            </div>
+
+                            <span class="inline-flex self-start px-3 py-1 rounded-full text-sm font-semibold
+                                {{ $violation->status === 'Completed'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-yellow-100 text-yellow-700' }}">
+                                {{ $violation->status }}
+                            </span>
+
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-4 text-sm">
+
+                            <div>
+                                <p class="text-[#64748B]">Violator</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->driver
+                                        ? trim($violation->driver->first_name . ' ' . $violation->driver->middle_name . ' ' . $violation->driver->last_name)
+                                        : 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Vehicle</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->vehicle
+                                        ? $violation->vehicle->plate_number . ' - ' . $violation->vehicle->vehicle_type
+                                        : 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Violation</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->violationType->name ?? 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Enforcement Officer</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->user->name ?? 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Date</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->violation_date
+                                        ? \Carbon\Carbon::parse($violation->violation_date)->format('M d, Y')
+                                        : 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Time</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->violation_time
+                                        ? \Carbon\Carbon::parse($violation->violation_time)->format('h:i A')
+                                        : 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <p class="text-[#64748B]">Location</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->location ?? 'N/A' }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                @else
+
+                    <div class="mt-8 bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
+                        No violation record was found for ticket number
+                        <strong>{{ request('ticket_number') }}</strong>.
+                    </div>
+
+                @endif
+
+            @endif
+
+        </div>
                     <button type="button" class="gallery-nav prev" id="galleryPrev" aria-label="Previous image">
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
@@ -879,7 +1003,6 @@
             </div>
 
         </div>
-
     </section>
 
 
@@ -1039,9 +1162,7 @@
                 </div>
 
             </div>
-
         </div>
-
     </section>
 
 
@@ -1087,11 +1208,9 @@
                         <p class="text-[#64748B] leading-relaxed">
 
                             TrafficEnforceNet supports the
-
                             <strong class="text-[#1E293B]">
                                 Public Order and Safety Office (POSO) of Tarlac City
                             </strong>
-
                             by providing a digital platform for organized traffic violation management and improved
                             public service delivery.
 
@@ -1128,7 +1247,6 @@
             </div>
 
         </div>
-
     </section>
 
 
@@ -1271,7 +1389,6 @@
             </div>
 
         </div>
-
     </footer>
 
 
@@ -1329,23 +1446,16 @@
                 const img = document.createElement('img');
 
                 img.src = src;
-
                 img.alt = 'POSO gallery image ' + (index + 1);
-
                 img.loading = 'lazy';
 
-
                 img.onerror = function() {
-
                     this.style.background = '#94a3b8';
-
                     this.alt = 'Image not found';
-
                 };
 
 
                 button.appendChild(img);
-
                 thumbsEl.appendChild(button);
 
 
@@ -1373,12 +1483,9 @@
                 }
 
                 busy = true;
-
                 current = index;
 
-
                 mainImg.classList.remove('gallery-visible');
-
                 mainImg.classList.add('gallery-fade');
 
 
@@ -1387,7 +1494,6 @@
                     mainImg.src = images[current];
 
                     mainImg.classList.remove('gallery-fade');
-
                     mainImg.classList.add('gallery-visible');
 
                     busy = false;
@@ -1449,7 +1555,6 @@
             nextBtn.addEventListener('click', function() {
 
                 next();
-
                 restart();
 
             });
@@ -1458,7 +1563,6 @@
             prevBtn.addEventListener('click', function() {
 
                 prev();
-
                 restart();
 
             });
@@ -1471,19 +1575,13 @@
             document.addEventListener('keydown', function(event) {
 
                 if (event.key === 'ArrowRight') {
-
                     next();
-
                     restart();
-
                 }
 
                 if (event.key === 'ArrowLeft') {
-
                     prev();
-
                     restart();
-
                 }
 
             });
@@ -1498,9 +1596,7 @@
                 clearInterval(timer);
 
                 timer = setInterval(function() {
-
                     next();
-
                 }, 5000);
 
             }
@@ -1509,7 +1605,6 @@
             function restart() {
 
                 clearInterval(timer);
-
                 start();
 
             }
@@ -1520,16 +1615,12 @@
             ============================== */
 
             mainArea.addEventListener('mouseenter', function() {
-
                 clearInterval(timer);
-
             });
 
 
             mainArea.addEventListener('mouseleave', function() {
-
                 start();
-
             });
 
 

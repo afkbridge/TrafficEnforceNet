@@ -19,6 +19,8 @@ use App\Http\Controllers\SuperAdmin\UserManagementController;
 
 use App\Http\Controllers\Admin\ViolationTypeController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Models\Violation;
+use Illuminate\Http\Request;
 
 use App\Http\Controllers\PublicPortal\SearchController;
 
@@ -28,8 +30,21 @@ use App\Http\Controllers\PublicPortal\SearchController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('landing');
+Route::get('/', function (Request $request) {
+    $violation = null;
+
+    if ($request->filled('ticket_number')) {
+        $violation = Violation::with([
+            'driver',
+            'vehicle',
+            'violationType',
+            'user'
+        ])
+        ->where('ticket_number', $request->ticket_number)
+        ->first();
+    }
+
+    return view('landing', compact('violation'));
 })->name('landing');
 
 Route::get('/check-ticket', [SearchController::class, 'check'])

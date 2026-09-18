@@ -18,12 +18,14 @@ class SearchController extends Controller
 
         $ticketNumber = trim($request->ticket_number);
 
+        // Get the ticket directly from the violations database table.
         $violation = Violation::with('violationType')
             ->where('ticket_number', $ticketNumber)
             ->first();
 
+        // Ticket not found.
         if (!$violation) {
-            return redirect('/')
+            return redirect('/#ticket-status')
                 ->withInput()
                 ->with(
                     'ticket_not_found',
@@ -31,7 +33,9 @@ class SearchController extends Controller
                 );
         }
 
-        return redirect('/')
+        // Use the status stored in the database.
+        // The database now allows only Pending and Settled.
+        return redirect('/#ticket-status')
             ->with('ticket_result', $violation);
     }
 }

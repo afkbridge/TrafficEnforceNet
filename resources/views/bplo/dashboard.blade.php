@@ -608,7 +608,7 @@ Status: ${this.dataset.status}`;
     |--------------------------------------------------------------------------
     */
 
-    viewButtons.forEach(function(button) {
+        viewButtons.forEach(function(button) {
 
         button.addEventListener('click', function() {
 
@@ -618,6 +618,9 @@ Status: ${this.dataset.status}`;
             const name =
                 document.getElementById('detailName');
 
+            const vehicle =
+                document.getElementById('detailVehicle');
+
             const violation =
                 document.getElementById('detailViolation');
 
@@ -626,6 +629,15 @@ Status: ${this.dataset.status}`;
 
             const date =
                 document.getElementById('detailDate');
+
+            const time =
+                document.getElementById('detailTime');
+
+            const location =
+                document.getElementById('detailLocation');
+
+            const remarks =
+                document.getElementById('detailRemarks');
 
             const status =
                 document.getElementById('detailStatus');
@@ -641,6 +653,11 @@ Status: ${this.dataset.status}`;
                     this.dataset.name;
             }
 
+            if (vehicle) {
+                vehicle.textContent =
+                    this.dataset.vehicle;
+            }
+
             if (violation) {
                 violation.textContent =
                     this.dataset.violation;
@@ -654,6 +671,21 @@ Status: ${this.dataset.status}`;
             if (date) {
                 date.textContent =
                     this.dataset.date;
+            }
+
+            if (time) {
+                time.textContent =
+                    this.dataset.time;
+            }
+
+            if (location) {
+                location.textContent =
+                    this.dataset.location;
+            }
+
+            if (remarks) {
+                remarks.textContent =
+                    this.dataset.remarks;
             }
 
             if (status) {
