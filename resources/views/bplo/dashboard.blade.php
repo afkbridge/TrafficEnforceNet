@@ -92,7 +92,67 @@
 
             </div>
 
+{{-- DATE FILTER --}}
+<form
+    method="GET"
+    action="{{ route('bplo.dashboard') }}"
+    class="dashboard-date-filter"
+>
+    <button
+        type="submit"
+        class="date-filter-btn"
+    >
+        <i class="fa-solid fa-filter"></i>
+        <span>Filter</span>
+    </button>
 
+    <select
+        name="date_filter"
+        id="dateFilter"
+        class="date-filter-select"
+    >
+        <option value="all" {{ $dateFilter === 'all' ? 'selected' : '' }}>
+            All Dates
+        </option>
+
+        <option value="today" {{ $dateFilter === 'today' ? 'selected' : '' }}>
+            Today
+        </option>
+
+        <option value="yesterday" {{ $dateFilter === 'yesterday' ? 'selected' : '' }}>
+            Yesterday
+        </option>
+
+        <option value="this_week" {{ $dateFilter === 'this_week' ? 'selected' : '' }}>
+            This Week
+        </option>
+
+        <option value="this_month" {{ $dateFilter === 'this_month' ? 'selected' : '' }}>
+            This Month
+        </option>
+
+        <option value="specific_date" {{ $dateFilter === 'specific_date' ? 'selected' : '' }}>
+            Specific Date
+        </option>
+    </select>
+
+    <input
+        type="date"
+        name="specific_date"
+        id="specificDate"
+        class="specific-date-input"
+        value="{{ $specificDate ?? '' }}"
+        title="Specific Date"
+    >
+
+    <a
+        href="{{ route('bplo.dashboard') }}"
+        class="date-reset-btn"
+    >
+        <i class="fa-solid fa-rotate-left"></i>
+        <span>Reset</span>
+    </a>
+</form>
             {{-- SEARCH + FILTER --}}
             <div class="violation-tools">
 
@@ -377,7 +437,76 @@ $remarksInfo =
 
 document.addEventListener('DOMContentLoaded', function () {
 
+    /*
+    |--------------------------------------------------------------------------
+    | DATE FILTER
+    |--------------------------------------------------------------------------
+    */
 
+    const dashboardDateFilter =
+        document.getElementById('dateFilter');
+
+    const dashboardSpecificDate =
+        document.getElementById('specificDate');
+
+    const dashboardFilterForm =
+        document.querySelector('.dashboard-date-filter');
+
+    if (
+        dashboardDateFilter &&
+        dashboardSpecificDate &&
+        dashboardFilterForm
+    ) {
+
+        /*
+         * Choosing a date automatically means
+         * Specific Date.
+         */
+        dashboardSpecificDate.addEventListener(
+            'input',
+            function () {
+
+                if (this.value !== '') {
+                    dashboardDateFilter.value = 'specific_date';
+                }
+
+            }
+        );
+
+
+        /*
+         * Choosing All Dates, Today, Yesterday,
+         * This Week, or This Month clears
+         * the specific date.
+         */
+        dashboardDateFilter.addEventListener(
+            'change',
+            function () {
+
+                if (this.value !== 'specific_date') {
+                    dashboardSpecificDate.value = '';
+                }
+
+            }
+        );
+
+
+        /*
+         * Final check before submitting.
+         * If a date exists, force Specific Date.
+         */
+        dashboardFilterForm.addEventListener(
+            'submit',
+            function () {
+
+                if (dashboardSpecificDate.value !== '') {
+                    dashboardDateFilter.value = 'specific_date';
+                }
+
+            }
+        );
+
+    }
         /*
     |--------------------------------------------------------------------------
     | SEARCH + STATUS FILTER

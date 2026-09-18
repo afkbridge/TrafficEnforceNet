@@ -12,7 +12,9 @@ class ViolationController extends Controller
     {
         $status = $request->get('status', 'all');
         $search = $request->get('search');
-
+$dateFilter = $request->get('date_filter', 'all');
+$specificDate = $request->get('specific_date');
+$now = now();
         /*
         |--------------------------------------------------------------------------
         | Violation Query
@@ -35,7 +37,53 @@ class ViolationController extends Controller
         if ($status === 'Pending' || $status === 'Completed') {
             $query->where('status', $status);
         }
+/*
+|--------------------------------------------------------------------------
+| Filter by Date
+|--------------------------------------------------------------------------
+*/
 
+switch ($dateFilter) {
+
+    case 'today':
+        $query->whereDate(
+            'violation_date',
+            $now->toDateString()
+        );
+        break;
+
+    case 'yesterday':
+        $query->whereDate(
+            'violation_date',
+            $now->copy()->subDay()->toDateString()
+        );
+        break;
+
+    case 'this_week':
+        $query->whereBetween(
+            'violation_date',
+            [
+                $now->copy()->startOfWeek()->toDateString(),
+                $now->copy()->endOfWeek()->toDateString()
+            ]
+        );
+        break;
+
+    case 'this_month':
+        $query
+            ->whereYear('violation_date', $now->year)
+            ->whereMonth('violation_date', $now->month);
+        break;
+
+    case 'specific_date':
+        if (!empty($specificDate)) {
+            $query->whereDate(
+                'violation_date',
+                $specificDate
+            );
+        }
+        break;
+}
         /*
         |--------------------------------------------------------------------------
         | Search
@@ -122,13 +170,15 @@ class ViolationController extends Controller
         */
 
         return view('bplo.violations.index', compact(
-            'violations',
-            'status',
-            'search',
-            'allTimeViolations',
-            'pendingViolations',
-            'recentViolations'
-        ));
+    'violations',
+    'status',
+    'search',
+    'dateFilter',
+    'specificDate',
+    'allTimeViolations',
+    'pendingViolations',
+    'recentViolations'
+));
     }
 
     /*

@@ -90,32 +90,85 @@
             </div>
 
 
-            {{-- SEARCH --}}
-            <form
-                method="GET"
-                action="{{ route('bplo.violations.index') }}"
-                class="review-search-form"
-            >
-
-                @if($status !== 'all')
-                    <input
-                        type="hidden"
-                        name="status"
-                        value="{{ $status }}"
-                    >
-                @endif
-
-                <input
-    type="text"
-    name="search"
-    id="reviewViolationSearch"
-    value="{{ $search ?? '' }}"
-    placeholder="Search violation..."
-    class="review-search"
-    autocomplete="off"
+            {{-- FILTER + SEARCH --}}
+<form
+    method="GET"
+    action="{{ route('bplo.violations.index') }}"
+    class="review-filter-toolbar"
 >
+    @if($status !== 'all')
+        <input
+            type="hidden"
+            name="status"
+            value="{{ $status }}"
+        >
+    @endif
 
-            </form>
+    <button
+        type="submit"
+        class="review-filter-btn"
+    >
+        <i class="fa-solid fa-filter"></i>
+        <span>Filter</span>
+    </button>
+
+    <select
+        name="date_filter"
+        id="reviewDateFilter"
+        class="review-date-filter"
+    >
+        <option value="all" {{ $dateFilter === 'all' ? 'selected' : '' }}>
+            All Dates
+        </option>
+
+        <option value="today" {{ $dateFilter === 'today' ? 'selected' : '' }}>
+            Today
+        </option>
+
+        <option value="yesterday" {{ $dateFilter === 'yesterday' ? 'selected' : '' }}>
+            Yesterday
+        </option>
+
+        <option value="this_week" {{ $dateFilter === 'this_week' ? 'selected' : '' }}>
+            This Week
+        </option>
+
+        <option value="this_month" {{ $dateFilter === 'this_month' ? 'selected' : '' }}>
+            This Month
+        </option>
+
+        <option value="specific_date" {{ $dateFilter === 'specific_date' ? 'selected' : '' }}>
+            Specific Date
+        </option>
+    </select>
+
+    <input
+        type="date"
+        name="specific_date"
+        id="reviewSpecificDate"
+        class="review-specific-date"
+        value="{{ $specificDate ?? '' }}"
+        title="Specific Date"
+    >
+
+    <input
+        type="text"
+        name="search"
+        id="reviewViolationSearch"
+        value="{{ $search ?? '' }}"
+        placeholder="Search violation..."
+        class="review-search"
+        autocomplete="off"
+    >
+
+    <a
+        href="{{ route('bplo.violations.index', $status !== 'all' ? ['status' => $status] : []) }}"
+        class="review-filter-reset"
+    >
+        <i class="fa-solid fa-rotate-left"></i>
+        <span>Reset</span>
+    </a>
+</form>
 
         </div>
 
@@ -366,7 +419,75 @@
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
+/*
+|--------------------------------------------------------------------------
+| DATE FILTER
+|--------------------------------------------------------------------------
+*/
 
+const reviewDateFilter =
+    document.getElementById('reviewDateFilter');
+
+const reviewSpecificDate =
+    document.getElementById('reviewSpecificDate');
+
+const reviewFilterForm =
+    document.querySelector('.review-filter-toolbar');
+
+if (
+    reviewDateFilter &&
+    reviewSpecificDate &&
+    reviewFilterForm
+) {
+
+    /*
+     * Choosing a date automatically means
+     * "Specific Date".
+     */
+    reviewSpecificDate.addEventListener(
+        'input',
+        function () {
+
+            if (this.value !== '') {
+                reviewDateFilter.value = 'specific_date';
+            }
+
+        }
+    );
+
+
+    /*
+     * Choosing another date filter clears
+     * the specific date.
+     */
+    reviewDateFilter.addEventListener(
+        'change',
+        function () {
+
+            if (this.value !== 'specific_date') {
+                reviewSpecificDate.value = '';
+            }
+
+        }
+    );
+
+
+    /*
+     * Final check before submitting.
+     * If a date exists, force Specific Date.
+     */
+    reviewFilterForm.addEventListener(
+        'submit',
+        function () {
+
+            if (reviewSpecificDate.value !== '') {
+                reviewDateFilter.value = 'specific_date';
+            }
+
+        }
+    );
+
+}
 
     /*
     |--------------------------------------------------------------------------

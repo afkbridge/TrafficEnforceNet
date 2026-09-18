@@ -1843,3 +1843,224 @@ body.modal-open {
 
     font-size: 10px;
 }
+/* =========================================================
+   BPLO DATE FILTER TOOLBARS
+========================================================= */
+
+/* DASHBOARD DATE FILTER */
+.dashboard-date-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    flex-wrap: nowrap;
+}
+
+.date-filter-btn,
+.date-reset-btn {
+    height: 38px;
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    text-decoration: none;
+    white-space: nowrap;
+
+    cursor: pointer;
+}
+
+.date-filter-btn {
+    border: 1px solid #0877c9;
+    background: #0877c9;
+    color: #ffffff;
+}
+
+.date-filter-btn:hover {
+    background: #0665ad;
+    border-color: #0665ad;
+}
+
+.date-reset-btn {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+.date-reset-btn:hover {
+    background: #f8fafc;
+    color: #075fa5;
+}
+
+.date-filter-select {
+    width: 125px;
+    height: 38px;
+
+    padding: 0 10px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #475569;
+
+    font-size: 12px;
+    outline: none;
+}
+
+.specific-date-input {
+    width: 145px;
+    height: 38px;
+
+    padding: 0 10px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #475569;
+
+    font-size: 12px;
+    outline: none;
+}
+
+.date-filter-select:focus,
+.specific-date-input:focus {
+    border-color: #0877c9;
+    box-shadow: 0 0 0 2px rgba(8, 119, 201, 0.08);
+}
+
+
+/* =========================================================
+   VIOLATION REVIEW FILTER TOOLBAR
+========================================================= */
+
+.review-filter-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 8px;
+    margin: 0;
+
+    flex-wrap: nowrap;
+}
+
+.review-filter-btn,
+.review-filter-reset {
+    height: 38px;
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    text-decoration: none;
+    white-space: nowrap;
+
+    cursor: pointer;
+}
+
+.review-filter-btn {
+    border: 1px solid #0877c9;
+    background: #0877c9;
+    color: #ffffff;
+}
+
+.review-filter-btn:hover {
+    background: #0665ad;
+    border-color: #0665ad;
+}
+
+.review-filter-reset {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+}
+
+.review-filter-reset:hover {
+    background: #f8fafc;
+    color: #075fa5;
+}
+
+.review-date-filter {
+    width: 125px;
+    height: 38px;
+
+    padding: 0 10px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #475569;
+
+    font-size: 12px;
+    outline: none;
+}
+
+.review-specific-date {
+    width: 145px;
+    height: 38px;
+
+    padding: 0 10px;
+
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+
+    background: #ffffff;
+    color: #475569;
+
+    font-size: 12px;
+    outline: none;
+}
+
+.review-date-filter:focus,
+.review-specific-date:focus {
+    border-color: #0877c9;
+    box-shadow: 0 0 0 2px rgba(8, 119, 201, 0.08);
+}
+
+
+/* =========================================================
+   FILTER TOOLBAR RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+
+    .dashboard-date-filter,
+    .review-filter-toolbar {
+        flex-wrap: wrap;
+    }
+}
+
+@media (max-width: 900px) {
+
+    .dashboard-date-filter,
+    .review-filter-toolbar {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .date-filter-select,
+    .specific-date-input,
+    .review-date-filter,
+    .review-specific-date,
+    .review-search {
+        flex: 1;
+        min-width: 140px;
+    }
+}
