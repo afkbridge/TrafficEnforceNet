@@ -4,7 +4,7 @@
 
 @section('content')
 
-```
+
 @if ($errors->any())
     <div class="mx-5 mt-5 bg-red-50 border border-red-200 text-red-700 rounded-2xl p-4 shadow-sm">
         <div class="flex items-start gap-3">
