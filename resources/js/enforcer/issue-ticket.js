@@ -6,110 +6,1055 @@
 document.addEventListener('DOMContentLoaded', function () {
 
     // ===================================================
-    // TICKET IMAGE HANDLING
+    // HELPER - GET ELEMENT
     // ===================================================
 
-    window.openTicketCamera = function () {
+    function getElement(id) {
+        return document.getElementById(id);
+    }
+
+
+    // ===================================================
+    // HELPER - ONLY SET VALUE IF OCR FOUND SOMETHING
+    // ===================================================
+
+    function setFieldValue(id, value) {
+
+        const field = getElement(id);
+
+        if (
+            field &&
+            value !== null &&
+            value !== undefined &&
+            String(value).trim() !== ''
+        ) {
+            field.value = String(value).trim();
+        }
+    }
+
+
+    // ===================================================
+    // DRIVER'S LICENSE OCR STATUS
+    // ===================================================
+
+    function setDriverOcrStatus(
+        type,
+        title,
+        message
+    ) {
+
+        const badge = getElement('ocrBadge');
+        const status = getElement('ocrStatus');
+        const icon = getElement('ocrIcon');
+        const ocrTitle = getElement('ocrTitle');
+        const ocrMessage = getElement('ocrMessage');
+
+        if (ocrTitle) {
+            ocrTitle.innerText = title;
+        }
+
+        if (ocrMessage) {
+            ocrMessage.innerText = message;
+        }
+
+        if (status) {
+
+            status.classList.remove(
+                'bg-blue-50',
+                'bg-green-50',
+                'bg-red-50',
+                'bg-yellow-50'
+            );
+
+            if (type === 'success') {
+                status.classList.add('bg-green-50');
+
+            } else if (type === 'error') {
+                status.classList.add('bg-red-50');
+
+            } else if (type === 'loading') {
+                status.classList.add('bg-yellow-50');
+
+            } else {
+                status.classList.add('bg-blue-50');
+            }
+        }
+
+        if (badge) {
+
+            badge.classList.remove(
+                'bg-blue-100',
+                'bg-green-100',
+                'bg-red-100',
+                'bg-yellow-100',
+                'text-blue-700',
+                'text-green-700',
+                'text-red-700',
+                'text-yellow-700'
+            );
+
+            if (type === 'success') {
+
+                badge.classList.add(
+                    'bg-green-100',
+                    'text-green-700'
+                );
+
+                badge.innerText = 'Completed';
+
+            } else if (type === 'error') {
+
+                badge.classList.add(
+                    'bg-red-100',
+                    'text-red-700'
+                );
+
+                badge.innerText = 'Error';
+
+            } else if (type === 'loading') {
+
+                badge.classList.add(
+                    'bg-yellow-100',
+                    'text-yellow-700'
+                );
+
+                badge.innerText = 'Processing';
+
+            } else {
+
+                badge.classList.add(
+                    'bg-blue-100',
+                    'text-blue-700'
+                );
+
+                badge.innerText = 'Ready';
+            }
+        }
+
+        if (icon) {
+
+            if (type === 'success') {
+                icon.innerText = '✓';
+
+            } else if (type === 'error') {
+                icon.innerText = '✕';
+
+            } else if (type === 'loading') {
+                icon.innerText = '⏳';
+
+            } else {
+                icon.innerText = 'ℹ';
+            }
+        }
+    }
+
+
+    // ===================================================
+    // CITATION TICKET OCR STATUS
+    // ===================================================
+
+    function setTicketOcrStatus(
+        type,
+        title,
+        message
+    ) {
+
+        const badge = getElement('ticketOcrBadge');
+        const status = getElement('ticketOcrStatus');
+        const icon = getElement('ticketOcrIcon');
+        const ocrTitle = getElement('ticketOcrTitle');
+        const ocrMessage = getElement('ticketOcrMessage');
+
+        if (ocrTitle) {
+            ocrTitle.innerText = title;
+        }
+
+        if (ocrMessage) {
+            ocrMessage.innerText = message;
+        }
+
+        if (status) {
+
+            status.classList.remove(
+                'bg-blue-50',
+                'bg-green-50',
+                'bg-red-50',
+                'bg-yellow-50'
+            );
+
+            if (type === 'success') {
+                status.classList.add('bg-green-50');
+
+            } else if (type === 'error') {
+                status.classList.add('bg-red-50');
+
+            } else if (type === 'loading') {
+                status.classList.add('bg-yellow-50');
+
+            } else {
+                status.classList.add('bg-blue-50');
+            }
+        }
+
+        if (badge) {
+
+            badge.classList.remove(
+                'bg-blue-100',
+                'bg-green-100',
+                'bg-red-100',
+                'bg-yellow-100',
+                'text-blue-700',
+                'text-green-700',
+                'text-red-700',
+                'text-yellow-700'
+            );
+
+            if (type === 'success') {
+
+                badge.classList.add(
+                    'bg-green-100',
+                    'text-green-700'
+                );
+
+                badge.innerText = 'Completed';
+
+            } else if (type === 'error') {
+
+                badge.classList.add(
+                    'bg-red-100',
+                    'text-red-700'
+                );
+
+                badge.innerText = 'Error';
+
+            } else if (type === 'loading') {
+
+                badge.classList.add(
+                    'bg-yellow-100',
+                    'text-yellow-700'
+                );
+
+                badge.innerText = 'Processing';
+
+            } else {
+
+                badge.classList.add(
+                    'bg-blue-100',
+                    'text-blue-700'
+                );
+
+                badge.innerText = 'Ready';
+            }
+        }
+
+        if (icon) {
+
+            if (type === 'success') {
+                icon.innerText = '✓';
+
+            } else if (type === 'error') {
+                icon.innerText = '✕';
+
+            } else if (type === 'loading') {
+                icon.innerText = '⏳';
+
+            } else {
+                icon.innerText = 'ℹ';
+            }
+        }
+    }
+
+
+    // ===================================================
+    // DRIVER'S LICENSE CAMERA
+    // ===================================================
+
+    window.openLicenseCamera = function () {
 
         const input =
-            document.getElementById('ticket_image');
+            getElement('driver_license');
 
-        if (input) {
-            input.setAttribute('capture', 'environment');
-            input.click();
+        if (!input) {
+            console.error(
+                'Driver license input not found.'
+            );
+            return;
         }
+
+        input.setAttribute(
+            'capture',
+            'environment'
+        );
+
+        input.click();
     };
 
 
-    window.openTicketFile = function () {
+    // ===================================================
+    // DRIVER'S LICENSE FILE
+    // ===================================================
+
+    window.openLicenseFile = function () {
 
         const input =
-            document.getElementById('ticket_image');
+            getElement('driver_license');
 
-        if (input) {
-            input.removeAttribute('capture');
-            input.click();
+        if (!input) {
+            console.error(
+                'Driver license input not found.'
+            );
+            return;
         }
+
+        input.removeAttribute(
+            'capture'
+        );
+
+        input.click();
     };
 
 
-    window.previewTicket = function (event) {
+    // ===================================================
+    // DRIVER'S LICENSE OCR
+    // ===================================================
+
+    window.processDriverLicense = async function (event) {
+
+        const input = event.target;
 
         const file =
-            event.target.files[0];
+            input?.files?.[0];
 
         if (!file) {
             return;
         }
 
+        // -----------------------------------------------
+        // PREVIEW
+        // -----------------------------------------------
+
         const preview =
-            document.getElementById('ticketPreview');
+            getElement('licensePreview');
 
         const container =
-            document.getElementById('ticketPreviewContainer');
+            getElement('licensePreviewContainer');
 
         if (preview && container) {
+
+            if (preview.src) {
+                URL.revokeObjectURL(
+                    preview.src
+                );
+            }
 
             preview.src =
                 URL.createObjectURL(file);
 
-            container.classList.remove('hidden');
+            container.classList.remove(
+                'hidden'
+            );
         }
 
 
-        // ===================================================
-        // OCR STATUS
-        // ===================================================
+        // -----------------------------------------------
+        // STATUS
+        // -----------------------------------------------
 
-        const ocrTitle =
-            document.getElementById('ocrTitle');
-
-        const ocrMessage =
-            document.getElementById('ocrMessage');
-
-        const ocrIcon =
-            document.getElementById('ocrIcon');
+        setDriverOcrStatus(
+            'loading',
+            'Reading driver\'s license...',
+            'Please wait while the system extracts the driver information.'
+        );
 
 
-        if (ocrTitle) {
+        // -----------------------------------------------
+        // FORM DATA
+        // -----------------------------------------------
 
-            ocrTitle.innerText =
-                'Ticket image ready';
-        }
+        const formData =
+            new FormData();
+
+        formData.append(
+            'driver_license',
+            file
+        );
 
 
-        if (ocrMessage) {
+        try {
 
-            ocrMessage.innerText =
-                'Image uploaded. Waiting for OCR processing.';
-        }
+            // -------------------------------------------
+            // SEND TO LARAVEL
+            // -------------------------------------------
+
+            const response =
+                await fetch(
+                    '/enforcer/ocr/driver-license',
+                    {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN':
+                                document.querySelector(
+                                    'meta[name="csrf-token"]'
+                                )?.getAttribute(
+                                    'content'
+                                ) || '',
+
+                            'Accept':
+                                'application/json'
+                        }
+                    }
+                );
 
 
-        if (ocrIcon) {
+            // -------------------------------------------
+            // READ RESPONSE
+            // -------------------------------------------
 
-            ocrIcon.innerText =
-                '✓';
+            const data =
+                await response.json();
 
-            ocrIcon.classList.remove(
-                'bg-blue-100'
+
+            // -------------------------------------------
+            // ERROR RESPONSE
+            // -------------------------------------------
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    'Driver\'s license OCR failed.'
+                );
+            }
+
+
+            // -------------------------------------------
+            // OCR DATA
+            // -------------------------------------------
+
+            const result =
+                data.data || {};
+
+
+            // -------------------------------------------
+            // POPULATE DRIVER FIELDS
+            // -------------------------------------------
+
+            setFieldValue(
+                'first_name',
+                result.first_name
             );
 
-            ocrIcon.classList.add(
-                'bg-green-100'
+            setFieldValue(
+                'middle_name',
+                result.middle_name
+            );
+
+            setFieldValue(
+                'last_name',
+                result.last_name
+            );
+
+            setFieldValue(
+                'license_number',
+                result.license_number
+            );
+
+            setFieldValue(
+                'address',
+                result.address
+            );
+
+            setFieldValue(
+                'birth_date',
+                result.birth_date
+            );
+
+
+            // -------------------------------------------
+            // SUCCESS
+            // -------------------------------------------
+
+            setDriverOcrStatus(
+                'success',
+                'Driver\'s license scanned',
+                data.message ||
+                'Driver information was extracted successfully.'
+            );
+
+
+            console.log(
+                'Driver License OCR:',
+                result
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Driver License OCR Error:',
+                error
+            );
+
+            setDriverOcrStatus(
+                'error',
+                'OCR failed',
+                error.message ||
+                'Unable to read the driver\'s license.'
             );
         }
     };
 
 
     // ===================================================
-    // VIOLATION TYPE - OTHERS
+    // CITATION TICKET CAMERA
+    // ===================================================
+
+    window.openTicketCamera = function () {
+
+        const input =
+            getElement('ticket_image');
+
+        if (!input) {
+            console.error(
+                'Ticket image input not found.'
+            );
+            return;
+        }
+
+        input.setAttribute(
+            'capture',
+            'environment'
+        );
+
+        input.click();
+    };
+
+
+    // ===================================================
+    // CITATION TICKET FILE
+    // ===================================================
+
+    window.openTicketFile = function () {
+
+        const input =
+            getElement('ticket_image');
+
+        if (!input) {
+            console.error(
+                'Ticket image input not found.'
+            );
+            return;
+        }
+
+        input.removeAttribute(
+            'capture'
+        );
+
+        input.click();
+    };
+
+
+    // ===================================================
+    // CITATION TICKET PREVIEW + OCR
+    // ===================================================
+
+    window.previewTicket = function (event) {
+
+        const input = event.target;
+
+        const file =
+            input?.files?.[0];
+
+        if (!file) {
+            return;
+        }
+
+
+        // -----------------------------------------------
+        // PREVIEW
+        // -----------------------------------------------
+
+        const preview =
+            getElement('ticketPreview');
+
+        const container =
+            getElement('ticketPreviewContainer');
+
+        if (preview && container) {
+
+            if (preview.src) {
+                URL.revokeObjectURL(
+                    preview.src
+                );
+            }
+
+            preview.src =
+                URL.createObjectURL(file);
+
+            container.classList.remove(
+                'hidden'
+            );
+        }
+
+
+        // -----------------------------------------------
+        // START OCR
+        // -----------------------------------------------
+
+        processCitationTicket(
+            file
+        );
+    };
+
+
+    // ===================================================
+    // CITATION TICKET OCR
+    // ===================================================
+
+    async function processCitationTicket(file) {
+
+        if (!file) {
+            return;
+        }
+
+
+        // -----------------------------------------------
+        // STATUS
+        // -----------------------------------------------
+
+        setTicketOcrStatus(
+            'loading',
+            'Reading citation ticket...',
+            'Please wait while the system extracts the ticket information.'
+        );
+
+
+        // -----------------------------------------------
+        // FORM DATA
+        // -----------------------------------------------
+
+        const formData =
+            new FormData();
+
+        formData.append(
+            'ticket_image',
+            file
+        );
+
+
+        try {
+
+            // -------------------------------------------
+            // SEND TO LARAVEL
+            // -------------------------------------------
+
+            const response =
+                await fetch(
+                    '/enforcer/ocr/citation-ticket',
+                    {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRF-TOKEN':
+                                document.querySelector(
+                                    'meta[name="csrf-token"]'
+                                )?.getAttribute(
+                                    'content'
+                                ) || '',
+
+                            'Accept':
+                                'application/json'
+                        }
+                    }
+                );
+
+
+            // -------------------------------------------
+            // READ RESPONSE
+            // -------------------------------------------
+
+            const data =
+                await response.json();
+
+
+            // -------------------------------------------
+            // ERROR RESPONSE
+            // -------------------------------------------
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.message ||
+                    'Citation ticket OCR failed.'
+                );
+            }
+
+
+            // -------------------------------------------
+            // OCR RESULT
+            // -------------------------------------------
+
+            const result =
+                data.data || {};
+
+
+            // -------------------------------------------
+            // POPULATE TICKET NUMBER
+            // -----------------------------------------------
+
+            setFieldValue(
+                'ticket_number',
+                result.ticket_number
+            );
+
+
+            // -------------------------------------------
+            // POPULATE DRIVER INFORMATION
+            // -------------------------------------------
+
+            setFieldValue(
+                'first_name',
+                result.first_name
+            );
+
+            setFieldValue(
+                'middle_name',
+                result.middle_name
+            );
+
+            setFieldValue(
+                'last_name',
+                result.last_name
+            );
+
+            setFieldValue(
+                'license_number',
+                result.license_number
+            );
+
+            setFieldValue(
+                'address',
+                result.address
+            );
+
+            setFieldValue(
+                'birth_date',
+                result.birth_date
+            );
+
+
+            // -------------------------------------------
+            // POPULATE VEHICLE INFORMATION
+            // -------------------------------------------
+
+            setFieldValue(
+                'plate_number',
+                result.plate_number
+            );
+
+            setFieldValue(
+                'vehicle_type',
+                result.vehicle_type
+            );
+
+            setFieldValue(
+                'region_number',
+                result.region_number
+            );
+
+            setFieldValue(
+                'owner_name',
+                result.owner_name
+            );
+
+
+            // -------------------------------------------
+            // IMPORTANT:
+            // DO NOT POPULATE GPS LOCATION FROM OCR
+            //
+            // The location field is controlled by GPS.
+            // The ticket's "Place of Violation" should
+            // not overwrite the actual captured GPS address.
+            // -------------------------------------------
+
+
+            // -------------------------------------------
+            // HANDLE DETECTED VIOLATIONS
+            // -------------------------------------------
+
+            handleDetectedViolations(
+                result.violations || []
+            );
+
+
+            // -------------------------------------------
+            // SUCCESS
+            // -------------------------------------------
+
+            setTicketOcrStatus(
+                'success',
+                'Citation ticket scanned',
+                data.message ||
+                'Ticket information was extracted successfully.'
+            );
+
+
+            console.log(
+                'Citation Ticket OCR:',
+                result
+            );
+
+
+            // -------------------------------------------
+            // RAW OCR TEXT
+            // -------------------------------------------
+
+            if (data.raw_text) {
+
+                console.log(
+                    'Citation Ticket OCR Raw Text:',
+                    data.raw_text
+                );
+            }
+
+        } catch (error) {
+
+            console.error(
+                'Citation Ticket OCR Error:',
+                error
+            );
+
+            setTicketOcrStatus(
+                'error',
+                'OCR failed',
+                error.message ||
+                'Unable to read the citation ticket.'
+            );
+        }
+    }
+
+
+    // ===================================================
+    // HANDLE OCR DETECTED VIOLATIONS
+    // ===================================================
+
+    function handleDetectedViolations(
+        violations
+    ) {
+
+        if (
+            !Array.isArray(violations) ||
+            violations.length === 0
+        ) {
+            return;
+        }
+
+
+        const select =
+            getElement('violation_type_id');
+
+        const otherContainer =
+            getElement('otherViolationContainer');
+
+        const otherInput =
+            getElement('other_violation');
+
+        const remarks =
+            getElement('remarks');
+
+
+        if (!select) {
+            return;
+        }
+
+
+        // -----------------------------------------------
+        // NORMALIZE VIOLATIONS
+        // -----------------------------------------------
+
+        const detected =
+            violations
+                .map(function (violation) {
+
+                    return String(violation)
+                        .replace(/\s+/g, ' ')
+                        .trim();
+
+                })
+                .filter(Boolean);
+
+
+        if (detected.length === 0) {
+            return;
+        }
+
+
+        // -----------------------------------------------
+        // TRY TO MATCH EXISTING VIOLATION TYPE
+        // -----------------------------------------------
+
+        const options =
+            Array.from(
+                select.options
+            );
+
+
+        const matchedOptions = [];
+
+
+        detected.forEach(
+            function (detectedViolation) {
+
+                const cleanDetected =
+                    detectedViolation
+                        .toLowerCase()
+                        .replace(/\s+/g, ' ')
+                        .trim();
+
+
+                const match =
+                    options.find(
+                        function (option) {
+
+                            const optionText =
+                                option.textContent
+                                    .toLowerCase()
+                                    .replace(/\s+/g, ' ')
+                                    .trim();
+
+
+                            return (
+                                optionText.includes(
+                                    cleanDetected
+                                ) ||
+                                cleanDetected.includes(
+                                    optionText
+                                )
+                            );
+                        }
+                    );
+
+
+                if (
+                    match &&
+                    match.value !== 'other'
+                ) {
+
+                    matchedOptions.push(
+                        match
+                    );
+                }
+            }
+        );
+
+
+        // -----------------------------------------------
+        // SELECT FIRST MATCH
+        // -----------------------------------------------
+
+        if (
+            matchedOptions.length > 0
+        ) {
+
+            select.value =
+                matchedOptions[0].value;
+
+
+            if (otherContainer) {
+
+                otherContainer.classList.add(
+                    'hidden'
+                );
+            }
+        }
+
+
+        // -----------------------------------------------
+        // IF NO MATCH, USE OTHER
+        // -----------------------------------------------
+
+        else {
+
+            const otherOption =
+                options.find(
+                    function (option) {
+                        return option.value === 'other';
+                    }
+                );
+
+            if (otherOption) {
+
+                select.value =
+                    'other';
+
+                if (otherContainer) {
+
+                    otherContainer.classList.remove(
+                        'hidden'
+                    );
+                }
+
+                if (otherInput) {
+
+                    otherInput.value =
+                        detected.join('; ');
+                }
+            }
+        }
+
+
+        // -----------------------------------------------
+        // PUT DETECTED VIOLATIONS IN REMARKS
+        // -----------------------------------------------
+
+        if (remarks) {
+
+            const detectedText =
+                detected.join('; ');
+
+            const existingRemarks =
+                remarks.value.trim();
+
+            const label =
+                'OCR Detected Violations: ';
+
+
+            if (
+                !existingRemarks.includes(
+                    label
+                )
+            ) {
+
+                remarks.value =
+                    existingRemarks
+                        ? `${existingRemarks}\n\n${label}${detectedText}`
+                        : `${label}${detectedText}`;
+            }
+        }
+
+
+        console.log(
+            'Detected violations:',
+            detected
+        );
+    }
+
+
+    // ===================================================
+    // VIOLATION TYPE - OTHER
     // ===================================================
 
     const violationSelect =
-        document.getElementById('violation_type_id');
+        getElement('violation_type_id');
 
     const otherContainer =
-        document.getElementById('otherViolationContainer');
+        getElement('otherViolationContainer');
 
 
     if (
@@ -121,7 +1066,9 @@ document.addEventListener('DOMContentLoaded', function () {
             'change',
             function () {
 
-                if (this.value === 'other') {
+                if (
+                    this.value === 'other'
+                ) {
 
                     otherContainer.classList.remove(
                         'hidden'
@@ -143,22 +1090,22 @@ document.addEventListener('DOMContentLoaded', function () {
     // ===================================================
 
     const locationInput =
-        document.getElementById('location');
+        getElement('location');
 
     const latitudeInput =
-        document.getElementById('latitude');
+        getElement('latitude');
 
     const longitudeInput =
-        document.getElementById('longitude');
+        getElement('longitude');
 
     const gpsBadge =
-        document.getElementById('gpsStatusBadge');
+        getElement('gpsStatusBadge');
 
     const gpsCoordinates =
-        document.getElementById('gpsCoordinates');
+        getElement('gpsCoordinates');
 
     const locationIcon =
-        document.getElementById('locationIcon');
+        getElement('locationIcon');
 
 
     // ===================================================
@@ -201,7 +1148,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 '⚠️';
         }
 
-
         return;
     }
 
@@ -238,7 +1184,7 @@ document.addEventListener('DOMContentLoaded', function () {
     navigator.geolocation.getCurrentPosition(
 
         // =================================================
-        // SUCCESS
+        // GPS SUCCESS
         // =================================================
 
         function (position) {
@@ -424,12 +1370,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     // =================================================
 
                     const formattedAddress = [
-
                         road,
                         barangay,
                         city,
                         province
-
                     ]
                     .filter(Boolean)
                     .join(', ');
@@ -479,7 +1423,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         province
                     );
 
-
                 } else {
 
                     if (locationInput) {
@@ -518,6 +1461,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         '⚠️';
                 }
             });
+
         },
 
 
