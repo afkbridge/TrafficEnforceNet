@@ -2,6 +2,10 @@
 
 return [
 
+	'ocr_space' => [
+    		'api_key' => env('OCR_SPACE_API_KEY'),
+	],
+
     /*
     |--------------------------------------------------------------------------
     | Third Party Services

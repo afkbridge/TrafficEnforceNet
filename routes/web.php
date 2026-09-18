@@ -69,6 +69,7 @@ Route::get('/enforcer/dashboard', [EnforcerDashboardController::class, 'index'])
     ->middleware(['auth', 'role:POSO Enforcer', 'prevent-back'])
     ->name('enforcer.dashboard');
 
+
 /*
 |--------------------------------------------------------------------------
 | BPLO Dashboard
@@ -127,6 +128,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/reports', [ReportController::class, 'index'])
         ->name('admin.reports.index');
 
+
     /*
     |--------------------------------------------------------------------------
     | Admin Violation Management
@@ -163,14 +165,11 @@ Route::middleware('auth')->group(function () {
         ->name('admin.violation-types.destroy');
 
 
-
     /*
-
-   
-|--------------------------------------------------------------------------
-| Enforcer Management
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Enforcer Management
+    |--------------------------------------------------------------------------
+    */
 
     Route::resource('enforcers', EnforcerController::class);
 
@@ -186,16 +185,16 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Administrator & BPLO User Management
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Administrator & BPLO User Management
+    |--------------------------------------------------------------------------
+    */
 
     /*
-|--------------------------------------------------------------------------
-| Create Administrator / BPLO Account
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Create Administrator / BPLO Account
+    |--------------------------------------------------------------------------
+    */
 
     Route::post(
         '/users/staff',
@@ -204,10 +203,10 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Reset Administrator / BPLO Password
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Reset Administrator / BPLO Password
+    |--------------------------------------------------------------------------
+    */
 
     Route::put(
         '/users/{user}/reset-password',
@@ -216,10 +215,10 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Enable / Disable Administrator / BPLO Account
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Enable / Disable Administrator / BPLO Account
+    |--------------------------------------------------------------------------
+    */
 
     Route::patch(
         '/users/{user}/toggle-status',
@@ -228,10 +227,10 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Delete Administrator / BPLO Account
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Delete Administrator / BPLO Account
+    |--------------------------------------------------------------------------
+    */
 
     Route::delete(
         '/users/{user}',
@@ -240,10 +239,10 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Enforcer Violation Module
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Enforcer Violation Module
+    |--------------------------------------------------------------------------
+    */
 
     Route::middleware('role:POSO Enforcer')->group(function () {
 
@@ -256,6 +255,19 @@ Route::middleware('auth')->group(function () {
             '/enforcer/issue-ticket',
             [EnforcerViolationController::class, 'store']
         )->name('enforcer.violations.store');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Driver's License OCR
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/enforcer/ocr/driver-license',
+            [EnforcerViolationController::class, 'ocrDriverLicense']
+        )->name('enforcer.ocr.driver-license');
+
 
         Route::get(
             '/enforcer/violations',
@@ -284,9 +296,11 @@ Route::middleware('auth')->group(function () {
     });
 
 
-    // --------------------------------------------------------------------------
-    // Enforcer Profile
-    // --------------------------------------------------------------------------
+    /*
+    |--------------------------------------------------------------------------
+    | Enforcer Profile
+    |--------------------------------------------------------------------------
+    */
 
     Route::get('/enforcer/profile', function () {
         return view('enforcer.profile', [
@@ -294,7 +308,6 @@ Route::middleware('auth')->group(function () {
         ]);
     })->middleware(['auth', 'role:POSO Enforcer', 'prevent-back'])
         ->name('enforcer.profile');
-
 
 
     /*
@@ -313,9 +326,11 @@ Route::middleware('auth')->group(function () {
         ->name('profile.destroy');
 });
 
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Routes
 |--------------------------------------------------------------------------
 */
+
 require __DIR__ . '/auth.php';
