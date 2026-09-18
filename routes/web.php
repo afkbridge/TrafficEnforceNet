@@ -21,6 +21,9 @@ use App\Http\Controllers\Admin\ViolationTypeController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Models\Violation;
 use Illuminate\Http\Request;
+
+use App\Http\Controllers\PublicPortal\SearchController;
+
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -43,6 +46,9 @@ Route::get('/', function (Request $request) {
 
     return view('landing', compact('violation'));
 })->name('landing');
+
+Route::get('/check-ticket', [SearchController::class, 'check'])
+    ->name('public.ticket.check');
 
 
 /*
@@ -200,14 +206,11 @@ Route::middleware('auth')->group(function () {
         ->name('admin.violation-types.destroy');
 
 
-
     /*
-
-   
-|--------------------------------------------------------------------------
-| Enforcer Management
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Enforcer Management
+    |--------------------------------------------------------------------------
+    */
 
     Route::resource('enforcers', EnforcerController::class);
 
@@ -223,16 +226,16 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Administrator & BPLO User Management
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Administrator & BPLO User Management
+    |--------------------------------------------------------------------------
+    */
 
     /*
-|--------------------------------------------------------------------------
-| Create Administrator / BPLO Account
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Create Administrator / BPLO Account
+    |--------------------------------------------------------------------------
+    */
 
     Route::post(
         '/users/staff',
@@ -241,10 +244,10 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Reset Administrator / BPLO Password
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Reset Administrator / BPLO Password
+    |--------------------------------------------------------------------------
+    */
 
     Route::put(
         '/users/{user}/reset-password',
@@ -253,10 +256,10 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Enable / Disable Administrator / BPLO Account
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Enable / Disable Administrator / BPLO Account
+    |--------------------------------------------------------------------------
+    */
 
     Route::patch(
         '/users/{user}/toggle-status',
@@ -265,10 +268,10 @@ Route::middleware('auth')->group(function () {
 
 
     /*
-|--------------------------------------------------------------------------
-| Delete Administrator / BPLO Account
-|--------------------------------------------------------------------------
-*/
+    |--------------------------------------------------------------------------
+    | Delete Administrator / BPLO Account
+    |--------------------------------------------------------------------------
+    */
 
     Route::delete(
         '/users/{user}',
@@ -293,6 +296,19 @@ Route::middleware('auth')->group(function () {
             '/enforcer/issue-ticket',
             [EnforcerViolationController::class, 'store']
         )->name('enforcer.violations.store');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Driver's License OCR
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/enforcer/ocr/driver-license',
+            [EnforcerViolationController::class, 'ocrDriverLicense']
+        )->name('enforcer.ocr.driver-license');
+
 
         Route::get(
             '/enforcer/violations',
@@ -339,7 +355,6 @@ Route::middleware('auth')->group(function () {
         'prevent-back'
     ])->name('enforcer.profile');
 
-
     /*
     |--------------------------------------------------------------------------
     | User Profile
@@ -363,5 +378,6 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
+require __DIR__ . '/auth.php';
 require __DIR__ . '/auth.php';
 require __DIR__ . '/auth.php';
