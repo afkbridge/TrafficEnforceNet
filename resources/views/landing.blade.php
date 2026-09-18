@@ -836,6 +836,8 @@
 
                 <!-- Main Image -->
 
+        <!-- ===================== TICKET SEARCH ===================== -->
+    <section id="ticket-search" class="py-10 px-6">
                 <div class="gallery-main" id="galleryMain">
 
                     <img id="posoGalleryImage" src="{{ asset('images/poso2.jpg') }}" alt="POSO Tarlac City"
@@ -844,6 +846,15 @@
                     <div class="gallery-gradient"></div>
 
 
+            <form action="{{ route('landing') }}" method="GET"
+                class="mt-8 flex flex-col sm:flex-row gap-3 justify-center items-center">
+
+                <input type="text"
+                    name="ticket_number"
+                    value="{{ request('ticket_number') }}"
+                    placeholder="Enter Ticket Number"
+                    required
+                    class="w-full sm:w-80 rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#005fbf] focus:border-transparent">
                     <!-- Counter -->
 
                     <div class="gallery-counter">
@@ -855,6 +866,107 @@
 
                     <!-- Previous -->
 
+            @if(request()->filled('ticket_number'))
+
+                @if($violation)
+
+                    <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-left">
+
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+
+                            <div>
+                                <p class="text-xs text-[#64748B] uppercase tracking-wide">
+                                    Ticket Number
+                                </p>
+                                <p class="font-bold text-lg text-[#1E293B]">
+                                    {{ $violation->ticket_number }}
+                                </p>
+                            </div>
+
+                            <span class="inline-flex self-start px-3 py-1 rounded-full text-sm font-semibold
+                                {{ $violation->status === 'Completed'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-yellow-100 text-yellow-700' }}">
+                                {{ $violation->status }}
+                            </span>
+
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-4 text-sm">
+
+                            <div>
+                                <p class="text-[#64748B]">Violator</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->driver
+                                        ? trim($violation->driver->first_name . ' ' . $violation->driver->middle_name . ' ' . $violation->driver->last_name)
+                                        : 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Vehicle</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->vehicle
+                                        ? $violation->vehicle->plate_number . ' - ' . $violation->vehicle->vehicle_type
+                                        : 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Violation</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->violationType->name ?? 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Enforcement Officer</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->user->name ?? 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Date</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->violation_date
+                                        ? \Carbon\Carbon::parse($violation->violation_date)->format('M d, Y')
+                                        : 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div>
+                                <p class="text-[#64748B]">Time</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->violation_time
+                                        ? \Carbon\Carbon::parse($violation->violation_time)->format('h:i A')
+                                        : 'N/A' }}
+                                </p>
+                            </div>
+
+                            <div class="sm:col-span-2">
+                                <p class="text-[#64748B]">Location</p>
+                                <p class="font-semibold text-[#1E293B]">
+                                    {{ $violation->location ?? 'N/A' }}
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                @else
+
+                    <div class="mt-8 bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 text-sm">
+                        No violation record was found for ticket number
+                        <strong>{{ request('ticket_number') }}</strong>.
+                    </div>
+
+                @endif
+
+            @endif
+
+        </div>
                     <button type="button" class="gallery-nav prev" id="galleryPrev" aria-label="Previous image">
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none"
