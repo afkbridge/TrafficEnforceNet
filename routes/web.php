@@ -172,23 +172,35 @@ Route::middleware('auth')->group(function () {
         return view('admin.settings.index');
     })->name('admin.settings');
 
-    Route::put('/admin/settings/account', [SettingsController::class, 'updateAccount'])
-        ->name('admin.settings.account');
+    Route::put(
+        '/admin/settings/account',
+        [SettingsController::class, 'updateAccount']
+    )->name('admin.settings.account');
 
-    Route::put('/admin/settings/password', [SettingsController::class, 'updatePassword'])
-        ->name('admin.settings.password');
+    Route::put(
+        '/admin/settings/password',
+        [SettingsController::class, 'updatePassword']
+    )->name('admin.settings.password');
 
-    Route::get('/admin/settings/violation-types', [ViolationTypeController::class, 'index'])
-        ->name('admin.violation-types.index');
+    Route::get(
+        '/admin/settings/violation-types',
+        [ViolationTypeController::class, 'index']
+    )->name('admin.violation-types.index');
 
-    Route::post('/admin/settings/violation-types', [ViolationTypeController::class, 'store'])
-        ->name('admin.violation-types.store');
+    Route::post(
+        '/admin/settings/violation-types',
+        [ViolationTypeController::class, 'store']
+    )->name('admin.violation-types.store');
 
-    Route::put('/admin/settings/violation-types/{violationType}', [ViolationTypeController::class, 'update'])
-        ->name('admin.violation-types.update');
+    Route::put(
+        '/admin/settings/violation-types/{violationType}',
+        [ViolationTypeController::class, 'update']
+    )->name('admin.violation-types.update');
 
-    Route::delete('/admin/settings/violation-types/{violationType}', [ViolationTypeController::class, 'destroy'])
-        ->name('admin.violation-types.destroy');
+    Route::delete(
+        '/admin/settings/violation-types/{violationType}',
+        [ViolationTypeController::class, 'destroy']
+    )->name('admin.violation-types.destroy');
 
 
     /*
@@ -272,6 +284,12 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:POSO Enforcer')->group(function () {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Issue Traffic Ticket
+        |--------------------------------------------------------------------------
+        */
+
         Route::get(
             '/enforcer/issue-ticket',
             [EnforcerViolationController::class, 'create']
@@ -295,6 +313,24 @@ Route::middleware('auth')->group(function () {
         )->name('enforcer.ocr.driver-license');
 
 
+        /*
+        |--------------------------------------------------------------------------
+        | Traffic Citation Ticket OCR
+        |--------------------------------------------------------------------------
+        */
+
+        Route::post(
+            '/enforcer/ocr/citation-ticket',
+            [EnforcerViolationController::class, 'ocrCitationTicket']
+        )->name('enforcer.ocr.citation-ticket');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Enforcer Violations
+        |--------------------------------------------------------------------------
+        */
+
         Route::get(
             '/enforcer/violations',
             [EnforcerViolationController::class, 'index']
@@ -305,12 +341,27 @@ Route::middleware('auth')->group(function () {
             [EnforcerViolationController::class, 'show']
         )->name('enforcer.violations.show');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Success Page
+        |--------------------------------------------------------------------------
+        */
+
         Route::get(
             '/enforcer/success',
             [EnforcerViolationController::class, 'success']
         )->name('enforcer.success');
 
+
+        /*
+        |--------------------------------------------------------------------------
+        | Enforcer Heartbeat
+        |--------------------------------------------------------------------------
+        */
+
         Route::post('/enforcer/heartbeat', function () {
+
             auth()->user()->update([
                 'last_seen_at' => now(),
             ]);
@@ -318,6 +369,7 @@ Route::middleware('auth')->group(function () {
             return response()->json([
                 'success' => true,
             ]);
+
         })->name('enforcer.heartbeat');
     });
 
@@ -339,6 +391,7 @@ Route::middleware('auth')->group(function () {
         'role:POSO Enforcer',
         'prevent-back'
     ])->name('enforcer.profile');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -363,6 +416,4 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-require __DIR__ . '/auth.php';
-require __DIR__ . '/auth.php';
 require __DIR__ . '/auth.php';
