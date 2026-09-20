@@ -27,7 +27,6 @@ class DashboardController extends Controller
         )
         ->count();
 
-
         $pendingViolations = Violation::whereYear(
             'violation_date',
             $now->year
@@ -39,7 +38,6 @@ class DashboardController extends Controller
         ->where('status', 'Pending')
         ->count();
 
-
         $reviewedViolations = Violation::whereYear(
             'violation_date',
             $now->year
@@ -48,9 +46,8 @@ class DashboardController extends Controller
             'violation_date',
             $now->month
         )
-        ->where('status', 'Completed')
+        ->where('status', 'Settled')
         ->count();
-
 
         /*
         |--------------------------------------------------------------------------
@@ -68,7 +65,6 @@ class DashboardController extends Controller
         ->orderBy('violation_time', 'desc')
         ->take(10)
         ->get();
-
 
         return view('bplo.dashboard', compact(
             'totalViolations',

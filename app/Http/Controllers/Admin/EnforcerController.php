@@ -129,12 +129,23 @@ class EnforcerController extends Controller
             'position' => 'required',
             'employment_status' => 'required',
 
-            'email' => 'required|email|unique:users,email',
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                'unique:users,username',
+            ],
 
             'password' => [
                 'required',
                 'min:8',
                 'confirmed'
+            ],
+
+            'email' => [
+                'nullable',
+                'email',
+                'max:255',
             ],
         ]);
 
@@ -149,7 +160,8 @@ class EnforcerController extends Controller
             $user = User::create([
                 'role_id' => 2,
                 'name' => $request->first_name . ' ' . $request->last_name,
-                'email' => $request->email,
+                'username' => $request->username,
+                'email' => null,
                 'password' => Hash::make($request->password),
                 'account_status' => 'Active',
             ]);
@@ -196,11 +208,11 @@ class EnforcerController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
 
-            'email' => [
+            'username' => [
                 'required',
-                'email',
+                'string',
                 'max:255',
-                'unique:users,email',
+                'unique:users,username',
             ],
 
             'role_id' => [
@@ -236,7 +248,8 @@ class EnforcerController extends Controller
         User::create([
             'role_id' => $request->role_id,
             'name' => $request->name,
-            'email' => $request->email,
+            'username' => $request->username,
+            'email' => null,
             'password' => Hash::make($request->password),
             'account_status' => 'Active',
         ]);
@@ -327,7 +340,7 @@ class EnforcerController extends Controller
     {
         /*
         |--------------------------------------------------------------------------
-        | Only Administrator and BPLO accounts can be deleted here.
+        | Only Administrator and BPLO accounts can be managed here.
         |--------------------------------------------------------------------------
         */
 
@@ -407,7 +420,16 @@ class EnforcerController extends Controller
             'position' => 'required',
             'employment_status' => 'required',
 
-            'email' => 'nullable|email',
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'username')->ignore(
+                    $enforcer->user_id
+                ),
+            ],
+
+            'email' => 'nullable|email|max:255',
         ]);
 
         /*
@@ -436,7 +458,7 @@ class EnforcerController extends Controller
         if ($enforcer->user) {
             $enforcer->user->update([
                 'name' => $request->first_name . ' ' . $request->last_name,
-                'email' => $request->email,
+                'username' => $request->username,
             ]);
         }
 

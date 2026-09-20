@@ -12,11 +12,13 @@
     <div class="bplo-page-header">
 
         <div>
+
             <h1>BPLO Dashboard</h1>
 
             <p>
                 Traffic Violation Management and Monitoring
             </p>
+
         </div>
 
     </div>
@@ -55,10 +57,10 @@
         </div>
 
 
-        {{-- COMPLETED --}}
+        {{-- SETTLED --}}
         <div class="summary-card completed-card">
 
-            <p>Completed</p>
+            <p>Settled</p>
 
             <h2>
                 {{ $reviewedViolations }}
@@ -112,8 +114,8 @@
                         Pending
                     </option>
 
-                    <option value="completed">
-                        Completed
+                    <option value="settled">
+                        Settled
                     </option>
 
                 </select>
@@ -133,18 +135,29 @@
 
                 <thead>
 
-       <tr>
-    <th>Ticket ID</th>
-    <th>Violator</th>
-    <th>Vehicle</th>
-    <th>Violation Type</th>
-    <th>Officer</th>
-    <th>Date & Time</th>
-    <th>Location</th>
-    <th>Remarks</th>
-    <th>Status</th>
-    <th>Action</th>
-</tr>
+                    <tr>
+
+                        <th>Ticket ID</th>
+
+                        <th>Violator</th>
+
+                        <th>Vehicle</th>
+
+                        <th>Violation Type</th>
+
+                        <th>Officer</th>
+
+                        <th>Date & Time</th>
+
+                        <th>Location</th>
+
+                        <th>Remarks</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
 
                 </thead>
 
@@ -175,33 +188,38 @@
 
 
                         $formattedDate = $violation->violation_date
-    ? \Carbon\Carbon::parse(
-        $violation->violation_date
-    )->format('M d, Y')
-    : 'N/A';
+                            ? \Carbon\Carbon::parse(
+                                $violation->violation_date
+                            )->format('M d, Y')
+                            : 'N/A';
 
-$formattedTime = $violation->violation_time
-    ? \Carbon\Carbon::parse(
-        $violation->violation_time
-    )->format('h:i A')
-    : 'N/A';
 
-$vehicleInfo = $violation->vehicle
-    ? collect([
-        $violation->vehicle->plate_number,
-        $violation->vehicle->vehicle_type,
-    ])->filter()->implode(' - ')
-    : 'N/A';
+                        $formattedTime = $violation->violation_time
+                            ? \Carbon\Carbon::parse(
+                                $violation->violation_time
+                            )->format('h:i A')
+                            : 'N/A';
 
-$vehicleInfo = $vehicleInfo ?: 'N/A';
 
-$locationInfo =
-    $violation->location ?: 'N/A';
+                        $vehicleInfo = $violation->vehicle
+                            ? collect([
+                                $violation->vehicle->plate_number,
+                                $violation->vehicle->vehicle_type,
+                            ])->filter()->implode(' - ')
+                            : 'N/A';
 
-$remarksInfo =
-    $violation->remarks ?: 'N/A';
 
-@endphp
+                        $vehicleInfo = $vehicleInfo ?: 'N/A';
+
+
+                        $locationInfo =
+                            $violation->location ?: 'N/A';
+
+
+                        $remarksInfo =
+                            $violation->remarks ?: 'N/A';
+
+                    @endphp
 
 
                     <tr
@@ -209,90 +227,123 @@ $remarksInfo =
                     >
 
                         {{-- TICKET --}}
-<td>
-    {{ $violation->ticket_number }}
-</td>
+                        <td>
 
-{{-- VIOLATOR --}}
-<td>
-    {{ $driverName }}
-</td>
+                            {{ $violation->ticket_number }}
 
-{{-- VEHICLE --}}
-<td>
-    {{ $vehicleInfo }}
-</td>
+                        </td>
 
-{{-- VIOLATION TYPE --}}
-<td>
-    {{ $violationName }}
-</td>
 
-{{-- OFFICER --}}
-<td>
-    {{ $officerName }}
-</td>
+                        {{-- VIOLATOR --}}
+                        <td>
 
-{{-- DATE & TIME --}}
-<td>
-    {{ $formattedDate }}
-    <br>
-    <small>{{ $formattedTime }}</small>
-</td>
+                            {{ $driverName }}
 
-{{-- LOCATION --}}
-<td>
-    {{ $locationInfo }}
-</td>
+                        </td>
 
-{{-- REMARKS --}}
-<td>
-    {{ $remarksInfo }}
-</td>
 
-{{-- STATUS --}}
-<td>
+                        {{-- VEHICLE --}}
+                        <td>
 
-    <form
-        method="POST"
-        action="{{ route('bplo.violations.status', $violation->id) }}"
-        class="status-controls"
-    >
+                            {{ $vehicleInfo }}
 
-        @csrf
-        @method('PATCH')
+                        </td>
 
-        <select
-            name="status"
-            class="status-select"
-        >
 
-            <option
-                value="Pending"
-                {{ $violation->status === 'Pending' ? 'selected' : '' }}
-            >
-                Pending
-            </option>
+                        {{-- VIOLATION TYPE --}}
+                        <td>
 
-            <option
-                value="Completed"
-                {{ $violation->status === 'Completed' ? 'selected' : '' }}
-            >
-                Completed
-            </option>
+                            {{ $violationName }}
 
-        </select>
+                        </td>
 
-        <button
-            type="submit"
-            class="save-status-btn"
-        >
-            Save
-        </button>
 
-    </form>
+                        {{-- OFFICER --}}
+                        <td>
 
-</td>
+                            {{ $officerName }}
+
+                        </td>
+
+
+                        {{-- DATE & TIME --}}
+                        <td>
+
+                            {{ $formattedDate }}
+
+                            <br>
+
+                            <small>
+                                {{ $formattedTime }}
+                            </small>
+
+                        </td>
+
+
+                        {{-- LOCATION --}}
+                        <td>
+
+                            {{ $locationInfo }}
+
+                        </td>
+
+
+                        {{-- REMARKS --}}
+                        <td>
+
+                            {{ $remarksInfo }}
+
+                        </td>
+
+
+                        {{-- STATUS --}}
+                        <td>
+
+                            <form
+                                method="POST"
+                                action="{{ route('bplo.violations.status', $violation->id) }}"
+                                class="status-controls"
+                            >
+
+                                @csrf
+
+                                @method('PATCH')
+
+
+                                <select
+                                    name="status"
+                                    class="status-select"
+                                >
+
+                                    <option
+                                        value="Pending"
+                                        {{ $violation->status === 'Pending' ? 'selected' : '' }}
+                                    >
+                                        Pending
+                                    </option>
+
+
+                                    <option
+                                        value="Settled"
+                                        {{ $violation->status === 'Settled' ? 'selected' : '' }}
+                                    >
+                                        Settled
+                                    </option>
+
+                                </select>
+
+
+                                <button
+                                    type="submit"
+                                    class="save-status-btn"
+                                >
+                                    Save
+                                </button>
+
+                            </form>
+
+                        </td>
+
 
                         {{-- ACTION --}}
                         <td>
@@ -300,22 +351,22 @@ $remarksInfo =
                             <div class="table-actions">
 
                                 {{-- VIEW --}}
-<button
-    type="button"
-    class="view-violation-btn violation-view-trigger"
-    data-ticket="{{ $violation->ticket_number }}"
-    data-name="{{ $driverName }}"
-    data-vehicle="{{ $vehicleInfo }}"
-    data-violation="{{ $violationName }}"
-    data-officer="{{ $officerName }}"
-    data-date="{{ $formattedDate }}"
-    data-time="{{ $formattedTime }}"
-    data-location="{{ $locationInfo }}"
-    data-remarks="{{ $remarksInfo }}"
-    data-status="{{ $violation->status }}"
->
-    View
-</button>
+                                <button
+                                    type="button"
+                                    class="view-violation-btn violation-view-trigger"
+                                    data-ticket="{{ $violation->ticket_number }}"
+                                    data-name="{{ $driverName }}"
+                                    data-vehicle="{{ $vehicleInfo }}"
+                                    data-violation="{{ $violationName }}"
+                                    data-officer="{{ $officerName }}"
+                                    data-date="{{ $formattedDate }}"
+                                    data-time="{{ $formattedTime }}"
+                                    data-location="{{ $locationInfo }}"
+                                    data-remarks="{{ $remarksInfo }}"
+                                    data-status="{{ $violation->status }}"
+                                >
+                                    View
+                                </button>
 
 
                                 {{-- COPY --}}
@@ -344,7 +395,9 @@ $remarksInfo =
                     <tr class="empty-table-row">
 
                         <td colspan="10">
+
                             No violation records available.
+
                         </td>
 
                     </tr>
@@ -365,20 +418,18 @@ $remarksInfo =
 {{-- =========================================================
      SHARED VIOLATION DETAILS MODAL
 ========================================================= --}}
-
 @include('partials.bplo-violation-modal')
 
 
 {{-- =========================================================
      DASHBOARD JAVASCRIPT
 ========================================================= --}}
-
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
 
 
-        /*
+    /*
     |--------------------------------------------------------------------------
     | SEARCH + STATUS FILTER
     |--------------------------------------------------------------------------
@@ -397,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const searchValue = searchInput
             ? searchInput.value.toLowerCase().trim()
             : '';
+
 
         // Get selected status
         const selectedStatus = statusFilter
@@ -425,6 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const rowText =
                 row.textContent.toLowerCase();
+
 
             const rowStatus =
                 (row.dataset.status || '').toLowerCase();
@@ -488,7 +541,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
     }
-
 
 
     /*
@@ -555,10 +607,10 @@ Status: ${this.dataset.status}`;
                     }
 
                 }
+
             );
 
         });
-
 
 
     /*
@@ -591,15 +643,19 @@ Status: ${this.dataset.status}`;
 
     function closeViolationModal()
     {
+
         if (!violationModal) {
+
             return;
+
         }
+
 
         violationModal.classList.remove('show');
 
         document.body.classList.remove('modal-open');
-    }
 
+    }
 
 
     /*
@@ -608,7 +664,7 @@ Status: ${this.dataset.status}`;
     |--------------------------------------------------------------------------
     */
 
-        viewButtons.forEach(function(button) {
+    viewButtons.forEach(function(button) {
 
         button.addEventListener('click', function() {
 
@@ -644,53 +700,82 @@ Status: ${this.dataset.status}`;
 
 
             if (ticket) {
+
                 ticket.textContent =
                     this.dataset.ticket;
+
             }
+
 
             if (name) {
+
                 name.textContent =
                     this.dataset.name;
+
             }
+
 
             if (vehicle) {
+
                 vehicle.textContent =
                     this.dataset.vehicle;
+
             }
+
 
             if (violation) {
+
                 violation.textContent =
                     this.dataset.violation;
+
             }
+
 
             if (officer) {
+
                 officer.textContent =
                     this.dataset.officer;
+
             }
+
 
             if (date) {
+
                 date.textContent =
                     this.dataset.date;
+
             }
+
 
             if (time) {
+
                 time.textContent =
                     this.dataset.time;
+
             }
+
 
             if (location) {
+
                 location.textContent =
                     this.dataset.location;
+
             }
+
 
             if (remarks) {
+
                 remarks.textContent =
                     this.dataset.remarks;
+
             }
 
+
             if (status) {
+
                 status.textContent =
                     this.dataset.status;
+
             }
 
 
@@ -709,7 +794,6 @@ Status: ${this.dataset.status}`;
     });
 
 
-
     /*
     |--------------------------------------------------------------------------
     | CLOSE BUTTON
@@ -726,7 +810,6 @@ Status: ${this.dataset.status}`;
     }
 
 
-
     /*
     |--------------------------------------------------------------------------
     | X BUTTON
@@ -741,7 +824,6 @@ Status: ${this.dataset.status}`;
         );
 
     }
-
 
 
     /*
@@ -763,10 +845,10 @@ Status: ${this.dataset.status}`;
                 }
 
             }
+
         );
 
     }
-
 
 
     /*
@@ -786,8 +868,8 @@ Status: ${this.dataset.status}`;
             }
 
         }
-    );
 
+    );
 
 
     /*
@@ -867,10 +949,10 @@ Status: ${status}`;
                 }
 
             }
+
         );
 
     }
-
 
 });
 

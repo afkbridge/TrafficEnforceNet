@@ -32,7 +32,7 @@ class ViolationController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        if ($status === 'Pending' || $status === 'Completed') {
+        if ($status === 'Pending' || $status === 'Settled') {
             $query->where('status', $status);
         }
 
@@ -146,7 +146,7 @@ class ViolationController extends Controller
         */
 
         $validated = $request->validate([
-            'status' => ['required', 'in:Pending,Completed'],
+            'status' => ['required', 'in:Pending,Settled'],
         ]);
 
         /*

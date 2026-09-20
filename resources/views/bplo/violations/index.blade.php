@@ -8,13 +8,16 @@
 
     {{-- PAGE HEADER --}}
     <div class="review-page-header">
+
         <div>
+
             <h1>Violation Review</h1>
+
             <p>Review and manage recorded traffic violations</p>
-        </div>
-
 
         </div>
+
+    </div>
 
 
     {{-- =====================================================
@@ -23,6 +26,7 @@
     <div class="review-total-counter">
 
         <div class="review-total-counter-info">
+
             <p>All-Time Total Violations</p>
 
             <h2>
@@ -32,10 +36,13 @@
             <span>
                 Total violations recorded since system use
             </span>
+
         </div>
 
         <div class="review-total-counter-icon">
+
             <i class="fa-solid fa-list-check"></i>
+
         </div>
 
     </div>
@@ -44,19 +51,25 @@
     {{-- STATUS TABS --}}
     <div class="review-tabs">
 
-        <a href="{{ route('bplo.violations.index') }}"
-           class="review-tab {{ $status === 'all' ? 'active' : '' }}">
+        <a
+            href="{{ route('bplo.violations.index') }}"
+            class="review-tab {{ $status === 'all' ? 'active' : '' }}"
+        >
             All
         </a>
 
-        <a href="{{ route('bplo.violations.index', ['status' => 'Pending']) }}"
-           class="review-tab {{ $status === 'Pending' ? 'active' : '' }}">
+        <a
+            href="{{ route('bplo.violations.index', ['status' => 'Pending']) }}"
+            class="review-tab {{ $status === 'Pending' ? 'active' : '' }}"
+        >
             Pending
         </a>
 
-        <a href="{{ route('bplo.violations.index', ['status' => 'Completed']) }}"
-           class="review-tab {{ $status === 'Completed' ? 'active' : '' }}">
-            Completed
+        <a
+            href="{{ route('bplo.violations.index', ['status' => 'Settled']) }}"
+            class="review-tab {{ $status === 'Settled' ? 'active' : '' }}"
+        >
+            Settled
         </a>
 
     </div>
@@ -64,17 +77,25 @@
 
     {{-- SUCCESS MESSAGE --}}
     @if(session('success'))
+
         <div class="review-success">
+
             {{ session('success') }}
+
         </div>
+
     @endif
 
 
     {{-- VALIDATION ERROR --}}
     @if($errors->any())
+
         <div class="review-error">
+
             {{ $errors->first() }}
+
         </div>
+
     @endif
 
 
@@ -85,8 +106,11 @@
         <div class="review-table-header">
 
             <div>
+
                 <h2>Violation Review</h2>
+
                 <p>Manually update the violation status</p>
+
             </div>
 
 
@@ -98,22 +122,24 @@
             >
 
                 @if($status !== 'all')
+
                     <input
                         type="hidden"
                         name="status"
                         value="{{ $status }}"
                     >
+
                 @endif
 
                 <input
-    type="text"
-    name="search"
-    id="reviewViolationSearch"
-    value="{{ $search ?? '' }}"
-    placeholder="Search violation..."
-    class="review-search"
-    autocomplete="off"
->
+                    type="text"
+                    name="search"
+                    id="reviewViolationSearch"
+                    value="{{ $search ?? '' }}"
+                    placeholder="Search violation..."
+                    class="review-search"
+                    autocomplete="off"
+                >
 
             </form>
 
@@ -124,113 +150,156 @@
         <div class="review-table-wrapper">
 
             <table
-    class="review-table"
-    id="reviewViolationTable"
->
+                class="review-table"
+                id="reviewViolationTable"
+            >
 
                 <thead>
+
                     <tr>
-    <th>Ticket ID</th>
-    <th>Violator</th>
-    <th>Vehicle</th>
-    <th>Violation Type</th>
-    <th>Officer</th>
-    <th>Date & Time</th>
-    <th>Location</th>
-    <th>Remarks</th>
-    <th>Status</th>
-    <th>Action</th>
-</tr>
+
+                        <th>Ticket ID</th>
+
+                        <th>Violator</th>
+
+                        <th>Vehicle</th>
+
+                        <th>Violation Type</th>
+
+                        <th>Officer</th>
+
+                        <th>Date & Time</th>
+
+                        <th>Location</th>
+
+                        <th>Remarks</th>
+
+                        <th>Status</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
                 </thead>
 
 
                 <tbody>
-@forelse($violations as $violation)
-                    @php
 
-    $driverName = $violation->driver
-        ? trim(
-            $violation->driver->first_name . ' ' .
-            $violation->driver->last_name
-        )
-        : 'N/A';
+                    @forelse($violations as $violation)
 
-    $violationName =
-        $violation->violationType->name ?? 'N/A';
+                        @php
 
-    $officerName =
-        $violation->user->name ?? 'N/A';
+                            $driverName = $violation->driver
+                                ? trim(
+                                    $violation->driver->first_name . ' ' .
+                                    $violation->driver->last_name
+                                )
+                                : 'N/A';
 
-    $formattedDate = $violation->violation_date
-        ? \Carbon\Carbon::parse($violation->violation_date)->format('M d, Y')
-        : 'N/A';
+                            $violationName =
+                                $violation->violationType->name ?? 'N/A';
 
-    $formattedTime = $violation->violation_time
-        ? \Carbon\Carbon::parse($violation->violation_time)->format('h:i A')
-        : 'N/A';
+                            $officerName =
+                                $violation->user->name ?? 'N/A';
 
-    $vehicleInfo = $violation->vehicle
-        ? trim(
-            ($violation->vehicle->plate_number ?? '') . ' - ' .
-            ($violation->vehicle->vehicle_type ?? '')
-        )
-        : 'N/A';
+                            $formattedDate = $violation->violation_date
+                                ? \Carbon\Carbon::parse($violation->violation_date)->format('M d, Y')
+                                : 'N/A';
 
-    $locationInfo =
-        $violation->location ?: 'N/A';
+                            $formattedTime = $violation->violation_time
+                                ? \Carbon\Carbon::parse($violation->violation_time)->format('h:i A')
+                                : 'N/A';
 
-    $remarksInfo =
-        $violation->remarks ?: 'N/A';
+                            $vehicleInfo = $violation->vehicle
+                                ? trim(
+                                    ($violation->vehicle->plate_number ?? '') . ' - ' .
+                                    ($violation->vehicle->vehicle_type ?? '')
+                                )
+                                : 'N/A';
 
-@endphp
+                            $locationInfo =
+                                $violation->location ?: 'N/A';
+
+                            $remarksInfo =
+                                $violation->remarks ?: 'N/A';
+
+                        @endphp
 
 
                         <tr
-    class="review-violation-row"
-    data-status="{{ strtolower($violation->status) }}"
->
+                            class="review-violation-row"
+                            data-status="{{ strtolower($violation->status) }}"
+                        >
 
                             {{-- TICKET ID --}}
-<td>
-    {{ $violation->ticket_number }}
-</td>
+                            <td>
 
-{{-- VIOLATOR --}}
-<td>
-    {{ $driverName }}
-</td>
+                                {{ $violation->ticket_number }}
 
-{{-- VEHICLE --}}
-<td>
-    {{ $vehicleInfo }}
-</td>
+                            </td>
 
-{{-- VIOLATION TYPE --}}
-<td>
-    {{ $violationName }}
-</td>
 
-{{-- OFFICER --}}
-<td>
-    {{ $officerName }}
-</td>
+                            {{-- VIOLATOR --}}
+                            <td>
 
-{{-- DATE & TIME --}}
-<td>
-    {{ $formattedDate }}
-    <br>
-    <small>{{ $formattedTime }}</small>
-</td>
+                                {{ $driverName }}
 
-{{-- LOCATION --}}
-<td>
-    {{ $locationInfo }}
-</td>
+                            </td>
 
-{{-- REMARKS --}}
-<td>
-    {{ $remarksInfo }}
-</td>
+
+                            {{-- VEHICLE --}}
+                            <td>
+
+                                {{ $vehicleInfo }}
+
+                            </td>
+
+
+                            {{-- VIOLATION TYPE --}}
+                            <td>
+
+                                {{ $violationName }}
+
+                            </td>
+
+
+                            {{-- OFFICER --}}
+                            <td>
+
+                                {{ $officerName }}
+
+                            </td>
+
+
+                            {{-- DATE & TIME --}}
+                            <td>
+
+                                {{ $formattedDate }}
+
+                                <br>
+
+                                <small>
+                                    {{ $formattedTime }}
+                                </small>
+
+                            </td>
+
+
+                            {{-- LOCATION --}}
+                            <td>
+
+                                {{ $locationInfo }}
+
+                            </td>
+
+
+                            {{-- REMARKS --}}
+                            <td>
+
+                                {{ $remarksInfo }}
+
+                            </td>
+
 
                             {{-- STATUS --}}
                             <td>
@@ -242,6 +311,7 @@
                                 >
 
                                     @csrf
+
                                     @method('PATCH')
 
 
@@ -255,10 +325,10 @@
                                         </option>
 
                                         <option
-                                            value="Completed"
-                                            {{ $violation->status === 'Completed' ? 'selected' : '' }}
+                                            value="Settled"
+                                            {{ $violation->status === 'Settled' ? 'selected' : '' }}
                                         >
-                                            Completed
+                                            Settled
                                         </option>
 
                                     </select>
@@ -282,43 +352,41 @@
                                 <div class="review-actions">
 
                                     {{-- VIEW --}}
-<button
-    type="button"
-    class="review-view-btn violation-view-trigger"
-
-    data-ticket="{{ $violation->ticket_number }}"
-    data-name="{{ $driverName }}"
-    data-vehicle="{{ $vehicleInfo }}"
-    data-violation="{{ $violationName }}"
-    data-officer="{{ $officerName }}"
-    data-date="{{ $formattedDate }}"
-    data-time="{{ $formattedTime }}"
-    data-location="{{ $locationInfo }}"
-    data-remarks="{{ $remarksInfo }}"
-    data-status="{{ $violation->status }}"
->
-    View
-</button>
+                                    <button
+                                        type="button"
+                                        class="review-view-btn violation-view-trigger"
+                                        data-ticket="{{ $violation->ticket_number }}"
+                                        data-name="{{ $driverName }}"
+                                        data-vehicle="{{ $vehicleInfo }}"
+                                        data-violation="{{ $violationName }}"
+                                        data-officer="{{ $officerName }}"
+                                        data-date="{{ $formattedDate }}"
+                                        data-time="{{ $formattedTime }}"
+                                        data-location="{{ $locationInfo }}"
+                                        data-remarks="{{ $remarksInfo }}"
+                                        data-status="{{ $violation->status }}"
+                                    >
+                                        View
+                                    </button>
 
 
                                     {{-- COPY --}}
-<button
-    type="button"
-    class="review-copy-btn"
-
-    data-ticket="{{ $violation->ticket_number }}"
-    data-name="{{ $driverName }}"
-    data-vehicle="{{ $vehicleInfo }}"
-    data-violation="{{ $violationName }}"
-    data-officer="{{ $officerName }}"
-    data-date="{{ $formattedDate }}"
-    data-time="{{ $formattedTime }}"
-    data-location="{{ $locationInfo }}"
-    data-remarks="{{ $remarksInfo }}"
-    data-status="{{ $violation->status }}"
->
-    Copy
-</button>
+                                    <button
+                                        type="button"
+                                        class="review-copy-btn"
+                                        data-ticket="{{ $violation->ticket_number }}"
+                                        data-name="{{ $driverName }}"
+                                        data-vehicle="{{ $vehicleInfo }}"
+                                        data-violation="{{ $violationName }}"
+                                        data-officer="{{ $officerName }}"
+                                        data-date="{{ $formattedDate }}"
+                                        data-time="{{ $formattedTime }}"
+                                        data-location="{{ $locationInfo }}"
+                                        data-remarks="{{ $remarksInfo }}"
+                                        data-status="{{ $violation->status }}"
+                                    >
+                                        Copy
+                                    </button>
 
                                 </div>
 
@@ -356,7 +424,6 @@
 {{-- =========================================================
      SHARED VIOLATION DETAILS MODAL
 ========================================================= --}}
-
 @include('partials.bplo-violation-modal')
 
 
@@ -386,7 +453,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function filterReviewTable() {
 
         if (!reviewSearch) {
+
             return;
+
         }
 
 
@@ -432,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     | COPY BUTTON IN TABLE
     |--------------------------------------------------------------------------
-    */  
+    */
 
     const copyButtons =
         document.querySelectorAll('.review-copy-btn');
@@ -440,9 +509,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     copyButtons.forEach(function (button) {
 
-    button.addEventListener('click', async function () {
+        button.addEventListener('click', async function () {
 
-        const information =
+            const information =
 `Ticket ID: ${this.dataset.ticket}
 Violator: ${this.dataset.name}
 Vehicle: ${this.dataset.vehicle}
@@ -454,30 +523,35 @@ Location: ${this.dataset.location}
 Remarks: ${this.dataset.remarks}
 Status: ${this.dataset.status}`;
 
-        try {
 
-            await navigator.clipboard.writeText(information);
+            try {
 
-            const originalText =
-                this.textContent.trim();
+                await navigator.clipboard.writeText(information);
 
-            this.textContent = 'Copied!';
 
-            setTimeout(() => {
+                const originalText =
+                    this.textContent.trim();
 
-                this.textContent = originalText;
 
-            }, 1500);
+                this.textContent = 'Copied!';
 
-        } catch (error) {
 
-            alert('Unable to copy violation information.');
+                setTimeout(() => {
 
-        }
+                    this.textContent = originalText;
+
+                }, 1500);
+
+
+            } catch (error) {
+
+                alert('Unable to copy violation information.');
+
+            }
+
+        });
 
     });
-
-});
 
 
 
@@ -514,8 +588,11 @@ Status: ${this.dataset.status}`;
     {
 
         if (!violationModal) {
+
             return;
+
         }
+
 
         violationModal.classList.remove('show');
 
@@ -533,91 +610,132 @@ Status: ${this.dataset.status}`;
 
     viewButtons.forEach(function (button) {
 
-    button.addEventListener('click', function () {
+        button.addEventListener('click', function () {
 
-        const ticket =
-            document.getElementById('detailTicket');
+            const ticket =
+                document.getElementById('detailTicket');
 
-        const name =
-            document.getElementById('detailName');
+            const name =
+                document.getElementById('detailName');
 
-        const vehicle =
-            document.getElementById('detailVehicle');
+            const vehicle =
+                document.getElementById('detailVehicle');
 
-        const violation =
-            document.getElementById('detailViolation');
+            const violation =
+                document.getElementById('detailViolation');
 
-        const officer =
-            document.getElementById('detailOfficer');
+            const officer =
+                document.getElementById('detailOfficer');
 
-        const date =
-            document.getElementById('detailDate');
+            const date =
+                document.getElementById('detailDate');
 
-        const time =
-            document.getElementById('detailTime');
+            const time =
+                document.getElementById('detailTime');
 
-        const location =
-            document.getElementById('detailLocation');
+            const location =
+                document.getElementById('detailLocation');
 
-        const remarks =
-            document.getElementById('detailRemarks');
+            const remarks =
+                document.getElementById('detailRemarks');
 
-        const status =
-            document.getElementById('detailStatus');
-
-
-        if (ticket) {
-            ticket.textContent = this.dataset.ticket || 'N/A';
-        }
-
-        if (name) {
-            name.textContent = this.dataset.name || 'N/A';
-        }
-
-        if (vehicle) {
-            vehicle.textContent = this.dataset.vehicle || 'N/A';
-        }
-
-        if (violation) {
-            violation.textContent = this.dataset.violation || 'N/A';
-        }
-
-        if (officer) {
-            officer.textContent = this.dataset.officer || 'N/A';
-        }
-
-        if (date) {
-            date.textContent = this.dataset.date || 'N/A';
-        }
-
-        if (time) {
-            time.textContent = this.dataset.time || 'N/A';
-        }
-
-        if (location) {
-            location.textContent = this.dataset.location || 'N/A';
-        }
-
-        if (remarks) {
-            remarks.textContent = this.dataset.remarks || 'N/A';
-        }
-
-        if (status) {
-            status.textContent = this.dataset.status || 'N/A';
-        }
+            const status =
+                document.getElementById('detailStatus');
 
 
-        if (violationModal) {
 
-            violationModal.classList.add('show');
+            if (ticket) {
 
-            document.body.classList.add('modal-open');
+                ticket.textContent =
+                    this.dataset.ticket || 'N/A';
 
-        }
+            }
+
+
+            if (name) {
+
+                name.textContent =
+                    this.dataset.name || 'N/A';
+
+            }
+
+
+            if (vehicle) {
+
+                vehicle.textContent =
+                    this.dataset.vehicle || 'N/A';
+
+            }
+
+
+            if (violation) {
+
+                violation.textContent =
+                    this.dataset.violation || 'N/A';
+
+            }
+
+
+            if (officer) {
+
+                officer.textContent =
+                    this.dataset.officer || 'N/A';
+
+            }
+
+
+            if (date) {
+
+                date.textContent =
+                    this.dataset.date || 'N/A';
+
+            }
+
+
+            if (time) {
+
+                time.textContent =
+                    this.dataset.time || 'N/A';
+
+            }
+
+
+            if (location) {
+
+                location.textContent =
+                    this.dataset.location || 'N/A';
+
+            }
+
+
+            if (remarks) {
+
+                remarks.textContent =
+                    this.dataset.remarks || 'N/A';
+
+            }
+
+
+            if (status) {
+
+                status.textContent =
+                    this.dataset.status || 'N/A';
+
+            }
+
+
+            if (violationModal) {
+
+                violationModal.classList.add('show');
+
+                document.body.classList.add('modal-open');
+
+            }
+
+        });
 
     });
 
-});
 
 
     /*
@@ -708,52 +826,52 @@ Status: ${this.dataset.status}`;
 
     if (modalCopy) {
 
-    modalCopy.addEventListener(
-        'click',
-        async function () {
+        modalCopy.addEventListener(
+            'click',
+            async function () {
 
-            const ticket =
-                document.getElementById('detailTicket')
-                    ?.textContent ?? '';
+                const ticket =
+                    document.getElementById('detailTicket')
+                        ?.textContent ?? '';
 
-            const name =
-                document.getElementById('detailName')
-                    ?.textContent ?? '';
+                const name =
+                    document.getElementById('detailName')
+                        ?.textContent ?? '';
 
-            const vehicle =
-                document.getElementById('detailVehicle')
-                    ?.textContent ?? '';
+                const vehicle =
+                    document.getElementById('detailVehicle')
+                        ?.textContent ?? '';
 
-            const violation =
-                document.getElementById('detailViolation')
-                    ?.textContent ?? '';
+                const violation =
+                    document.getElementById('detailViolation')
+                        ?.textContent ?? '';
 
-            const officer =
-                document.getElementById('detailOfficer')
-                    ?.textContent ?? '';
+                const officer =
+                    document.getElementById('detailOfficer')
+                        ?.textContent ?? '';
 
-            const date =
-                document.getElementById('detailDate')
-                    ?.textContent ?? '';
+                const date =
+                    document.getElementById('detailDate')
+                        ?.textContent ?? '';
 
-            const time =
-                document.getElementById('detailTime')
-                    ?.textContent ?? '';
+                const time =
+                    document.getElementById('detailTime')
+                        ?.textContent ?? '';
 
-            const location =
-                document.getElementById('detailLocation')
-                    ?.textContent ?? '';
+                const location =
+                    document.getElementById('detailLocation')
+                        ?.textContent ?? '';
 
-            const remarks =
-                document.getElementById('detailRemarks')
-                    ?.textContent ?? '';
+                const remarks =
+                    document.getElementById('detailRemarks')
+                        ?.textContent ?? '';
 
-            const status =
-                document.getElementById('detailStatus')
-                    ?.textContent ?? '';
+                const status =
+                    document.getElementById('detailStatus')
+                        ?.textContent ?? '';
 
 
-            const information =
+                const information =
 `Ticket ID: ${ticket}
 Violator: ${name}
 Vehicle: ${vehicle}
@@ -766,32 +884,35 @@ Remarks: ${remarks}
 Status: ${status}`;
 
 
-            try {
+                try {
 
-                await navigator.clipboard.writeText(information);
+                    await navigator.clipboard.writeText(information);
 
-                const originalText =
-                    this.textContent.trim();
 
-                this.textContent = 'Copied!';
+                    const originalText =
+                        this.textContent.trim();
 
-                setTimeout(() => {
 
-                    this.textContent = originalText;
+                    this.textContent = 'Copied!';
 
-                }, 1500);
 
-            } catch (error) {
+                    setTimeout(() => {
 
-                alert('Unable to copy violation information.');
+                        this.textContent = originalText;
+
+                    }, 1500);
+
+
+                } catch (error) {
+
+                    alert('Unable to copy violation information.');
+
+                }
 
             }
+        );
 
-        }
-    );
-
-}
-
+    }
 
 });
 
