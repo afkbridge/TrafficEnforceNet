@@ -706,7 +706,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // -------------------------------------------
             // POPULATE TICKET NUMBER
-            // -----------------------------------------------
+            // -------------------------------------------
 
             setFieldValue(
                 'ticket_number',
@@ -1083,6 +1083,1228 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         );
     }
+
+
+    // ===================================================
+    // OFFLINE SYNC
+    // ===================================================
+
+    const form =
+        getElement('issueTicketForm');
+
+    const offlinePendingBox =
+        getElement('offlinePendingBox');
+
+    const offlinePendingTitle =
+        getElement('offlinePendingTitle');
+
+    const offlinePendingMessage =
+        getElement('offlinePendingMessage');
+
+    const syncNowButton =
+        getElement('syncNowButton');
+
+    const offlineSyncingBox =
+        getElement('offlineSyncingBox');
+
+    const offlineSyncingMessage =
+        getElement('offlineSyncingMessage');
+
+    const offlineSuccessBox =
+        getElement('offlineSuccessBox');
+
+    const offlineSuccessMessage =
+        getElement('offlineSuccessMessage');
+
+    const offlineErrorBox =
+        getElement('offlineErrorBox');
+
+    const offlineErrorMessage =
+        getElement('offlineErrorMessage');
+
+
+    const OFFLINE_DB_NAME =
+        'TrafficEnforceNetDB';
+
+    const OFFLINE_DB_VERSION =
+        1;
+
+    const OFFLINE_STORE_NAME =
+        'pendingTickets';
+
+
+    let syncInProgress =
+        false;
+
+
+    // ===================================================
+    // OPEN INDEXEDDB
+    // ===================================================
+
+    function openOfflineDatabase() {
+
+        return new Promise(
+            function (resolve, reject) {
+
+                if (!window.indexedDB) {
+
+                    reject(
+                        new Error(
+                            'IndexedDB is not supported on this device.'
+                        )
+                    );
+
+                    return;
+                }
+
+
+                const request =
+                    indexedDB.open(
+                        OFFLINE_DB_NAME,
+                        OFFLINE_DB_VERSION
+                    );
+
+
+                request.onupgradeneeded =
+                    function (event) {
+
+                        const db =
+                            event.target.result;
+
+
+                        if (
+                            !db.objectStoreNames.contains(
+                                OFFLINE_STORE_NAME
+                            )
+                        ) {
+
+                            db.createObjectStore(
+                                OFFLINE_STORE_NAME,
+                                {
+                                    keyPath: 'id',
+                                    autoIncrement: true
+                                }
+                            );
+                        }
+                    };
+
+
+                request.onsuccess =
+                    function () {
+
+                        resolve(
+                            request.result
+                        );
+                    };
+
+
+                request.onerror =
+                    function () {
+
+                        reject(
+                            request.error ||
+                            new Error(
+                                'Unable to open offline storage.'
+                            )
+                        );
+                    };
+            }
+        );
+    }
+
+
+    // ===================================================
+    // SAVE TICKET OFFLINE
+    // ===================================================
+
+    async function saveTicketOffline() {
+
+        if (!form) {
+
+            throw new Error(
+                'Issue ticket form was not found.'
+            );
+        }
+
+
+        const formData =
+            new FormData(form);
+
+
+        const fields =
+            {};
+
+        const files =
+            {};
+
+
+        // -----------------------------------------------
+        // STORE FORM DATA
+        // -----------------------------------------------
+
+        for (
+            const [name, value]
+            of formData.entries()
+        ) {
+
+            if (
+                value instanceof File ||
+                value instanceof Blob
+            ) {
+
+                if (!value.size) {
+                    continue;
+                }
+
+
+                const fileData = {
+
+                    name:
+                        value.name ||
+                        `${name}.file`,
+
+                    type:
+                        value.type ||
+                        'application/octet-stream',
+
+                    lastModified:
+                        value.lastModified ||
+                        Date.now(),
+
+                    blob:
+                        value
+                };
+
+
+                if (
+                    name.endsWith('[]')
+                ) {
+
+                    if (!files[name]) {
+                        files[name] = [];
+                    }
+
+                    files[name].push(
+                        fileData
+                    );
+
+                } else {
+
+                    files[name] =
+                        fileData;
+                }
+
+            } else {
+
+                if (
+                    fields[name] === undefined
+                ) {
+
+                    fields[name] =
+                        String(value);
+
+                } else {
+
+                    if (
+                        !Array.isArray(
+                            fields[name]
+                        )
+                    ) {
+
+                        fields[name] = [
+                            fields[name]
+                        ];
+                    }
+
+                    fields[name].push(
+                        String(value)
+                    );
+                }
+            }
+        }
+
+
+        // -----------------------------------------------
+        // SAVE TO INDEXEDDB
+        // -----------------------------------------------
+
+        const db =
+            await openOfflineDatabase();
+
+
+        return new Promise(
+            function (resolve, reject) {
+
+                const transaction =
+                    db.transaction(
+                        OFFLINE_STORE_NAME,
+                        'readwrite'
+                    );
+
+                const store =
+                    transaction.objectStore(
+                        OFFLINE_STORE_NAME
+                    );
+
+
+                const request =
+                    store.add({
+
+                        fields:
+                            fields,
+
+                        files:
+                            files,
+
+                        action:
+                            form.action,
+
+                        createdAt:
+                            new Date().toISOString()
+                    });
+
+
+                request.onsuccess =
+                    function () {
+
+                        resolve(
+                            request.result
+                        );
+                    };
+
+
+                request.onerror =
+                    function () {
+
+                        reject(
+                            request.error ||
+                            new Error(
+                                'Unable to save ticket offline.'
+                            )
+                        );
+                    };
+            }
+        );
+    }
+
+
+    // ===================================================
+    // GET ALL PENDING TICKETS
+    // ===================================================
+
+    async function getPendingTickets() {
+
+        const db =
+            await openOfflineDatabase();
+
+
+        return new Promise(
+            function (resolve, reject) {
+
+                const transaction =
+                    db.transaction(
+                        OFFLINE_STORE_NAME,
+                        'readonly'
+                    );
+
+                const store =
+                    transaction.objectStore(
+                        OFFLINE_STORE_NAME
+                    );
+
+
+                const request =
+                    store.getAll();
+
+
+                request.onsuccess =
+                    function () {
+
+                        resolve(
+                            request.result || []
+                        );
+                    };
+
+
+                request.onerror =
+                    function () {
+
+                        reject(
+                            request.error ||
+                            new Error(
+                                'Unable to read pending tickets.'
+                            )
+                        );
+                    };
+            }
+        );
+    }
+
+
+    // ===================================================
+    // DELETE SYNCED TICKET
+    // ===================================================
+
+    async function deletePendingTicket(id) {
+
+        const db =
+            await openOfflineDatabase();
+
+
+        return new Promise(
+            function (resolve, reject) {
+
+                const transaction =
+                    db.transaction(
+                        OFFLINE_STORE_NAME,
+                        'readwrite'
+                    );
+
+                const store =
+                    transaction.objectStore(
+                        OFFLINE_STORE_NAME
+                    );
+
+
+                const request =
+                    store.delete(id);
+
+
+                request.onsuccess =
+                    function () {
+
+                        resolve();
+                    };
+
+
+                request.onerror =
+                    function () {
+
+                        reject(
+                            request.error ||
+                            new Error(
+                                'Unable to remove synced ticket.'
+                            )
+                        );
+                    };
+            }
+        );
+    }
+
+
+    // ===================================================
+    // GET CSRF TOKEN
+    // ===================================================
+
+    function getCsrfToken() {
+
+        const meta =
+            document.querySelector(
+                'meta[name="csrf-token"]'
+            );
+
+        if (meta) {
+
+            const token =
+                meta.getAttribute(
+                    'content'
+                );
+
+            if (token) {
+                return token;
+            }
+        }
+
+
+        const tokenInput =
+            form?.querySelector(
+                'input[name="_token"]'
+            );
+
+        return tokenInput?.value || '';
+    }
+
+
+    // ===================================================
+    // BUILD FORM DATA FOR SYNC
+    // ===================================================
+
+    function buildSyncFormData(ticket) {
+
+        const syncFormData =
+            new FormData();
+
+
+        // -----------------------------------------------
+        // FORM FIELDS
+        // -----------------------------------------------
+
+        Object.entries(
+            ticket.fields || {}
+        ).forEach(
+            function ([name, value]) {
+
+                if (
+                    Array.isArray(value)
+                ) {
+
+                    value.forEach(
+                        function (item) {
+
+                            syncFormData.append(
+                                name,
+                                item
+                            );
+                        }
+                    );
+
+                } else {
+
+                    if (
+                        name !== '_token'
+                    ) {
+
+                        syncFormData.append(
+                            name,
+                            value
+                        );
+                    }
+                }
+            }
+        );
+
+
+        // -----------------------------------------------
+        // USE CURRENT CSRF TOKEN
+        // -----------------------------------------------
+
+        const csrfToken =
+            getCsrfToken();
+
+        if (csrfToken) {
+
+            syncFormData.append(
+                '_token',
+                csrfToken
+            );
+        }
+
+
+        // -----------------------------------------------
+        // FILES
+        // -----------------------------------------------
+
+        Object.entries(
+            ticket.files || {}
+        ).forEach(
+            function ([name, fileData]) {
+
+                if (
+                    Array.isArray(fileData)
+                ) {
+
+                    fileData.forEach(
+                        function (item) {
+
+                            const file =
+                                new File(
+                                    [item.blob],
+                                    item.name,
+                                    {
+                                        type:
+                                            item.type,
+
+                                        lastModified:
+                                            item.lastModified
+                                    }
+                                );
+
+
+                            syncFormData.append(
+                                name,
+                                file
+                            );
+                        }
+                    );
+
+                } else {
+
+                    const file =
+                        new File(
+                            [fileData.blob],
+                            fileData.name,
+                            {
+                                type:
+                                    fileData.type,
+
+                                lastModified:
+                                    fileData.lastModified
+                            }
+                        );
+
+
+                    syncFormData.append(
+                        name,
+                        file
+                    );
+                }
+            }
+        );
+
+
+        return syncFormData;
+    }
+
+
+    // ===================================================
+    // SHOW / HIDE OFFLINE STATUS
+    // ===================================================
+
+    function hideOfflineStatus() {
+
+        if (offlinePendingBox) {
+            offlinePendingBox.classList.add(
+                'hidden'
+            );
+        }
+
+        if (offlineSyncingBox) {
+            offlineSyncingBox.classList.add(
+                'hidden'
+            );
+        }
+
+        if (offlineSuccessBox) {
+            offlineSuccessBox.classList.add(
+                'hidden'
+            );
+        }
+
+        if (offlineErrorBox) {
+            offlineErrorBox.classList.add(
+                'hidden'
+            );
+        }
+    }
+
+
+    // ===================================================
+    // SHOW PENDING TICKETS
+    // ===================================================
+
+    function showPendingTickets(count) {
+
+        if (!offlinePendingBox) {
+            return;
+        }
+
+
+        offlinePendingBox.classList.remove(
+            'hidden'
+        );
+
+
+        if (offlinePendingTitle) {
+
+            offlinePendingTitle.innerText =
+                `Pending Offline Tickets (${count})`;
+        }
+
+
+        if (offlinePendingMessage) {
+
+            if (navigator.onLine) {
+
+                offlinePendingMessage.innerText =
+                    `${count} ticket${count === 1 ? '' : 's'} waiting to sync.`;
+
+            } else {
+
+                offlinePendingMessage.innerText =
+                    `You are offline. ${count} ticket${count === 1 ? '' : 's'} saved on this device and waiting to sync.`;
+            }
+        }
+
+
+        if (syncNowButton) {
+
+            if (navigator.onLine) {
+
+                syncNowButton.classList.remove(
+                    'hidden'
+                );
+
+                syncNowButton.disabled =
+                    false;
+
+                syncNowButton.innerText =
+                    'Sync Now';
+
+            } else {
+
+                syncNowButton.classList.add(
+                    'hidden'
+                );
+
+                syncNowButton.disabled =
+                    true;
+            }
+        }
+    }
+
+
+    // ===================================================
+    // SHOW SYNCING
+    // ===================================================
+
+    function showSyncing(count) {
+
+        hideOfflineStatus();
+
+
+        if (offlineSyncingBox) {
+
+            offlineSyncingBox.classList.remove(
+                'hidden'
+            );
+        }
+
+
+        if (offlineSyncingMessage) {
+
+            offlineSyncingMessage.innerText =
+                `Uploading ${count} pending ticket${count === 1 ? '' : 's'}...`;
+        }
+    }
+
+
+    // ===================================================
+    // SHOW SUCCESS
+    // ===================================================
+
+    function showSyncSuccess(count) {
+
+        hideOfflineStatus();
+
+
+        if (offlineSuccessBox) {
+
+            offlineSuccessBox.classList.remove(
+                'hidden'
+            );
+        }
+
+
+        if (offlineSuccessMessage) {
+
+            offlineSuccessMessage.innerText =
+                `${count} ticket${count === 1 ? '' : 's'} synchronized successfully.`;
+        }
+
+
+        setTimeout(
+            function () {
+
+                updatePendingSyncCount();
+
+            },
+            3000
+        );
+    }
+
+
+    // ===================================================
+    // SHOW SYNC ERROR
+    // ===================================================
+
+    function showSyncError(message) {
+
+        hideOfflineStatus();
+
+
+        if (offlineErrorBox) {
+
+            offlineErrorBox.classList.remove(
+                'hidden'
+            );
+        }
+
+
+        if (offlineErrorMessage) {
+
+            offlineErrorMessage.innerText =
+                message ||
+                'Some tickets could not be synchronized.';
+        }
+    }
+
+
+    // ===================================================
+    // UPDATE PENDING COUNT
+    // ===================================================
+
+    async function updatePendingSyncCount() {
+
+        try {
+
+            const tickets =
+                await getPendingTickets();
+
+
+            const count =
+                tickets.length;
+
+
+            if (count === 0) {
+
+                hideOfflineStatus();
+
+                return;
+            }
+
+
+            showPendingTickets(
+                count
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Offline storage error:',
+                error
+            );
+
+            showSyncError(
+                error.message ||
+                'Unable to read offline tickets.'
+            );
+        }
+    }
+
+
+    // ===================================================
+    // SYNC ONE TICKET
+    // ===================================================
+
+    async function syncOneTicket(ticket) {
+
+        if (!navigator.onLine) {
+
+            throw new Error(
+                'Internet connection is unavailable.'
+            );
+        }
+
+
+        const syncFormData =
+            buildSyncFormData(
+                ticket
+            );
+
+
+        const response =
+            await fetch(
+                ticket.action ||
+                form.action,
+                {
+                    method: 'POST',
+                    body: syncFormData,
+
+                    credentials:
+                        'same-origin',
+
+                    headers: {
+                        'Accept':
+                            'application/json',
+
+                        'X-Requested-With':
+                            'XMLHttpRequest'
+                    }
+                }
+            );
+
+
+        // -----------------------------------------------
+        // SERVER VALIDATION / ERROR
+        // -----------------------------------------------
+
+        if (!response.ok) {
+
+            let message =
+                `Server returned HTTP ${response.status}.`;
+
+
+            try {
+
+                const data =
+                    await response.json();
+
+                if (data.message) {
+
+                    message =
+                        data.message;
+                }
+
+            } catch (error) {
+
+                // Response was not JSON.
+            }
+
+
+            throw new Error(
+                message
+            );
+        }
+
+
+        return true;
+    }
+
+
+    // ===================================================
+    // SYNC ALL PENDING TICKETS
+    // ===================================================
+
+    async function syncPendingTickets() {
+
+        if (syncInProgress) {
+            return;
+        }
+
+
+        if (!navigator.onLine) {
+
+            await updatePendingSyncCount();
+
+            return;
+        }
+
+
+        syncInProgress =
+            true;
+
+
+        try {
+
+            const tickets =
+                await getPendingTickets();
+
+
+            if (
+                tickets.length === 0
+            ) {
+
+                hideOfflineStatus();
+
+                return;
+            }
+
+
+            showSyncing(
+                tickets.length
+            );
+
+
+            let syncedCount =
+                0;
+
+            let failedCount =
+                0;
+
+            let lastError =
+                '';
+
+
+            for (
+                const ticket
+                of tickets
+            ) {
+
+                if (!navigator.onLine) {
+
+                    failedCount +=
+                        tickets.length -
+                        syncedCount;
+
+                    lastError =
+                        'Internet connection was lost during synchronization.';
+
+                    break;
+                }
+
+
+                try {
+
+                    await syncOneTicket(
+                        ticket
+                    );
+
+
+                    // -----------------------------------
+                    // IMPORTANT:
+                    // DELETE ONLY AFTER SUCCESS
+                    // -----------------------------------
+
+                    await deletePendingTicket(
+                        ticket.id
+                    );
+
+
+                    syncedCount++;
+
+                } catch (error) {
+
+                    console.error(
+                        `Failed to sync ticket ${ticket.id}:`,
+                        error
+                    );
+
+
+                    failedCount++;
+
+
+                    lastError =
+                        error.message ||
+                        'Unable to synchronize ticket.';
+                }
+            }
+
+
+            // -------------------------------------------
+            // REFRESH PENDING TICKETS
+            // -------------------------------------------
+
+            const remainingTickets =
+                await getPendingTickets();
+
+
+            const remainingCount =
+                remainingTickets.length;
+
+
+            // -------------------------------------------
+            // EVERYTHING SYNCED
+            // -------------------------------------------
+
+            if (
+                remainingCount === 0
+            ) {
+
+                if (syncedCount > 0) {
+
+                    showSyncSuccess(
+                        syncedCount
+                    );
+
+                } else {
+
+                    hideOfflineStatus();
+                }
+
+
+                return;
+            }
+
+
+            // -------------------------------------------
+            // SOME FAILED
+            // -------------------------------------------
+
+            showSyncError(
+                `${remainingCount} ticket${remainingCount === 1 ? '' : 's'} remain pending. ${lastError || 'Please try again when the connection is stable.'}`
+            );
+
+
+            // Show pending information again
+            setTimeout(
+                function () {
+
+                    updatePendingSyncCount();
+
+                },
+                2500
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Offline synchronization error:',
+                error
+            );
+
+
+            showSyncError(
+                error.message ||
+                'Unable to synchronize offline tickets.'
+            );
+
+        } finally {
+
+            syncInProgress =
+                false;
+        }
+    }
+
+
+    // ===================================================
+    // INTERCEPT FORM SUBMISSION WHEN OFFLINE
+    // ===================================================
+
+    if (form) {
+
+        form.addEventListener(
+            'submit',
+            async function (event) {
+
+                // ---------------------------------------
+                // ONLINE
+                // ---------------------------------------
+                //
+                // Leave the normal Laravel form
+                // submission unchanged.
+                //
+
+                if (navigator.onLine) {
+
+                    return;
+                }
+
+
+                // ---------------------------------------
+                // OFFLINE
+                // ---------------------------------------
+
+                event.preventDefault();
+
+
+                if (syncInProgress) {
+
+                    return;
+                }
+
+
+                try {
+
+                    // -----------------------------------
+                    // SAVE LOCALLY
+                    // -----------------------------------
+
+                    await saveTicketOffline();
+
+
+                    // -----------------------------------
+                    // UPDATE STATUS
+                    // -----------------------------------
+
+                    await updatePendingSyncCount();
+
+
+                    // -----------------------------------
+                    // INFORM USER
+                    // -----------------------------------
+
+                    if (offlinePendingMessage) {
+
+                        const tickets =
+                            await getPendingTickets();
+
+                        const count =
+                            tickets.length;
+
+
+                        offlinePendingMessage.innerText =
+                            `You are offline. Your ticket has been saved on this device. ${count} ticket${count === 1 ? '' : 's'} waiting to sync.`;
+                    }
+
+
+                    console.log(
+                        'Ticket saved successfully for offline synchronization.'
+                    );
+
+                } catch (error) {
+
+                    console.error(
+                        'Offline ticket save error:',
+                        error
+                    );
+
+
+                    showSyncError(
+                        error.message ||
+                        'Unable to save the ticket on this device.'
+                    );
+                }
+            }
+        );
+    }
+
+
+    // ===================================================
+    // MANUAL SYNC BUTTON
+    // ===================================================
+
+    if (syncNowButton) {
+
+        syncNowButton.addEventListener(
+            'click',
+            function () {
+
+                syncPendingTickets();
+
+            }
+        );
+    }
+
+
+    // ===================================================
+    // CONNECTION RESTORED
+    // ===================================================
+
+    window.addEventListener(
+        'online',
+        function () {
+
+            console.log(
+                'Internet connection restored.'
+            );
+
+
+            setTimeout(
+                function () {
+
+                    syncPendingTickets();
+
+                },
+                1500
+            );
+        }
+    );
+
+
+    // ===================================================
+    // CONNECTION LOST
+    // ===================================================
+
+    window.addEventListener(
+        'offline',
+        function () {
+
+            console.log(
+                'Internet connection lost.'
+            );
+
+
+            updatePendingSyncCount();
+
+        }
+    );
+
+
+    // ===================================================
+    // INITIALIZE OFFLINE SYNC
+    // ===================================================
+
+    updatePendingSyncCount();
 
 
     // ===================================================
