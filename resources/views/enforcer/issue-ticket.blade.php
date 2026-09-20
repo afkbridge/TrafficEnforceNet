@@ -37,6 +37,7 @@
 <div class="min-h-screen bg-[#F5F7FB] pb-28">
 
     <form
+        id="issueTicketForm"
         action="{{ route('enforcer.violations.store') }}"
         method="POST"
         enctype="multipart/form-data"
