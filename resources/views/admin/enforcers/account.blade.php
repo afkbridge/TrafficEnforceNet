@@ -6,126 +6,247 @@
 
 <div class="container-fluid">
 
-    <!-- Header -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
 
-        <div>
-            <h3 class="fw-bold mb-1">
-                <i class="fas fa-user-circle text-primary"></i>
-                Enforcer Account
-            </h3>
+    <div>
+        <h3 class="fw-bold mb-1">
+            <i class="fas fa-user-circle text-primary"></i>
+            Enforcer Account
+        </h3>
 
-            <p class="text-muted mb-0">
-                View the account information linked to this enforcer.
-            </p>
-        </div>
-
-        <a href="{{ route('enforcers.index') }}" class="btn btn-secondary rounded-pill px-4">
-            <i class="fas fa-arrow-left me-2"></i>Back
-        </a>
-
+        <p class="text-muted mb-0">
+            View the account information linked to this enforcer.
+        </p>
     </div>
 
-    <div class="row">
+    <a href="{{ route('enforcers.index') }}" class="btn btn-secondary rounded-pill px-4">
+        <i class="fas fa-arrow-left me-2"></i>Back
+    </a>
 
-        <!-- LEFT PROFILE -->
-        <div class="col-lg-4 mb-4">
+</div>
 
-            <div class="card border-0 shadow-sm h-100">
+<div class="row">
 
-                <div class="card-body text-center p-4">
+    <!-- LEFT PROFILE -->
+    <div class="col-lg-4 mb-4">
 
-                    <div class="mb-4">
+        <div class="card border-0 shadow-sm h-100">
 
-                        <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center"
-                             style="width:120px;height:120px;">
+            <div class="card-body text-center p-4">
 
-                            <i class="fas fa-user-shield fa-4x"></i>
+                <div class="mb-4">
 
+                    <div class="rounded-circle bg-primary text-white d-inline-flex justify-content-center align-items-center"
+                         style="width:120px;height:120px;">
+
+                        <i class="fas fa-user-shield fa-4x"></i>
+
+                    </div>
+
+                </div>
+
+                <h3 class="fw-bold mb-1">
+                    {{ $enforcer->first_name }}
+                    {{ $enforcer->last_name }}
+                </h3>
+
+                @if($enforcer->middle_name)
+                    <p class="text-muted mb-3">
+                        {{ $enforcer->middle_name }}
+                    </p>
+                @endif
+
+                <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill">
+                    Badge #{{ $enforcer->badge_number }}
+                </span>
+
+                <hr class="my-4">
+
+                <div class="mb-3">
+
+                    <small class="text-muted d-block">
+                        Position
+                    </small>
+
+                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill">
+                        {{ $enforcer->position }}
+                    </span>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <small class="text-muted d-block">
+                        Employment Status
+                    </small>
+
+                    @if($enforcer->employment_status == 'Active')
+
+                        <span class="badge bg-success px-3 py-2 rounded-pill">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Active
+                        </span>
+
+                    @else
+
+                        <span class="badge bg-danger px-3 py-2 rounded-pill">
+                            <i class="fas fa-times-circle me-1"></i>
+                            Inactive
+                        </span>
+
+                    @endif
+
+                </div>
+
+                <hr>
+
+                <div class="text-start">
+
+                    <div class="mb-3">
+
+                        <small class="text-muted">
+                            Username
+                        </small>
+
+                        <div class="fw-semibold">
+                            {{ $enforcer->user->username ?? '-' }}
                         </div>
 
                     </div>
 
-                    <h3 class="fw-bold mb-1">
-                        {{ $enforcer->first_name }}
-                        {{ $enforcer->last_name }}
-                    </h3>
+                    <div>
 
-                    @if($enforcer->middle_name)
-                        <p class="text-muted mb-3">
-                            {{ $enforcer->middle_name }}
-                        </p>
-                    @endif
-
-                    <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill">
-                        Badge #{{ $enforcer->badge_number }}
-                    </span>
-
-                    <hr class="my-4">
-
-                    <div class="mb-3">
-
-                        <small class="text-muted d-block">
-                            Position
+                        <small class="text-muted">
+                            Contact Email
                         </small>
 
-                        <span class="badge bg-info text-dark px-3 py-2 rounded-pill">
-                            {{ $enforcer->position }}
-                        </span>
+                        <div class="fw-semibold">
+                            {{ $enforcer->email ?? '-' }}
+                        </div>
 
                     </div>
 
-                    <div class="mb-4">
+                </div>
 
-                        <small class="text-muted d-block">
-                            Employment Status
-                        </small>
+            </div>
 
-                        @if($enforcer->employment_status == 'Active')
+        </div>
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="col-lg-8">
+
+        <!-- Account Card -->
+        <div class="card border-0 shadow-sm mb-4">
+
+            <div class="card-header bg-primary text-white py-3">
+
+                <h5 class="mb-0">
+                    <i class="fas fa-key me-2"></i>
+                    Account Information
+                </h5>
+
+            </div>
+
+            <div class="card-body p-4">
+
+                <div class="row mb-4">
+
+                    <div class="col-md-4 text-muted">
+                        Account ID
+                    </div>
+
+                    <div class="col-md-8 fw-semibold">
+                        {{ $enforcer->user->id ?? '-' }}
+                    </div>
+
+                </div>
+
+                <div class="row mb-4">
+
+                    <div class="col-md-4 text-muted">
+                        Username
+                    </div>
+
+                    <div class="col-md-8 fw-semibold">
+                        {{ $enforcer->user->username ?? '-' }}
+                    </div>
+
+                </div>
+
+                <div class="row mb-4">
+
+                    <div class="col-md-4 text-muted">
+                        Contact Email
+                    </div>
+
+                    <div class="col-md-8 fw-semibold">
+                        {{ $enforcer->email ?? '-' }}
+                    </div>
+
+                </div>
+
+                <div class="row mb-4">
+
+                    <div class="col-md-4 text-muted">
+                        Role
+                    </div>
+
+                    <div class="col-md-8">
+
+                        @if(isset($enforcer->user->role))
 
                             <span class="badge bg-success px-3 py-2 rounded-pill">
-                                <i class="fas fa-check-circle me-1"></i>
-                                Active
+                                {{ $enforcer->user->role->name }}
                             </span>
 
                         @else
 
-                            <span class="badge bg-danger px-3 py-2 rounded-pill">
-                                <i class="fas fa-times-circle me-1"></i>
-                                Inactive
+                            <span class="badge bg-success px-3 py-2 rounded-pill">
+                                POSO Enforcer
                             </span>
 
                         @endif
 
                     </div>
 
-                    <hr>
+                </div>
 
-                    <div class="text-start">
+                <div class="row mb-4">
 
-                        <div class="mb-3">
+                    <div class="col-md-4 text-muted">
+                        Password
+                    </div>
 
-                            <small class="text-muted">
-                                Username
-                            </small>
+                    <div class="col-md-8 fw-semibold text-secondary">
+                        ••••••••••••••••
+                    </div>
 
-                            <div class="fw-semibold">
-                                {{ $enforcer->user->name ?? '-' }}
-                            </div>
+                </div>
 
-                        </div>
+                <div class="row">
 
-                        <div>
+                    <div class="col-md-4 text-muted">
+                        Account Status
+                    </div>
 
-                            <small class="text-muted">
-                                Email Address
-                            </small>
+                    <div class="col-md-8">
 
-                            <div class="fw-semibold">
-                                {{ $enforcer->user->email ?? '-' }}
-                            </div>
+                        @if($enforcer->user && $enforcer->user->account_status == 'Active')
 
-                        </div>
+                            <span class="badge bg-success px-3 py-2 rounded-pill">
+                                Enabled
+                            </span>
+
+                        @else
+
+                            <span class="badge bg-danger px-3 py-2 rounded-pill">
+                                Disabled
+                            </span>
+
+                        @endif
 
                     </div>
 
@@ -135,164 +256,41 @@
 
         </div>
 
-        <!-- RIGHT SIDE -->
-        <div class="col-lg-8">
+        <!-- Security -->
+        <div class="card border-0 shadow-sm">
 
-            <!-- Account Card -->
-            <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-warning">
 
-                <div class="card-header bg-primary text-white py-3">
-
-                    <h5 class="mb-0">
-                        <i class="fas fa-key me-2"></i>
-                        Account Information
-                    </h5>
-
-                </div>
-
-                <div class="card-body p-4">
-
-                    <div class="row mb-4">
-
-                        <div class="col-md-4 text-muted">
-                            Account ID
-                        </div>
-
-                        <div class="col-md-8 fw-semibold">
-                            {{ $enforcer->user->id ?? '-' }}
-                        </div>
-
-                    </div>
-
-                    <div class="row mb-4">
-
-                        <div class="col-md-4 text-muted">
-                            Username
-                        </div>
-
-                        <div class="col-md-8 fw-semibold">
-                            {{ $enforcer->user->name ?? '-' }}
-                        </div>
-
-                    </div>
-
-                    <div class="row mb-4">
-
-                        <div class="col-md-4 text-muted">
-                            Email
-                        </div>
-
-                        <div class="col-md-8 fw-semibold">
-                            {{ $enforcer->user->email ?? '-' }}
-                        </div>
-
-                    </div>
-
-                    <div class="row mb-4">
-
-                        <div class="col-md-4 text-muted">
-                            Role
-                        </div>
-
-                        <div class="col-md-8">
-
-                            @if(isset($enforcer->user->role))
-
-                                <span class="badge bg-success px-3 py-2 rounded-pill">
-                                    {{ $enforcer->user->role->name }}
-                                </span>
-
-                            @else
-
-                                <span class="badge bg-success px-3 py-2 rounded-pill">
-                                    POSO Enforcer
-                                </span>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                    <div class="row mb-4">
-
-                        <div class="col-md-4 text-muted">
-                            Password
-                        </div>
-
-                        <div class="col-md-8 fw-semibold text-secondary">
-                            ••••••••••••••••
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-
-                        <div class="col-md-4 text-muted">
-                            Account Status
-                        </div>
-
-                        <div class="col-md-8">
-
-                            @if($enforcer->employment_status == 'Active')
-
-                                <span class="badge bg-success px-3 py-2 rounded-pill">
-                                    Enabled
-                                </span>
-
-                            @else
-
-                                <span class="badge bg-danger px-3 py-2 rounded-pill">
-                                    Disabled
-                                </span>
-
-                            @endif
-
-                        </div>
-
-                    </div>
-
-                </div>
+                <h5 class="mb-0">
+                    <i class="fas fa-shield-alt me-2"></i>
+                    Security Information
+                </h5>
 
             </div>
 
-            <!-- Security -->
-            <div class="card border-0 shadow-sm">
+            <div class="card-body">
 
-                <div class="card-header bg-warning">
+                <div class="mb-3">
 
-                    <h5 class="mb-0">
-                        <i class="fas fa-shield-alt me-2"></i>
-                        Security Information
-                    </h5>
+                    <i class="fas fa-lock text-success me-2"></i>
+
+                    Passwords are securely encrypted and cannot be viewed.
 
                 </div>
 
-                <div class="card-body">
+                <div class="mb-3">
 
-                    <div class="mb-3">
+                    <i class="fas fa-user-shield text-primary me-2"></i>
 
-                        <i class="fas fa-lock text-success me-2"></i>
+                    Only administrators can reset an enforcer's password.
 
-                        Passwords are securely encrypted and cannot be viewed.
+                </div>
 
-                    </div>
+                <div>
 
-                    <div class="mb-3">
+                    <i class="fas fa-ban text-danger me-2"></i>
 
-                        <i class="fas fa-user-shield text-primary me-2"></i>
-
-                        Only administrators can reset an enforcer's password.
-
-                    </div>
-
-                    <div>
-
-                        <i class="fas fa-ban text-danger me-2"></i>
-
-                        Disabled employee accounts cannot log in to the system.
-
-                    </div>
+                    Disabled employee accounts cannot log in to the system.
 
                 </div>
 
@@ -301,6 +299,9 @@
         </div>
 
     </div>
+
+</div>
+
 
 </div>
 

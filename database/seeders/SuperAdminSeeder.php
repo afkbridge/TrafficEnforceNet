@@ -7,18 +7,15 @@ use App\Models\User;
 
 class SuperAdminSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'superadmin@trafficenforcenet.com'],
+            ['username' => 'superadmin'],
             [
                 'role_id' => 4,
                 'name' => 'System Administrator',
                 'password' => bcrypt('password'),
-                'account_status' => 'active',
+                'account_status' => 'Active',
             ]
         );
     }

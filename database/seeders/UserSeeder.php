@@ -11,31 +11,18 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        /*
-        |--------------------------------------------------------------------------
-        | Administrator Account
-        |--------------------------------------------------------------------------
-        */
-
         User::updateOrCreate(
-            ['email' => 'admin@trafficenforcenet.com'],
+            ['username' => 'admin'],
             [
-                'name' => 'Administrator',
+                'name' => 'Admin Brie',
                 'password' => Hash::make('password'),
                 'role_id' => 1,
                 'account_status' => 'Active',
             ]
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | BPLO Account
-        |--------------------------------------------------------------------------
-        */
-
         User::updateOrCreate(
-            ['email' => 'bplo@trafficenforcenet.com'],
+            ['username' => 'bplo'],
             [
                 'name' => 'BPLO Personnel',
                 'password' => Hash::make('password'),
@@ -44,15 +31,8 @@ class UserSeeder extends Seeder
             ]
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Enforcer Account
-        |--------------------------------------------------------------------------
-        */
-
         $enforcerUser = User::updateOrCreate(
-            ['email' => 'enforcer@trafficenforcenet.com'],
+            ['username' => 'enforcer'],
             [
                 'name' => 'Juan Dela Cruz',
                 'password' => Hash::make('password'),
@@ -60,13 +40,6 @@ class UserSeeder extends Seeder
                 'account_status' => 'Active',
             ]
         );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Enforcer Profile
-        |--------------------------------------------------------------------------
-        */
 
         Enforcer::updateOrCreate(
             ['user_id' => $enforcerUser->id],
