@@ -36,7 +36,166 @@
 
 <div class="min-h-screen bg-[#F5F7FB] pb-28">
 
+    <!-- =======================================================
+         OFFLINE SYNC STATUS
+    ======================================================== -->
+
+    <div id="offlineSyncContainer" class="px-5 pt-5 space-y-3">
+
+        <!-- OFFLINE / PENDING -->
+
+        <div
+            id="offlinePendingBox"
+            class="hidden rounded-2xl border border-orange-200 bg-orange-50 p-4">
+
+            <div class="flex items-start justify-between gap-3">
+
+                <div class="flex items-start gap-3">
+
+                    <div class="text-orange-500 text-xl">
+                        ⚠️
+                    </div>
+
+                    <div>
+
+                        <p
+                            id="offlinePendingTitle"
+                            class="font-semibold text-orange-800">
+
+                            Pending Offline Tickets
+
+                        </p>
+
+                        <p
+                            id="offlinePendingMessage"
+                            class="mt-1 text-sm text-orange-700">
+
+                            Your ticket is saved on this device.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    type="button"
+                    id="syncNowButton"
+                    class="hidden shrink-0 rounded-lg bg-orange-500 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-600">
+
+                    Sync Now
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- SYNCING -->
+
+        <div
+            id="offlineSyncingBox"
+            class="hidden rounded-2xl border border-blue-200 bg-blue-50 p-4">
+
+            <div class="flex items-center gap-3">
+
+                <div class="text-blue-500 text-xl">
+                    🔄
+                </div>
+
+                <div>
+
+                    <p class="font-semibold text-blue-800">
+                        Syncing Tickets
+                    </p>
+
+                    <p
+                        id="offlineSyncingMessage"
+                        class="mt-1 text-sm text-blue-700">
+
+                        Please wait while your pending tickets are uploaded.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- SUCCESS -->
+
+        <div
+            id="offlineSuccessBox"
+            class="hidden rounded-2xl border border-green-200 bg-green-50 p-4">
+
+            <div class="flex items-center gap-3">
+
+                <div class="text-green-500 text-xl">
+                    ✓
+                </div>
+
+                <div>
+
+                    <p class="font-semibold text-green-800">
+                        Tickets Synced Successfully
+                    </p>
+
+                    <p
+                        id="offlineSuccessMessage"
+                        class="mt-1 text-sm text-green-700">
+
+                        All pending tickets have been uploaded.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ERROR -->
+
+        <div
+            id="offlineErrorBox"
+            class="hidden rounded-2xl border border-red-200 bg-red-50 p-4">
+
+            <div class="flex items-start gap-3">
+
+                <div class="text-red-500 text-xl">
+                    ⚠️
+                </div>
+
+                <div>
+
+                    <p class="font-semibold text-red-800">
+                        Sync Failed
+                    </p>
+
+                    <p
+                        id="offlineErrorMessage"
+                        class="mt-1 text-sm text-red-700">
+
+                        Some tickets could not be synchronized.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
     <form
+        id="issueTicketForm"
         action="{{ route('enforcer.violations.store') }}"
         method="POST"
         enctype="multipart/form-data"
