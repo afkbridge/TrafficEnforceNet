@@ -5,6 +5,7 @@ namespace App\Http\Controllers\BPLO;
 use App\Http\Controllers\Controller;
 use App\Models\Violation;
 use Illuminate\Http\Request;
+use App\Services\AuditLogger;
 
 class ViolationController extends Controller
 {
@@ -137,38 +138,51 @@ class ViolationController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function updateStatus(Request $request, Violation $violation)
-    {
-        /*
-        |--------------------------------------------------------------------------
-        | Validate Status
-        |--------------------------------------------------------------------------
-        */
+   public function updateStatus(Request $request, Violation $violation)
+{
+    // ==========================================================
+    // Validate Status
+    // ==========================================================
 
-        $validated = $request->validate([
-            'status' => ['required', 'in:Pending,Settled'],
-        ]);
+    $validated = $request->validate([
+        'status' => ['required', 'in:Pending,Settled'],
+    ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Update Database
-        |--------------------------------------------------------------------------
-        */
+    // ==========================================================
+    // Store Previous Status
+    // ==========================================================
 
-        $violation->status = $validated['status'];
-        $violation->save();
+    $oldStatus = $violation->status;
+    $newStatus = $validated['status'];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Return to Violation Review
-        |--------------------------------------------------------------------------
-        */
+    // ==========================================================
+    // Update Database
+    // ==========================================================
 
-        return redirect()
-            ->back()
-            ->with(
-                'success',
-                'Violation status updated successfully.'
-            );
-    }
+    $violation->status = $newStatus;
+    $violation->save();
+
+    // ==========================================================
+    // Audit Trail
+    // ==========================================================
+
+    AuditLogger::log(
+        'STATUS_UPDATE',
+        'Updated violation ticket ' . $violation->ticket_number .
+        ' status from ' . $oldStatus .
+        ' to ' . $newStatus . '.',
+        $violation
+    );
+
+    // ==========================================================
+    // Return to Violation Review
+    // ==========================================================
+
+    return redirect()
+        ->back()
+        ->with(
+            'success',
+            'Violation status updated successfully.'
+        );
+}
 }

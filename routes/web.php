@@ -19,6 +19,8 @@ use App\Http\Controllers\SuperAdmin\UserManagementController;
 
 use App\Http\Controllers\Admin\ViolationTypeController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\AuditTrailController;
+
 use App\Models\Violation;
 use Illuminate\Http\Request;
 
@@ -40,8 +42,8 @@ Route::get('/', function (Request $request) {
             'violationType',
             'user'
         ])
-        ->where('ticket_number', $request->ticket_number)
-        ->first();
+            ->where('ticket_number', $request->ticket_number)
+            ->first();
     }
 
     return view('landing', compact('violation'));
@@ -148,7 +150,6 @@ Route::get('/dashboard', function () {
     }
 
     return redirect('/');
-
 })->middleware('auth')->name('dashboard');
 
 
@@ -170,6 +171,19 @@ Route::middleware('auth')->group(function () {
         ->name('admin.reports.index');
 
 
+
+
+    // ==========================================================
+    // Audit Monitoring
+    // ==========================================================
+
+    Route::get(
+        '/admin/audit-monitoring',
+        [AuditTrailController::class, 'index']
+    )
+        ->middleware(['role:Administrator', 'prevent-back'])
+        ->name('admin.audit.index');
+        
     /*
     |--------------------------------------------------------------------------
     | Admin Violation Management
@@ -384,7 +398,6 @@ Route::middleware('auth')->group(function () {
             return response()->json([
                 'success' => true,
             ]);
-
         })->name('enforcer.heartbeat');
     });
 
@@ -400,7 +413,6 @@ Route::middleware('auth')->group(function () {
         return view('enforcer.profile', [
             'user' => auth()->user()
         ]);
-
     })->middleware([
         'auth',
         'role:POSO Enforcer',

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Services\AuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -30,6 +31,12 @@ class AuthenticatedSessionController extends Controller
 
         $user = auth()->user();
 
+        // Record successful login
+        AuditLogger::log(
+            'LOGIN',
+            'User logged in successfully.'
+        );
+
         // Administrator
         if ($user->role->name === 'Administrator') {
             return redirect()->route('admin.dashboard');
@@ -45,6 +52,11 @@ class AuthenticatedSessionController extends Controller
             return redirect()->route('bplo.dashboard');
         }
 
+        // Super Administrator
+        if ($user->role->name === 'Super Administrator') {
+            return redirect()->route('super-admin.users');
+        }
+
         // Fallback
         return redirect('/');
     }
@@ -54,14 +66,18 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        // Record logout before destroying the authenticated session
+        AuditLogger::log(
+            'LOGOUT',
+            'User logged out.'
+        );
+
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         // Redirect every account type back to Office Login
         return redirect()->route('login');
     }
 }
-

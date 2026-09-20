@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Enforcer;
 
 use App\Services\OcrSpaceService;
+use App\Services\AuditLogger;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -102,7 +103,7 @@ class ViolationController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' =>
-                        'No text could be detected from the driver\'s license. Please upload a clearer image.',
+                    'No text could be detected from the driver\'s license. Please upload a clearer image.',
                 ], 422);
             }
 
@@ -111,11 +112,10 @@ class ViolationController extends Controller
             return response()->json([
                 'success' => true,
                 'message' =>
-                    'Driver\'s license information extracted successfully.',
+                'Driver\'s license information extracted successfully.',
                 'data' => $data,
                 'raw_text' => $text,
             ]);
-
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -144,7 +144,7 @@ class ViolationController extends Controller
                     'trim',
                     explode("\n", $text)
                 ),
-                fn ($line) => $line !== ''
+                fn($line) => $line !== ''
             )
         );
 
@@ -365,8 +365,8 @@ class ViolationController extends Controller
                                     '/\s+/',
                                     ' ',
                                     $previousLine .
-                                    ', ' .
-                                    $line
+                                        ', ' .
+                                        $line
                                 )
                             );
 
@@ -409,7 +409,7 @@ class ViolationController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' =>
-                        'No text could be detected from the citation ticket. Please upload a clearer image.',
+                    'No text could be detected from the citation ticket. Please upload a clearer image.',
                 ], 422);
             }
 
@@ -421,11 +421,10 @@ class ViolationController extends Controller
             return response()->json([
                 'success' => true,
                 'message' =>
-                    'Citation ticket information extracted successfully.',
+                'Citation ticket information extracted successfully.',
                 'data' => $data,
                 'raw_text' => $text,
             ]);
-
         } catch (\Throwable $e) {
 
             return response()->json([
@@ -524,7 +523,6 @@ class ViolationController extends Controller
 
             $result['ticket_number'] =
                 trim($match[1]);
-
         } elseif (
             preg_match(
                 '/\bNo\.?\s*([0-9]{3,})\b/i',
@@ -750,7 +748,6 @@ class ViolationController extends Controller
                 strtoupper(
                     trim($match[1])
                 );
-
         } elseif (
             preg_match(
                 '/License\s+Number\s*:?\s*([A-Z0-9-]+)/i',
@@ -998,11 +995,11 @@ class ViolationController extends Controller
             if (
                 preg_match(
                     '/\b' .
-                    preg_quote(
-                        $vehicleType,
-                        '/'
-                    ) .
-                    '\b/i',
+                        preg_quote(
+                            $vehicleType,
+                            '/'
+                        ) .
+                        '\b/i',
                     $fullText
                 )
             ) {
@@ -1390,23 +1387,23 @@ class ViolationController extends Controller
         $driver = Driver::firstOrCreate(
             [
                 'license_number' =>
-                    $request->license_number
+                $request->license_number
             ],
             [
                 'first_name' =>
-                    $request->first_name,
+                $request->first_name,
 
                 'middle_name' =>
-                    $request->middle_name,
+                $request->middle_name,
 
                 'last_name' =>
-                    $request->last_name,
+                $request->last_name,
 
                 'address' =>
-                    $request->address,
+                $request->address,
 
                 'birth_date' =>
-                    $request->birth_date,
+                $request->birth_date,
 
                 'contact_number' => null,
 
@@ -1425,22 +1422,22 @@ class ViolationController extends Controller
         $vehicle = Vehicle::firstOrCreate(
             [
                 'plate_number' =>
-                    strtoupper(
-                        $request->plate_number
-                    )
+                strtoupper(
+                    $request->plate_number
+                )
             ],
             [
                 'driver_id' =>
-                    $driver->id,
+                $driver->id,
 
                 'vehicle_type' =>
-                    $request->vehicle_type,
+                $request->vehicle_type,
 
                 'region_number' =>
-                    $request->region_number,
+                $request->region_number,
 
                 'owner_name' =>
-                    $request->owner_name,
+                $request->owner_name,
             ]
         );
 
@@ -1455,15 +1452,14 @@ class ViolationController extends Controller
             $newViolationType =
                 ViolationType::create([
                     'name' =>
-                        $request->other_violation,
+                    $request->other_violation,
 
                     'description' =>
-                        'Added by enforcer during citation',
+                    'Added by enforcer during citation',
                 ]);
 
             $violationTypeId =
                 $newViolationType->id;
-
         } else {
 
             $violationTypeId =
@@ -1478,60 +1474,60 @@ class ViolationController extends Controller
 
         $violation = Violation::create([
             'ticket_number' =>
-                $request->ticket_number
-                    ??
+            $request->ticket_number
+                ??
                 'TN-' .
                 strtoupper(
                     Str::random(8)
                 ),
 
             'driver_id' =>
-                $driver->id,
+            $driver->id,
 
             'vehicle_id' =>
-                $vehicle->id,
+            $vehicle->id,
 
             'violation_type_id' =>
-                $violationTypeId,
+            $violationTypeId,
 
             'user_id' =>
-                Auth::id(),
+            Auth::id(),
 
             'violation_date' =>
-                now()
-                    ->setTimezone('Asia/Manila')
-                    ->format('Y-m-d'),
+            now()
+                ->setTimezone('Asia/Manila')
+                ->format('Y-m-d'),
 
             'violation_time' =>
-                now()
-                    ->setTimezone('Asia/Manila')
-                    ->format('H:i:s'),
+            now()
+                ->setTimezone('Asia/Manila')
+                ->format('H:i:s'),
 
             'location' =>
-                $request->location
-                    ??
+            $request->location
+                ??
                 'Location not available',
 
             'latitude' =>
-                $request->latitude
-                    ??
+            $request->latitude
+                ??
                 null,
 
             'longitude' =>
-                $request->longitude
-                    ??
+            $request->longitude
+                ??
                 null,
 
             'remarks' =>
-                $request->remarks
-                    ??
+            $request->remarks
+                ??
                 null,
 
             'ticket_image' =>
-                $ticketImagePath,
+            $ticketImagePath,
 
             'status' =>
-                'Pending',
+            'Pending',
         ]);
 
         /*
@@ -1555,14 +1551,20 @@ class ViolationController extends Controller
 
                 ViolationImage::create([
                     'violation_id' =>
-                        $violation->id,
+                    $violation->id,
 
                     'image_path' =>
-                        $imagePath,
+                    $imagePath,
                 ]);
             }
         }
 
+        AuditLogger::log(
+            'CREATE',
+            'Created traffic violation ticket ' . $violation->ticket_number,
+            $violation
+        );
+        
         /*
         |--------------------------------------------------------------------------
         | REDIRECT SUCCESS

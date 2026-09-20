@@ -53,6 +53,13 @@
 
         </li>
 
+        <li class="{{ request()->routeIs('admin.audit.index') ? 'active' : '' }}">
+            <a href="{{ route('admin.audit.index') }}">
+                <i class="fas fa-clock-rotate-left"></i>
+                <span>Audit Monitoring</span>
+            </a>
+        </li>
+
         <li class="{{ request()->routeIs('admin.settings') ? 'active' : '' }}">
             <a href="{{ route('admin.settings') }}">
                 <i class="fas fa-gear"></i>
