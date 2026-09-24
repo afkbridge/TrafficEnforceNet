@@ -1,3 +1,4 @@
+
 @extends('layouts.enforcer')
 
 @section('title', 'Issue Traffic Citation')
@@ -58,6 +59,7 @@
         <div class="flex items-start justify-between gap-3">
 
             <div class="flex items-start gap-3">
+                <div class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
 
                 <div class="text-orange-500 text-xl">
                     ⚠️
@@ -95,6 +97,7 @@
             </button>
 
         </div>
+    @endif
 
     </div>
 
@@ -104,6 +107,32 @@
         id="offlineSyncingBox"
         class="hidden rounded-2xl border border-blue-200 bg-blue-50 p-4">
 
+        <!-- ========================================================= -->
+        <!-- OFFLINE / ONLINE CONNECTION STATUS -->
+        <!-- ========================================================= -->
+
+        <div class="px-5 pt-4">
+
+            <div id="connectionStatus"
+                class="bg-green-50 border border-green-200 text-green-700 rounded-2xl px-4 py-3 text-sm font-medium flex items-center gap-2">
+
+                <span id="connectionStatusIcon">
+                    ●
+                </span>
+
+                <span id="connectionStatusText">
+                    Online
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <form action="{{ route('enforcer.violations.store') }}" method="POST"
+            enctype="multipart/form-data" class="space-y-5">
+
+            @csrf
         <div class="flex items-center gap-3">
 
             <div class="text-blue-500 text-xl">
@@ -122,6 +151,17 @@
 
                     Please wait while your pending tickets are uploaded.
 
+                    <div class="min-w-0">
+
+                        <h1 class="text-xl font-bold leading-tight">
+                            Issue Traffic Citation
+                        </h1>
+
+                        <p class="text-blue-100 text-sm mt-1">
+                            Record a traffic violation and capture the required evidence.
+                        </p>
+
+                    </div>
                 </p>
 
             </div>
@@ -156,6 +196,21 @@
 
                 </p>
 
+                        <div class="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center text-xl flex-shrink-0">
+                            📷
+                        </div>
+
+                        <div>
+
+                            <h2 class="font-bold text-gray-800">
+                                Citation Ticket
+                            </h2>
+
+                            <p class="text-xs text-gray-500 mt-1 leading-relaxed">
+                                Capture the official POSO citation ticket or upload an existing image.
+                            </p>
+
+                        </div>
             </div>
 
         </div>
@@ -277,6 +332,9 @@
 
                 </div>
 
+                    <div id="ticketPreviewContainer" class="hidden mb-4">
+
+                        <div class="relative">
 
                 <!-- LICENSE PREVIEW -->
 
@@ -302,6 +360,19 @@
 
                 <!-- CAMERA / UPLOAD -->
 
+                        <button type="button"
+                            onclick="openTicketCamera()"
+                            class="bg-[#005FBF] hover:bg-[#004F9F] active:scale-[0.98] text-white rounded-2xl py-4 px-3 font-bold flex flex-col items-center justify-center transition">
+
+                            <span class="text-2xl">
+                                📷
+                            </span>
+
+                            <span class="mt-2 text-sm">
+                                Take Photo
+                            </span>
+
+                        </button>
                 <div class="grid grid-cols-2 gap-3">
 
                     <button
@@ -313,6 +384,19 @@
                             📷
                         </span>
 
+                        <button type="button"
+                            onclick="openTicketFile()"
+                            class="bg-blue-50 hover:bg-blue-100 active:scale-[0.98] text-blue-700 rounded-2xl py-4 px-3 font-bold flex flex-col items-center justify-center border border-blue-200 transition">
+
+                            <span class="text-2xl">
+                                📁
+                            </span>
+
+                            <span class="mt-2 text-sm">
+                                Upload File
+                            </span>
+
+                        </button>
                         <span class="mt-1.5 text-xs sm:text-sm">
                             Take Photo
                         </span>
@@ -332,6 +416,13 @@
                             Upload File
                         </span>
 
+                    <input type="file"
+                        id="ticket_image"
+                        name="ticket_image"
+                        accept="image/*"
+                        capture="environment"
+                        class="hidden"
+                        onchange="previewTicket(event)">
                     </button>
 
                 </div>
@@ -374,6 +465,8 @@
 
                 </div>
 
+                    <div id="ocrStatus"
+                        class="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl p-4">
 
                 <!-- TICKET PREVIEW -->
 
@@ -421,6 +514,17 @@
                         onclick="openTicketFile()"
                         class="bg-blue-50 hover:bg-blue-100 active:scale-[0.98] text-blue-700 rounded-2xl py-3 px-2 font-bold flex flex-col items-center justify-center border border-blue-200 transition">
 
+                            <div>
+
+                                <h2 class="font-bold text-blue-800">
+                                    OCR Extracted Data
+                                </h2>
+
+                                <p class="text-xs text-blue-600 mt-0.5">
+                                    Review before submitting
+                                </p>
+
+                            </div>
                         <span class="text-2xl">
                             📁
                         </span>
@@ -453,6 +557,11 @@
          CITATION TICKET OCR STATUS
     ======================================================== -->
 
+                            <input type="text"
+                                name="ticket_number"
+                                value="{{ old('ticket_number') }}"
+                                placeholder="OCR detected ticket number"
+                                class="w-full mt-1.5 rounded-xl border-blue-200 bg-white focus:border-blue-500 focus:ring-blue-500 text-sm">
     <div class="px-5">
 
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
@@ -471,6 +580,10 @@
 
                 </span>
 
+                            <input type="text"
+                                readonly
+                                value="Waiting for OCR scan"
+                                class="w-full mt-1.5 rounded-xl bg-gray-100 border-gray-200 text-sm text-gray-500">
             </div>
 
             <div
@@ -520,6 +633,17 @@
 
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
 
+                        <div>
+
+                            <h2 class="font-bold text-gray-800">
+                                Driver Information
+                            </h2>
+
+                            <p class="text-xs text-gray-500 mt-1">
+                                Information from the citation ticket
+                            </p>
+
+                        </div>
             <div class="flex items-center justify-between mb-4">
 
                 <h2 class="font-bold text-gray-800">
@@ -546,6 +670,11 @@
 
                     🪪
 
+                                <input type="text"
+                                    name="first_name"
+                                    value="{{ old('first_name') }}"
+                                    placeholder="OCR detected first name"
+                                    class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
                 </div>
 
                 <div class="min-w-0">
@@ -562,6 +691,11 @@
                         id="ocrMessage"
                         class="text-xs text-gray-500 mt-1 leading-relaxed">
 
+                                <input type="text"
+                                    name="middle_name"
+                                    value="{{ old('middle_name') }}"
+                                    placeholder="OCR detected middle name"
+                                    class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
                         Upload a clear driver's license image to begin OCR.
 
                     </p>
@@ -579,6 +713,11 @@
          CITATION TICKET NUMBER
     ======================================================== -->
 
+                                <input type="text"
+                                    name="last_name"
+                                    value="{{ old('last_name') }}"
+                                    placeholder="OCR detected last name"
+                                    class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
     <div class="px-5">
 
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
@@ -591,6 +730,11 @@
 
                 <div>
 
+                                <input type="text"
+                                    name="license_number"
+                                    value="{{ old('license_number') }}"
+                                    placeholder="OCR detected license number"
+                                    class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
                     <h2 class="font-bold text-gray-800">
                         Citation Ticket Number
                     </h2>
@@ -617,6 +761,11 @@
 
         </div>
 
+                            <input type="text"
+                                name="address"
+                                value="{{ old('address') }}"
+                                placeholder="OCR detected address"
+                                class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
     </div>
 
 
@@ -634,6 +783,10 @@
                     👤
                 </div>
 
+                            <input type="date"
+                                name="birth_date"
+                                value="{{ old('birth_date') }}"
+                                class="w-full mt-1.5 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
                 <div>
 
                     <h2 class="font-bold text-gray-800">
@@ -661,6 +814,17 @@
                             First Name
                         </label>
 
+                        <div>
+
+                            <h2 class="font-bold text-gray-800">
+                                Vehicle Information
+                            </h2>
+
+                            <p class="text-xs text-gray-500 mt-1">
+                                Identify the vehicle involved
+                            </p>
+
+                        </div>
                         <input
                             type="text"
                             id="first_name"
@@ -697,6 +861,11 @@
 
                 </div>
 
+                                <input type="text"
+                                    name="plate_number"
+                                    value="{{ old('plate_number') }}"
+                                    placeholder="OCR detected plate number"
+                                    class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
 
                 <!-- LAST / LICENSE -->
 
@@ -716,6 +885,11 @@
                             placeholder="OCR detected last name"
                             class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
 
+                                <input type="text"
+                                    name="vehicle_type"
+                                    value="{{ old('vehicle_type') }}"
+                                    placeholder="OCR detected vehicle type"
+                                    class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
                         <p class="text-xs text-blue-600 mt-1.5">
                             🤖 OCR detected • Editable
                         </p>
@@ -753,6 +927,11 @@
                         Address
                     </label>
 
+                                <input type="text"
+                                    name="region_number"
+                                    value="{{ old('region_number') }}"
+                                    placeholder="OCR detected region number"
+                                    class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
                     <input
                         type="text"
                         id="address"
@@ -770,6 +949,11 @@
 
                 <!-- BIRTH DATE -->
 
+                                <input type="text"
+                                    name="owner_name"
+                                    value="{{ old('owner_name') }}"
+                                    placeholder="OCR detected owner name"
+                                    class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
                 <div>
 
                     <label class="text-xs font-semibold text-gray-600">
@@ -804,6 +988,17 @@
 
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
 
+                        <div>
+
+                            <h2 class="font-bold text-gray-800">
+                                Violation Information
+                            </h2>
+
+                            <p class="text-xs text-gray-500 mt-1">
+                                Specify the traffic violation
+                            </p>
+
+                        </div>
             <div class="flex items-center gap-3 mb-5">
 
                 <div class="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center text-xl">
@@ -827,10 +1022,26 @@
 
             <div class="space-y-4">
 
+                            <select name="violation_type_id"
+                                id="violation_type_id"
+                                class="w-full mt-1.5 rounded-xl bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm">
                 <!-- PLATE / VEHICLE TYPE -->
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
+                                @foreach ($violationTypes as $type)
+
+                                    <option value="{{ $type->id }}"
+                                        {{ old('violation_type_id') == $type->id ? 'selected' : '' }}>
+                                        {{ $type->name }}
+                                    </option>
+
+                                @endforeach
+
+                                <option value="other"
+                                    {{ old('violation_type_id') == 'other' ? 'selected' : '' }}>
+                                    Others
+                                </option>
                     <div>
 
                         <label class="text-xs font-semibold text-gray-600">
@@ -869,6 +1080,11 @@
                             🤖 OCR detected • Editable
                         </p>
 
+                            <input type="text"
+                                name="other_violation"
+                                value="{{ old('other_violation') }}"
+                                placeholder="Enter violation"
+                                class="w-full mt-1.5 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">
                     </div>
 
                 </div>
@@ -884,6 +1100,10 @@
                             Region Number
                         </label>
 
+                                <input type="text"
+                                    readonly
+                                    value="{{ auth()->user()->name }}"
+                                    class="w-full rounded-xl bg-gray-100 border-gray-200 text-sm text-gray-600 pr-10">
                         <input
                             type="text"
                             id="region_number"
@@ -918,6 +1138,10 @@
 
                     </div>
 
+                            <textarea name="remarks"
+                                rows="4"
+                                placeholder="OCR extracted remarks or additional notes"
+                                class="w-full mt-1.5 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">{{ old('remarks') }}</textarea>
                 </div>
 
             </div>
@@ -968,6 +1192,17 @@
                 <div
                     class="violation-row rounded-2xl border border-gray-200 bg-gray-50 p-4">
 
+                        <div>
+
+                            <h2 class="font-bold text-gray-800">
+                                Violation Evidence
+                            </h2>
+
+                            <p class="text-xs text-gray-500 mt-1">
+                                Capture clear evidence of the violation.
+                            </p>
+
+                        </div>
                     <div class="flex items-center justify-between gap-3 mb-2">
 
                         <label class="text-xs font-semibold text-gray-600">
@@ -1000,6 +1235,12 @@
                                 value="{{ $type->id }}"
                                 {{ old('violation_type_id') == $type->id ? 'selected' : '' }}>
 
+                        <input type="file"
+                            name="evidence_images[]"
+                            accept="image/*"
+                            capture="environment"
+                            multiple
+                            class="hidden">
                                 {{ $type->name }}
 
                             </option>
@@ -1012,6 +1253,11 @@
 
                             Others
 
+                        <ul class="text-xs text-gray-500 mt-2 space-y-1.5">
+                            <li>✓ Vehicle involved</li>
+                            <li>✓ Traffic violation scene</li>
+                            <li>✓ Road/location condition</li>
+                        </ul>
                         </option>
 
                     </select>
@@ -1063,6 +1309,17 @@
                 Add another violation if more than one traffic offense is included in this citation.
             </p>
 
+                            <div>
+
+                                <h2 class="font-bold text-gray-800">
+                                    Current Location
+                                </h2>
+
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Automatically captured from GPS
+                                </p>
+
+                            </div>
 
             <!-- ADDITIONAL VIOLATION TEMPLATE -->
 
@@ -1131,6 +1388,18 @@
                             class="additional-other-violation w-full mt-1.5 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm"
                             placeholder="Enter violation">
 
+                            <input type="text"
+                                id="location"
+                                name="location"
+                                readonly
+                                value="{{ old('location') }}"
+                                placeholder="Detecting current location..."
+                                class="w-full rounded-xl bg-gray-100 border-gray-200 text-sm pr-10">
+
+                            <span id="locationIcon"
+                                class="absolute right-3 top-1/2 -translate-y-1/2">
+                                📍
+                            </span>
                     </div>
 
                 </div>
@@ -1142,6 +1411,15 @@
 
             <div class="mt-5">
 
+                    <input type="hidden"
+                        name="latitude"
+                        id="latitude"
+                        value="{{ old('latitude') }}">
+
+                    <input type="hidden"
+                        name="longitude"
+                        id="longitude"
+                        value="{{ old('longitude') }}">
                 <label class="text-xs font-semibold text-gray-600">
                     Issued By
                 </label>
@@ -1154,6 +1432,8 @@
                         value="{{ auth()->user()->name }}"
                         class="w-full rounded-xl bg-gray-100 border-gray-200 text-sm text-gray-600 pr-10">
 
+                    <div id="gpsCoordinates"
+                        class="hidden mt-3 bg-blue-50 border border-blue-100 rounded-xl px-3 py-2">
                     <span class="absolute right-3 top-1/2 -translate-y-1/2">
                         ✓
                     </span>
@@ -1239,6 +1519,17 @@
                     multiple
                     class="hidden">
 
+                        <div>
+
+                            <h2 class="font-bold text-gray-800">
+                                Citation Date & Time
+                            </h2>
+
+                            <p class="text-xs text-gray-500 mt-1">
+                                Automatically recorded by the system.
+                            </p>
+
+                        </div>
             </label>
 
             <div class="mt-4 bg-gray-50 rounded-2xl p-4">
@@ -1257,6 +1548,10 @@
 
             </div>
 
+                            <input type="text"
+                                readonly
+                                value="{{ now()->setTimezone('Asia/Manila')->format('F d, Y') }}"
+                                class="w-full mt-1.5 rounded-xl bg-gray-100 border-gray-200 text-sm">
         </div>
 
     </div>
@@ -1268,6 +1563,10 @@
 
     <div class="px-5">
 
+                            <input type="text"
+                                readonly
+                                value="{{ now()->setTimezone('Asia/Manila')->format('h:i A') }}"
+                                class="w-full mt-1.5 rounded-xl bg-gray-100 border-gray-200 text-sm">
         <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
 
             <div class="flex items-center justify-between gap-3 mb-4">
@@ -1310,6 +1609,12 @@
 
                 <div class="relative mt-1.5">
 
+                <button type="submit"
+                    class="w-full bg-[#005FBF] hover:bg-[#004F9F] active:scale-[0.99] text-white rounded-2xl py-4 px-5 font-bold text-base shadow-lg transition flex items-center justify-center gap-2">
+
+                    <span class="text-lg">
+                        ✓
+                    </span>
                     <input
                         type="text"
                         id="location"
@@ -1326,6 +1631,8 @@
                         📍
 
                     </span>
+
+                </button>
 
                 </div>
 
@@ -1414,6 +1721,12 @@
                         value="{{ now()->setTimezone('Asia/Manila')->format('h:i A') }}"
                         class="w-full mt-1.5 rounded-xl bg-gray-100 border-gray-200 text-sm">
 
+    </div>
+
+    @vite([
+        'resources/js/app.js',
+        'resources/js/enforcer/issue-ticket.js'
+    ])
                 </div>
 
             </div>
@@ -1456,7 +1769,6 @@
 
 <!-- ===========================================================
      ADD MORE VIOLATION UI
-============================================================ -->
 
 <script>
 
@@ -1593,8 +1905,8 @@ document.addEventListener('DOMContentLoaded', function () {
      OCR and GPS functionality is handled by:
      resources/js/enforcer/issue-ticket.js
      Do not duplicate the OCR JavaScript here.
-============================================================ -->
 
 @vite('resources/js/app.js')
 
 @endsection
+
