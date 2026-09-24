@@ -4,221 +4,682 @@
 
 @section('content')
 
-<div class="review-page">
+<style>
+    .bplo-review {
+        padding: 24px;
+        background: #f5f7fb;
+        min-height: calc(100vh - 70px);
+    }
 
-    {{-- PAGE HEADER --}}
-    <div class="review-page-header">
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+
+    .review-header h1 {
+        margin: 0;
+        color: #172033;
+        font-size: 28px;
+        font-weight: 700;
+    }
+
+    .review-header p {
+        margin: 6px 0 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .review-header-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 13px;
+        border-radius: 9px;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .review-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        overflow: hidden;
+    }
+
+    .review-card-header {
+        padding: 20px 22px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .review-title-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        margin-bottom: 18px;
+    }
+
+    .review-title {
+        margin: 0;
+        color: #172033;
+        font-size: 19px;
+        font-weight: 700;
+    }
+
+    .review-subtitle {
+        margin: 4px 0 0;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    .review-count {
+        color: #64748b;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .review-filter-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 170px auto auto;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .review-search-wrapper {
+        position: relative;
+    }
+
+    .review-search-wrapper i {
+        position: absolute;
+        left: 13px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        pointer-events: none;
+    }
+
+    .review-search {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #d9dee7;
+        border-radius: 9px;
+        padding: 0 14px 0 38px;
+        outline: none;
+        color: #1f2937;
+        background: #ffffff;
+        font-size: 13px;
+    }
+
+    .review-search:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    }
+
+    .review-status {
+        height: 42px;
+        border: 1px solid #d9dee7;
+        border-radius: 9px;
+        padding: 0 12px;
+        background: #ffffff;
+        color: #374151;
+        font-size: 13px;
+        outline: none;
+    }
+
+    .review-status:focus {
+        border-color: #2563eb;
+    }
+
+    .review-btn {
+        height: 42px;
+        border-radius: 9px;
+        padding: 0 15px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .review-btn-primary {
+        border: 1px solid #2563eb;
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    .review-btn-primary:hover {
+        background: #1d4ed8;
+        color: #ffffff;
+    }
+
+    .review-btn-secondary {
+        border: 1px solid #d9dee7;
+        background: #ffffff;
+        color: #64748b;
+    }
+
+    .review-btn-secondary:hover {
+        background: #f8fafc;
+        border-color: #bfdbfe;
+        color: #2563eb;
+    }
+
+    .review-table-container {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    .review-table {
+        width: 100%;
+        min-width: 900px;
+        border-collapse: collapse;
+    }
+
+    .review-table th {
+        padding: 13px 16px;
+        background: #f8fafc;
+        border-bottom: 1px solid #e5e7eb;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+    }
+
+    .review-table td {
+        padding: 15px 16px;
+        border-bottom: 1px solid #eef1f5;
+        color: #374151;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .review-table tbody tr:hover {
+        background: #f8fbff;
+    }
+
+    .ticket-number {
+        color: #2563eb;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .driver-name {
+        color: #1f2937;
+        font-weight: 600;
+    }
+
+    .license-number {
+        display: block;
+        margin-top: 3px;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    .vehicle-plate {
+        color: #374151;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .vehicle-type {
+        display: block;
+        margin-top: 3px;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    .violation-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        max-width: 260px;
+    }
+
+    .violation-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+        color: #1d4ed8;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .record-date {
+        color: #374151;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .record-time {
+        display: block;
+        margin-top: 3px;
+        color: #9ca3af;
+        font-size: 11px;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | STATUS EDITOR
+    |--------------------------------------------------------------------------
+    */
+
+    .review-status-form {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .review-status-select {
+        height: 34px;
+        min-width: 100px;
+        border: 1px solid #d9dee7;
+        border-radius: 7px;
+        padding: 0 8px;
+        background: #ffffff;
+        color: #374151;
+        font-size: 12px;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .review-status-select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+    }
+
+    .review-status-save {
+        height: 34px;
+        min-width: 52px;
+        padding: 0 12px;
+        border: 1px solid #2563eb;
+        border-radius: 7px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 600;
+        line-height: 32px;
+        text-align: center;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .review-status-save:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+        color: #ffffff;
+    }
+
+    .action-buttons {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .table-action {
+        width: 34px;
+        height: 34px;
+        border: 1px solid #dbe2ea;
+        border-radius: 7px;
+        background: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .view-action {
+        color: #2563eb;
+    }
+
+    .copy-action {
+        color: #64748b;
+    }
+
+    .table-action:hover {
+        background: #f8fafc;
+        border-color: #bfdbfe;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px !important;
+        color: #9ca3af;
+    }
+
+    .empty-state i {
+        display: block;
+        margin-bottom: 10px;
+        color: #cbd5e1;
+        font-size: 32px;
+    }
+
+    .empty-state strong {
+        display: block;
+        margin-bottom: 4px;
+        color: #64748b;
+    }
+
+    .empty-state span {
+        font-size: 12px;
+    }
+
+    .results-footer {
+        padding: 13px 18px;
+        background: #fafbfc;
+        border-top: 1px solid #eef1f5;
+        color: #64748b;
+        font-size: 12px;
+    }
+
+    @media (max-width: 900px) {
+        .review-filter-form {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .review-btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 650px) {
+        .bplo-review {
+            padding: 15px;
+        }
+
+        .review-header {
+            flex-direction: column;
+        }
+
+        .review-header-badge {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .review-filter-form {
+            grid-template-columns: 1fr;
+        }
+
+        .review-title-row {
+            flex-direction: column;
+        }
+
+        .review-status-form {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .review-status-select {
+            min-width: 100px;
+        }
+
+        .review-status-save {
+            min-width: 52px;
+        }
+    }
+</style>
+
+<div class="bplo-review">
+
+    <div class="review-header">
         <div>
             <h1>Violation Review</h1>
-            <p>Review and manage recorded traffic violations</p>
+            <p>
+                Review and monitor traffic violation records submitted by POSO personnel.
+            </p>
         </div>
 
-
+        <div class="review-header-badge">
+            <i class="fa-solid fa-clipboard-check"></i>
+            BPLO Traffic Records
         </div>
-
-
-    {{-- =====================================================
-         ALL-TIME VIOLATION COUNTER
-    ====================================================== --}}
-    <div class="review-total-counter">
-
-        <div class="review-total-counter-info">
-            <p>All-Time Total Violations</p>
-
-            <h2>
-                {{ $allTimeViolations }}
-            </h2>
-
-            <span>
-                Total violations recorded since system use
-            </span>
-        </div>
-
-        <div class="review-total-counter-icon">
-            <i class="fa-solid fa-list-check"></i>
-        </div>
-
     </div>
 
+    <div class="review-card">
 
-    {{-- STATUS TABS --}}
-    <div class="review-tabs">
+        <div class="review-card-header">
 
-        <a href="{{ route('bplo.violations.index') }}"
-           class="review-tab {{ $status === 'all' ? 'active' : '' }}">
-            All
-        </a>
+            <div class="review-title-row">
+                <div>
+                    <h2 class="review-title">
+                        Violation Records
+                    </h2>
 
-        <a href="{{ route('bplo.violations.index', ['status' => 'Pending']) }}"
-           class="review-tab {{ $status === 'Pending' ? 'active' : '' }}">
-            Pending
-        </a>
+                    <p class="review-subtitle">
+                        Search and filter submitted traffic violations.
+                    </p>
+                </div>
 
-        <a href="{{ route('bplo.violations.index', ['status' => 'Completed']) }}"
-           class="review-tab {{ $status === 'Completed' ? 'active' : '' }}">
-            Completed
-        </a>
-
-    </div>
-
-
-    {{-- SUCCESS MESSAGE --}}
-    @if(session('success'))
-        <div class="review-success">
-            {{ session('success') }}
-        </div>
-    @endif
-
-
-    {{-- VALIDATION ERROR --}}
-    @if($errors->any())
-        <div class="review-error">
-            {{ $errors->first() }}
-        </div>
-    @endif
-
-
-    {{-- TABLE CARD --}}
-    <div class="review-table-card">
-
-        {{-- TABLE HEADER --}}
-        <div class="review-table-header">
-
-            <div>
-                <h2>Violation Review</h2>
-                <p>Manually update the violation status</p>
+                <div class="review-count">
+                    {{ $violations->count() }}
+                    {{ $violations->count() === 1 ? 'record' : 'records' }}
+                </div>
             </div>
 
-
-            {{-- SEARCH --}}
             <form
                 method="GET"
                 action="{{ route('bplo.violations.index') }}"
-                class="review-search-form"
+                class="review-filter-form"
             >
 
-                @if($status !== 'all')
-                    <input
-                        type="hidden"
-                        name="status"
-                        value="{{ $status }}"
-                    >
-                @endif
+                <div class="review-search-wrapper">
+                    <i class="fa-solid fa-magnifying-glass"></i>
 
-                <input
-    type="text"
-    name="search"
-    id="reviewViolationSearch"
-    value="{{ $search ?? '' }}"
-    placeholder="Search violation..."
-    class="review-search"
-    autocomplete="off"
->
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ $search }}"
+                        class="review-search"
+                        placeholder="Search ticket, driver, license, plate, violation, officer, location..."
+                        autocomplete="off"
+                    >
+                </div>
+
+                <select name="status" class="review-status">
+                    <option value="all" {{ $status === 'all' ? 'selected' : '' }}>
+                        All Status
+                    </option>
+
+                    <option value="Pending" {{ $status === 'Pending' ? 'selected' : '' }}>
+                        Pending
+                    </option>
+
+                    <option value="Settled" {{ $status === 'Settled' ? 'selected' : '' }}>
+                        Settled
+                    </option>
+                </select>
+
+                <button
+                    type="submit"
+                    class="review-btn review-btn-primary"
+                >
+                    <i class="fa-solid fa-filter"></i>
+                    Search
+                </button>
+
+                @if (!empty($search) || $status !== 'all')
+
+                    <a
+                        href="{{ route('bplo.violations.index') }}"
+                        class="review-btn review-btn-secondary"
+                    >
+                        <i class="fa-solid fa-xmark"></i>
+                        Clear
+                    </a>
+
+                @else
+
+                    <button
+                        type="reset"
+                        class="review-btn review-btn-secondary"
+                        onclick="this.form.querySelector('[name=search]').value=''; this.form.querySelector('[name=status]').value='all';"
+                    >
+                        <i class="fa-solid fa-rotate-left"></i>
+                        Reset
+                    </button>
+
+                @endif
 
             </form>
 
         </div>
 
+        <div class="review-table-container">
 
-        {{-- TABLE --}}
-        <div class="review-table-wrapper">
-
-            <table
-    class="review-table"
-    id="reviewViolationTable"
->
+            <table class="review-table">
 
                 <thead>
                     <tr>
-                        <th>Ticket ID</th>
-                        <th>Name</th>
-                        <th>Violation Type</th>
-                        <th>Officer</th>
-                        <th>Date</th>
+                        <th>Ticket Number</th>
+                        <th>Driver</th>
+                        <th>Vehicle</th>
+                        <th>Violation</th>
+                        <th>Date & Time</th>
                         <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
-
 
                 <tbody>
 
                     @forelse($violations as $violation)
 
                         @php
+                            $driverName = trim(
+                                ($violation->driver->first_name ?? '') .
+                                ' ' .
+                                ($violation->driver->middle_name ?? '') .
+                                ' ' .
+                                ($violation->driver->last_name ?? '')
+                            );
 
-                            $driverName = $violation->driver
-                                ? trim(
-                                    $violation->driver->first_name . ' ' .
-                                    $violation->driver->last_name
-                                )
-                                : 'N/A';
+                            $driverName = $driverName ?: 'N/A';
 
-                            $violationName =
-                                $violation->violationType->name ?? 'N/A';
+                            $violationNames = $violation->violationTypes
+                                ->pluck('name')
+                                ->filter()
+                                ->values();
 
-                            $officerName =
-                                $violation->user->name ?? 'N/A';
+                            $violationName = $violationNames->isNotEmpty()
+                                ? $violationNames->implode(', ')
+                                : ($violation->violationType?->name ?? 'N/A');
 
                             $formattedDate = $violation->violation_date
-                                ? \Carbon\Carbon::parse(
-                                    $violation->violation_date
-                                )->format('M d, Y')
+                                ? \Carbon\Carbon::parse($violation->violation_date)->format('M d, Y')
                                 : 'N/A';
 
+                            $formattedTime = $violation->violation_time
+                                ? \Carbon\Carbon::parse($violation->violation_time)->format('h:i A')
+                                : 'N/A';
+
+                            $vehicleInfo = trim(
+                                ($violation->vehicle->plate_number ?? 'N/A') .
+                                ' ' .
+                                ($violation->vehicle->vehicle_type ?? '')
+                            );
+
+                            $location = $violation->location ?? 'N/A';
+                            $remarks = $violation->remarks ?? 'N/A';
+                            $officerName = $violation->user->name ?? 'N/A';
                         @endphp
 
+                        <tr>
 
-                        <tr
-    class="review-violation-row"
-    data-status="{{ strtolower($violation->status) }}"
->
-
-                            {{-- TICKET ID --}}
                             <td>
-                                {{ $violation->ticket_number }}
+                                <span class="ticket-number">
+                                    #{{ $violation->ticket_number }}
+                                </span>
                             </td>
 
-
-                            {{-- DRIVER NAME --}}
                             <td>
-                                {{ $driverName }}
+                                <span class="driver-name">
+                                    {{ $driverName }}
+                                </span>
+
+                                @if ($violation->driver?->license_number)
+                                    <span class="license-number">
+                                        License: {{ $violation->driver->license_number }}
+                                    </span>
+                                @endif
                             </td>
 
-
-                            {{-- VIOLATION TYPE --}}
                             <td>
-                                {{ $violationName }}
+                                <span class="vehicle-plate">
+                                    {{ $violation->vehicle->plate_number ?? 'N/A' }}
+                                </span>
+
+                                @if ($violation->vehicle?->vehicle_type)
+                                    <span class="vehicle-type">
+                                        {{ $violation->vehicle->vehicle_type }}
+                                    </span>
+                                @endif
                             </td>
 
-
-                            {{-- OFFICER --}}
                             <td>
-                                {{ $officerName }}
+                                <div class="violation-badges">
+
+                                    @foreach ($violationNames as $name)
+                                        <span class="violation-badge">
+                                            {{ $name }}
+                                        </span>
+                                    @endforeach
+
+                                    @if ($violationNames->isEmpty())
+                                        <span class="violation-badge">
+                                            {{ $violationName }}
+                                        </span>
+                                    @endif
+
+                                </div>
                             </td>
 
-
-                            {{-- DATE --}}
                             <td>
-                                {{ $formattedDate }}
+                                <span class="record-date">
+                                    {{ $formattedDate }}
+                                </span>
+
+                                <span class="record-time">
+                                    {{ $formattedTime }}
+                                </span>
                             </td>
 
-
-                            {{-- STATUS --}}
                             <td>
 
                                 <form
                                     method="POST"
-                                    action="{{ route('bplo.violations.status', $violation->id) }}"
+                                    action="{{ route('bplo.violations.status', $violation) }}"
                                     class="review-status-form"
                                 >
 
                                     @csrf
                                     @method('PATCH')
 
-
-                                    <select name="status">
-
+                                    <select
+                                        name="status"
+                                        class="review-status-select"
+                                    >
                                         <option
                                             value="Pending"
                                             {{ $violation->status === 'Pending' ? 'selected' : '' }}
@@ -227,18 +688,17 @@
                                         </option>
 
                                         <option
-                                            value="Completed"
-                                            {{ $violation->status === 'Completed' ? 'selected' : '' }}
+                                            value="Settled"
+                                            {{ $violation->status === 'Settled' ? 'selected' : '' }}
                                         >
-                                            Completed
+                                            Settled
                                         </option>
-
                                     </select>
-
 
                                     <button
                                         type="submit"
-                                        class="review-save-btn"
+                                        class="review-status-save"
+                                        title="Save Status"
                                     >
                                         Save
                                     </button>
@@ -247,41 +707,44 @@
 
                             </td>
 
-
-                            {{-- ACTION --}}
                             <td>
 
-                                <div class="review-actions">
+                                <div class="action-buttons">
 
-                                    {{-- VIEW --}}
                                     <button
                                         type="button"
-                                        class="review-view-btn violation-view-trigger"
-
+                                        class="table-action view-action violation-view-trigger"
+                                        title="View Details"
                                         data-ticket="{{ $violation->ticket_number }}"
                                         data-name="{{ $driverName }}"
+                                        data-vehicle="{{ $vehicleInfo }}"
                                         data-violation="{{ $violationName }}"
                                         data-officer="{{ $officerName }}"
                                         data-date="{{ $formattedDate }}"
+                                        data-time="{{ $formattedTime }}"
+                                        data-location="{{ $location }}"
+                                        data-remarks="{{ $remarks }}"
                                         data-status="{{ $violation->status }}"
                                     >
-                                        View
+                                        <i class="fa-solid fa-eye"></i>
                                     </button>
 
-
-                                    {{-- COPY --}}
                                     <button
                                         type="button"
-                                        class="review-copy-btn"
-
+                                        class="table-action copy-action violation-copy-trigger"
+                                        title="Copy Information"
                                         data-ticket="{{ $violation->ticket_number }}"
                                         data-name="{{ $driverName }}"
+                                        data-vehicle="{{ $vehicleInfo }}"
                                         data-violation="{{ $violationName }}"
                                         data-officer="{{ $officerName }}"
                                         data-date="{{ $formattedDate }}"
+                                        data-time="{{ $formattedTime }}"
+                                        data-location="{{ $location }}"
+                                        data-remarks="{{ $remarks }}"
                                         data-status="{{ $violation->status }}"
                                     >
-                                        Copy
+                                        <i class="fa-regular fa-copy"></i>
                                     </button>
 
                                 </div>
@@ -290,18 +753,22 @@
 
                         </tr>
 
-
                     @empty
 
                         <tr>
+                            <td colspan="7" class="empty-state">
 
-                            <td
-                                colspan="7"
-                                class="review-empty"
-                            >
-                                No violation records available.
+                                <i class="fa-regular fa-folder-open"></i>
+
+                                <strong>
+                                    No violation records found.
+                                </strong>
+
+                                <span>
+                                    Try changing your search term or status filter.
+                                </span>
+
                             </td>
-
                         </tr>
 
                     @endforelse
@@ -312,424 +779,229 @@
 
         </div>
 
+        <div class="results-footer">
+            Showing {{ $violations->count() }}
+            {{ $violations->count() === 1 ? 'violation record' : 'violation records' }}
+        </div>
+
     </div>
 
 </div>
 
-
-{{-- =========================================================
-     SHARED VIOLATION DETAILS MODAL
-========================================================= --}}
-
 @include('partials.bplo-violation-modal')
 
-
-{{-- =========================================================
-     JAVASCRIPT
-========================================================= --}}
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
 
-document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('violationDetailsModal');
+        const modalClose = document.getElementById('violationModalClose');
+        const modalX = document.getElementById('violationModalX');
+        const modalCopy = document.getElementById('violationModalCopy');
 
+        function setDetail(id, value) {
+            const element = document.getElementById(id);
 
-    /*
-    |--------------------------------------------------------------------------
-    | LIVE SEARCH
-    |--------------------------------------------------------------------------
-    */
-
-    const reviewSearch =
-        document.getElementById('reviewViolationSearch');
-
-    const reviewRows =
-        document.querySelectorAll(
-            '#reviewViolationTable .review-violation-row'
-        );
-
-
-    function filterReviewTable() {
-
-        if (!reviewSearch) {
-            return;
+            if (element) {
+                element.textContent = value || 'N/A';
+            }
         }
 
-
-        const searchValue =
-            reviewSearch.value
-                .toLowerCase()
-                .trim();
-
-
-        reviewRows.forEach(function (row) {
-
-            const rowText =
-                row.textContent
-                    .toLowerCase()
-                    .trim();
-
-
-            const matchesSearch =
-                searchValue === '' ||
-                rowText.includes(searchValue);
-
-
-            row.style.display =
-                matchesSearch ? '' : 'none';
-
-        });
-
-    }
-
-
-    if (reviewSearch) {
-
-        reviewSearch.addEventListener(
-            'input',
-            filterReviewTable
-        );
-
-    }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | COPY BUTTON IN TABLE
-    |--------------------------------------------------------------------------
-    */  
-
-    const copyButtons =
-        document.querySelectorAll('.review-copy-btn');
-
-
-    copyButtons.forEach(function (button) {
-
-        button.addEventListener('click', async function () {
-
-            const information =
-`Ticket ID: ${this.dataset.ticket}
-Name: ${this.dataset.name}
-Violation Type: ${this.dataset.violation}
-Officer: ${this.dataset.officer}
-Date: ${this.dataset.date}
-Status: ${this.dataset.status}`;
-
-
-            try {
-
-                await navigator.clipboard.writeText(information);
-
-                const originalText =
-                    this.textContent.trim();
-
-                this.textContent = 'Copied!';
-
-
-                setTimeout(() => {
-
-                    this.textContent =
-                        originalText;
-
-                }, 1500);
-
-
-            } catch (error) {
-
-                alert(
-                    'Unable to copy violation information.'
-                );
-
-            }
-
-        });
-
-    });
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | VIOLATION DETAILS MODAL
-    |--------------------------------------------------------------------------
-    */
-
-    const violationModal =
-        document.getElementById('violationDetailsModal');
-
-    const viewButtons =
-        document.querySelectorAll('.violation-view-trigger');
-
-    const modalClose =
-        document.getElementById('violationModalClose');
-
-    const modalX =
-        document.getElementById('violationModalX');
-
-    const modalCopy =
-        document.getElementById('violationModalCopy');
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLOSE MODAL FUNCTION
-    |--------------------------------------------------------------------------
-    */
-
-    function closeViolationModal()
-    {
-
-        if (!violationModal) {
-            return;
-        }
-
-        violationModal.classList.remove('show');
-
-        document.body.classList.remove('modal-open');
-
-    }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | OPEN MODAL
-    |--------------------------------------------------------------------------
-    */
-
-    viewButtons.forEach(function (button) {
-
-        button.addEventListener('click', function () {
-
-            const ticket =
-                document.getElementById('detailTicket');
-
-            const name =
-                document.getElementById('detailName');
-
-            const violation =
-                document.getElementById('detailViolation');
-
-            const officer =
-                document.getElementById('detailOfficer');
-
-            const date =
-                document.getElementById('detailDate');
-
-            const status =
-                document.getElementById('detailStatus');
-
-
-            if (ticket) {
-                ticket.textContent =
-                    this.dataset.ticket;
-            }
-
-            if (name) {
-                name.textContent =
-                    this.dataset.name;
-            }
-
-            if (violation) {
-                violation.textContent =
-                    this.dataset.violation;
-            }
-
-            if (officer) {
-                officer.textContent =
-                    this.dataset.officer;
-            }
-
-            if (date) {
-                date.textContent =
-                    this.dataset.date;
-            }
-
-            if (status) {
-                status.textContent =
-                    this.dataset.status;
-            }
-
-
-            if (violationModal) {
-
-                violationModal.classList.add('show');
-
-                document.body.classList.add('modal-open');
-
-            }
-
-        });
-
-    });
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLOSE BUTTON
-    |--------------------------------------------------------------------------
-    */
-
-    if (modalClose) {
-
-        modalClose.addEventListener(
-            'click',
-            closeViolationModal
-        );
-
-    }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | X BUTTON
-    |--------------------------------------------------------------------------
-    */
-
-    if (modalX) {
-
-        modalX.addEventListener(
-            'click',
-            closeViolationModal
-        );
-
-    }
-
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | CLICK OUTSIDE MODAL
-    |--------------------------------------------------------------------------
-    */
-
-    if (violationModal) {
-
-        violationModal.addEventListener(
-            'click',
-            function (event) {
-
-                if (event.target === violationModal) {
-
-                    closeViolationModal();
-
+        // ==========================================================
+        // VIEW DETAILS
+        // ==========================================================
+
+        document.querySelectorAll('.violation-view-trigger').forEach(function(button) {
+
+            button.addEventListener('click', function() {
+
+                setDetail('detailTicket', button.dataset.ticket);
+                setDetail('detailName', button.dataset.name);
+                setDetail('detailVehicle', button.dataset.vehicle);
+                setDetail('detailViolation', button.dataset.violation);
+                setDetail('detailOfficer', button.dataset.officer);
+                setDetail('detailDate', button.dataset.date);
+                setDetail('detailTime', button.dataset.time);
+                setDetail('detailLocation', button.dataset.location);
+                setDetail('detailRemarks', button.dataset.remarks);
+                setDetail('detailStatus', button.dataset.status);
+
+                if (modal) {
+                    modal.classList.add('show');
                 }
 
-            }
-        );
+            });
 
-    }
+        });
 
+        // ==========================================================
+        // CLOSE MODAL
+        // ==========================================================
 
+        function closeModal() {
 
-    /*
-    |--------------------------------------------------------------------------
-    | ESC KEY
-    |--------------------------------------------------------------------------
-    */
-
-    document.addEventListener(
-        'keydown',
-        function (event) {
-
-            if (event.key === 'Escape') {
-
-                closeViolationModal();
-
+            if (modal) {
+                modal.classList.remove('show');
             }
 
         }
-    );
 
+        if (modalClose) {
+            modalClose.addEventListener('click', closeModal);
+        }
 
+        if (modalX) {
+            modalX.addEventListener('click', closeModal);
+        }
 
-    /*
-    |--------------------------------------------------------------------------
-    | COPY INFORMATION FROM MODAL
-    |--------------------------------------------------------------------------
-    */
+        if (modal) {
 
-    if (modalCopy) {
+            modal.addEventListener('click', function(event) {
 
-        modalCopy.addEventListener(
-            'click',
-            async function () {
+                if (event.target === modal) {
+                    closeModal();
+                }
 
-                const ticket =
-                    document.getElementById('detailTicket')
-                        ?.textContent ?? '';
+            });
 
-                const name =
-                    document.getElementById('detailName')
-                        ?.textContent ?? '';
+        }
 
-                const violation =
-                    document.getElementById('detailViolation')
-                        ?.textContent ?? '';
+        document.addEventListener('keydown', function(event) {
 
-                const officer =
-                    document.getElementById('detailOfficer')
-                        ?.textContent ?? '';
+            if (event.key === 'Escape') {
+                closeModal();
+            }
 
-                const date =
-                    document.getElementById('detailDate')
-                        ?.textContent ?? '';
+        });
 
-                const status =
-                    document.getElementById('detailStatus')
-                        ?.textContent ?? '';
+        // ==========================================================
+        // COPY DIRECTLY FROM TABLE
+        // ==========================================================
 
+        document.querySelectorAll('.violation-copy-trigger').forEach(function(button) {
 
-                const information =
-`Ticket ID: ${ticket}
-Name: ${name}
-Violation Type: ${violation}
-Officer: ${officer}
-Date: ${date}
-Status: ${status}`;
+            button.addEventListener('click', async function() {
 
+                const text = [
+                    'Ticket ID: ' + (button.dataset.ticket || 'N/A'),
+                    'Name: ' + (button.dataset.name || 'N/A'),
+                    'Vehicle: ' + (button.dataset.vehicle || 'N/A'),
+                    'Violation: ' + (button.dataset.violation || 'N/A'),
+                    'Officer: ' + (button.dataset.officer || 'N/A'),
+                    'Date: ' + (button.dataset.date || 'N/A'),
+                    'Time: ' + (button.dataset.time || 'N/A'),
+                    'Location: ' + (button.dataset.location || 'N/A'),
+                    'Remarks: ' + (button.dataset.remarks || 'N/A'),
+                    'Status: ' + (button.dataset.status || 'N/A')
+                ].join('\n');
 
                 try {
 
-                    await navigator.clipboard.writeText(
-                        information
-                    );
+                    await navigator.clipboard.writeText(text);
 
+                    const originalHTML = button.innerHTML;
 
-                    const originalText =
-                        this.textContent.trim();
+                    button.innerHTML =
+                        '<i class="fa-solid fa-check"></i>';
 
-
-                    this.textContent =
-                        'Copied!';
-
-
-                    setTimeout(() => {
-
-                        this.textContent =
-                            originalText;
-
-                    }, 1500);
-
+                    setTimeout(function() {
+                        button.innerHTML = originalHTML;
+                    }, 1200);
 
                 } catch (error) {
 
-                    alert(
-                        'Unable to copy violation information.'
-                    );
+                    console.error('Copy failed:', error);
 
                 }
 
-            }
-        );
+            });
 
-    }
+        });
 
+        // ==========================================================
+        // COPY FROM MODAL
+        // ==========================================================
 
-});
+        if (modalCopy) {
 
+            modalCopy.addEventListener('click', async function() {
+
+                const text = [
+                    'Ticket ID: ' + (
+                        document.getElementById('detailTicket')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Name: ' + (
+                        document.getElementById('detailName')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Vehicle: ' + (
+                        document.getElementById('detailVehicle')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Violation: ' + (
+                        document.getElementById('detailViolation')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Officer: ' + (
+                        document.getElementById('detailOfficer')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Date: ' + (
+                        document.getElementById('detailDate')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Time: ' + (
+                        document.getElementById('detailTime')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Location: ' + (
+                        document.getElementById('detailLocation')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Remarks: ' + (
+                        document.getElementById('detailRemarks')?.textContent ||
+                        'N/A'
+                    ),
+
+                    'Status: ' + (
+                        document.getElementById('detailStatus')?.textContent ||
+                        'N/A'
+                    )
+
+                ].join('\n');
+
+                try {
+
+                    await navigator.clipboard.writeText(text);
+
+                    const originalHTML = modalCopy.innerHTML;
+
+                    modalCopy.innerHTML =
+                        '<i class="fa-solid fa-check me-1"></i> Copied';
+
+                    setTimeout(function() {
+                        modalCopy.innerHTML = originalHTML;
+                    }, 1200);
+
+                } catch (error) {
+
+                    console.error('Copy failed:', error);
+
+                }
+
+            });
+
+        }
+
+    });
 </script>
 
 @endsection

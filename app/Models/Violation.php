@@ -22,42 +22,47 @@ class Violation extends Model
         'status',
     ];
 
-    /**
-     * Driver who committed the violation.
-     */
     public function driver()
     {
         return $this->belongsTo(Driver::class);
     }
 
-
-    /**
-     * Vehicle involved.
-     */
     public function vehicle()
     {
         return $this->belongsTo(Vehicle::class);
     }
 
-    /**
-     * Violation category.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Existing single violation relationship
+    |--------------------------------------------------------------------------
+    | Keep this for compatibility with the current system.
+    */
     public function violationType()
     {
         return $this->belongsTo(ViolationType::class);
     }
 
-    /**
-     * Enforcer who encoded the violation.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Multiple violation types
+    |--------------------------------------------------------------------------
+    */
+    public function violationTypes()
+    {
+        return $this->belongsToMany(
+            ViolationType::class,
+            'violation_violation_type',
+            'violation_id',
+            'violation_type_id'
+        )->withTimestamps();
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Photos attached to the violation.
-     */
     public function images()
     {
         return $this->hasMany(ViolationImage::class);

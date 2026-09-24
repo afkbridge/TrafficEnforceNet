@@ -23,7 +23,6 @@
 
         </div>
 
-
         {{-- BODY --}}
         <div class="violation-modal-body">
 
@@ -58,7 +57,6 @@
             </div>
 
         </div>
-
 
         {{-- FOOTER --}}
         <div class="violation-modal-footer">

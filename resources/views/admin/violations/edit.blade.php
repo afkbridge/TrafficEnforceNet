@@ -1,213 +1,253 @@
 @extends('layouts.admin')
 
-@section('title','Edit Violation')
-
+@section('title', 'Edit Violation')
 
 @section('content')
 
-<div class="container-fluid">
+    <div class="container-fluid">
 
+        <h2>Edit Violation</h2>
 
-<h2>Edit Violation</h2>
+        <form action="{{ route('violations.update', $violation->id) }}" method="POST">
 
+            @csrf
+            @method('PUT')
 
-<form action="{{ route('violations.update',$violation->id) }}"
-      method="POST">
+            <h4>Driver Information</h4>
 
-@csrf
-@method('PUT')
+            <div class="row">
 
+                <div class="col-md-4">
+                    <label>First Name</label>
+                    <input type="text" name="first_name" class="form-control"
+                        value="{{ $violation->driver->first_name ?? '' }}">
+                </div>
 
-<h4>Driver Information</h4>
+                <div class="col-md-4">
+                    <label>Middle Name</label>
+                    <input type="text" name="middle_name" class="form-control"
+                        value="{{ $violation->driver->middle_name ?? '' }}">
+                </div>
 
+                <div class="col-md-4">
+                    <label>Last Name</label>
+                    <input type="text" name="last_name" class="form-control"
+                        value="{{ $violation->driver->last_name ?? '' }}">
+                </div>
 
-<div class="row">
+            </div>
 
+            <div class="row mt-3">
 
-<div class="col-md-4">
-<label>First Name</label>
+                <div class="col-md-6">
+                    <label>License Number</label>
+                    <input type="text" name="license_number" class="form-control"
+                        value="{{ $violation->driver->license_number ?? '' }}">
+                </div>
 
-<input type="text"
-name="first_name"
-class="form-control"
-value="{{ $violation->driver->first_name ?? '' }}">
-</div>
+                <div class="col-md-6">
+                    <label>License Type</label>
+                    <input type="text" name="license_type" class="form-control"
+                        value="{{ $violation->driver->license_type ?? '' }}">
+                </div>
 
+            </div>
 
+            <div class="row mt-3">
 
-<div class="col-md-4">
+                <div class="col-md-6">
+                    <label>Address</label>
+                    <input type="text" name="address" class="form-control"
+                        value="{{ $violation->driver->address ?? '' }}">
+                </div>
 
-<label>Middle Name</label>
+                <div class="col-md-6">
+                    <label>Contact Number</label>
+                    <input type="text" name="contact_number" class="form-control"
+                        value="{{ $violation->driver->contact_number ?? '' }}">
+                </div>
 
-<input type="text"
-name="middle_name"
-class="form-control"
-value="{{ $violation->driver->middle_name ?? '' }}">
+            </div>
 
-</div>
+            <h4 class="mt-4">
+                Violation Information
+            </h4>
 
+            <label>Violation Type</label>
 
+            <div id="violationRows">
 
-<div class="col-md-4">
+                @php
+                    $selectedViolationTypes = $violation->violationTypes;
 
-<label>Last Name</label>
+                    if ($selectedViolationTypes->count() === 0 && $violation->violationType) {
+                        $selectedViolationTypes = collect([$violation->violationType]);
+                    }
+                @endphp
 
-<input type="text"
-name="last_name"
-class="form-control"
-value="{{ $violation->driver->last_name ?? '' }}">
+                @foreach ($selectedViolationTypes as $index => $selectedType)
+                    <div class="violation-row mb-3">
 
-</div>
+                        <div class="input-group">
 
+                            <select name="{{ $index === 0 ? 'violation_type_id' : 'additional_violation_type_ids[]' }}"
+                                class="form-control">
 
-</div>
+                                @foreach ($violationTypes as $type)
+                                    <option value="{{ $type->id }}"
+                                        {{ $selectedType->id == $type->id ? 'selected' : '' }}>
 
+                                        {{ $type->name }}
 
+                                    </option>
+                                @endforeach
 
-<div class="row mt-3">
+                            </select>
 
+                            @if ($index > 0)
+                                <button type="button" class="btn btn-danger remove-violation">
 
-<div class="col-md-6">
+                                    Remove
 
-<label>License Number</label>
+                                </button>
+                            @endif
 
-<input type="text"
-name="license_number"
-class="form-control"
-value="{{ $violation->driver->license_number ?? '' }}">
+                        </div>
 
-</div>
+                    </div>
+                @endforeach
 
+                @if ($selectedViolationTypes->count() === 0)
 
-<div class="col-md-6">
+                    <div class="violation-row mb-3">
 
-<label>License Type</label>
+                        <select name="violation_type_id" class="form-control">
 
-<input type="text"
-name="license_type"
-class="form-control"
-value="{{ $violation->driver->license_type ?? '' }}">
+                            @foreach ($violationTypes as $type)
+                                <option value="{{ $type->id }}">
+                                    {{ $type->name }}
+                                </option>
+                            @endforeach
 
-</div>
+                        </select>
 
+                    </div>
 
-</div>
+                @endif
 
+            </div>
 
-<div class="row mt-3">
+            <button type="button" id="addViolation" class="btn btn-secondary mb-3">
 
-    <div class="col-md-6">
+                + Add Violation
 
-        <label>Address</label>
+            </button>
 
-        <input type="text"
-        name="address"
-        class="form-control"
-        value="{{ $violation->driver->address ?? '' }}">
+            <label class="mt-3">
+                Status
+            </label>
+
+            <select name="status" class="form-control">
+
+                <option value="Pending" {{ $violation->status == 'Pending' ? 'selected' : '' }}>
+
+                    Pending
+
+                </option>
+
+                <option value="Settled" {{ $violation->status == 'Settled' ? 'selected' : '' }}>
+
+                    Settled
+
+                </option>
+
+            </select>
+
+            <label class="mt-3">
+                Remarks
+            </label>
+
+            <textarea name="remarks" class="form-control">{{ $violation->remarks }}</textarea>
+
+            <button class="btn btn-primary mt-4">
+                Save Changes
+            </button>
+
+            <a href="{{ route('violations.show', $violation->id) }}" class="btn btn-secondary mt-4">
+
+                Cancel
+
+            </a>
+
+        </form>
 
     </div>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
 
-    <div class="col-md-6">
+            const violationRows = document.getElementById('violationRows');
+            const addViolationButton = document.getElementById('addViolation');
 
-        <label>Contact Number</label>
+            if (!violationRows || !addViolationButton) {
+                return;
+            }
 
-        <input type="text"
-        name="contact_number"
-        class="form-control"
-        value="{{ $violation->driver->contact_number ?? '' }}">
+            addViolationButton.addEventListener('click', function() {
 
-    </div>
+                const row = document.createElement('div');
 
-</div>
+                row.className = 'violation-row mb-3';
 
+                row.innerHTML = `
+            <div class="input-group">
 
-<h4 class="mt-4">
-Violation Information
-</h4>
+                <select
+                    name="additional_violation_type_ids[]"
+                    class="form-control">
 
+                    @foreach ($violationTypes as $type)
+                        <option value="{{ $type->id }}">
+                            {{ $type->name }}
+                        </option>
+                    @endforeach
 
+                </select>
 
-<label>Violation Type</label>
+                <button
+                    type="button"
+                    class="btn btn-danger remove-violation">
 
-<select name="violation_type_id"
-class="form-control">
+                    Remove
 
+                </button>
 
-@foreach($violationTypes as $type)
+            </div>
+        `;
 
-<option value="{{ $type->id }}"
+                violationRows.appendChild(row);
 
-{{ $violation->violation_type_id == $type->id ? 'selected':'' }}>
+                setupRemoveButton(row);
+            });
 
-{{ $type->name }}
+            function setupRemoveButton(row) {
 
-</option>
+                const removeButton = row.querySelector('.remove-violation');
 
+                if (removeButton) {
 
-@endforeach
+                    removeButton.addEventListener('click', function() {
+                        row.remove();
+                    });
 
+                }
+            }
 
-</select>
+            document.querySelectorAll('.violation-row').forEach(function(row) {
+                setupRemoveButton(row);
+            });
 
-
-
-<label class="mt-3">
-Status
-</label>
-
-
-<select name="status"
-class="form-control">
-
-
-<option value="Pending"
-{{ $violation->status=="Pending"?'selected':'' }}>
-Pending
-</option>
-
-
-<option value="Settled"
-{{ $violation->status=="Settled"?'selected':'' }}>
-Settled
-</option>
-
-
-</select>
-
-
-
-<label class="mt-3">
-Remarks
-</label>
-
-
-<textarea name="remarks"
-class="form-control">
-
-{{ $violation->remarks }}
-
-</textarea>
-
-
-
-<button class="btn btn-primary mt-4">
-Save Changes
-</button>
-
-
-<a href="{{ route('violations.show',$violation->id) }}"
-class="btn btn-secondary mt-4">
-
-Cancel
-
-</a>
-
-
-</form>
-
-
-</div>
-
+        });
+    </script>
 
 @endsection

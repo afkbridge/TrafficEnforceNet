@@ -22,15 +22,14 @@
                 aria-label="Open notifications"
             >
                 <i class="fa-solid fa-bell"></i>
-
-                @if(isset($pendingViolations) && $pendingViolations > 0)
-                    <span
-                        class="notification-badge"
-                        id="notificationBadge"
-                    >
-                        {{ $pendingViolations > 99 ? '99+' : $pendingViolations }}
-                    </span>
-                @endif
+@if(isset($pendingViolations) && $pendingViolations > 0)
+    <span
+        class="notification-badge"
+        id="notificationBadge"
+    >
+        {{ $pendingViolations > 99 ? '99+' : $pendingViolations }}
+    </span>
+@endif
             </button>
 
 
@@ -66,45 +65,83 @@
                         @endphp
 
 
-                        @forelse($notifications as $notification)
+                        
+@forelse($notifications as $notification)
 
-                            <div class="notification-item unread">
+    @php
+        $notificationDriver = $notification->driver
+            ? trim(
+                $notification->driver->first_name . ' ' .
+                $notification->driver->last_name
+            )
+            : 'N/A';
 
-                                <span class="notification-dot"></span>
+        $notificationVehicle = $notification->vehicle
+            ? collect([
+                $notification->vehicle->plate_number,
+                $notification->vehicle->vehicle_type,
+            ])->filter()->implode(' - ')
+            : 'N/A';
 
+        $notificationVehicle = $notificationVehicle ?: 'N/A';
 
-                                <div class="notification-content">
+        $notificationViolation =
+            $notification->violationType->name ?? 'N/A';
 
-                                    <strong>
-                                        Pending violation review
-                                    </strong>
+        $notificationDate = $notification->violation_date
+            ? \Carbon\Carbon::parse(
+                $notification->violation_date
+            )->format('M d, Y')
+            : 'N/A';
 
-                                    <p>
-                                        Ticket ID:
-                                        {{ $notification->ticket_number }}
-                                    </p>
+        $notificationTime = $notification->violation_time
+            ? \Carbon\Carbon::parse(
+                $notification->violation_time
+            )->format('h:i A')
+            : 'N/A';
+    @endphp
 
-                                    <small>
-                                        {{ \Carbon\Carbon::parse(
-                                            $notification->violation_date
-                                        )->format('M d, Y') }}
-                                    </small>
+    <a
+        href="{{ route('bplo.violations.index', [
+            'search' => $notification->ticket_number
+        ]) }}"
+        class="notification-item unread"
+    >
+        <span class="notification-dot"></span>
 
-                                </div>
+        <div class="notification-content">
 
-                            </div>
+            <strong>
+                {{ $notificationViolation }}
+            </strong>
 
-                        @empty
+            <p>
+                Ticket: {{ $notification->ticket_number }}
+            </p>
 
-                            <div class="notification-empty">
-                                <i class="fa-regular fa-bell"></i>
+            <p>
+                Violator: {{ $notificationDriver }}
+            </p>
 
-                                <p>
-                                    No new notifications
-                                </p>
-                            </div>
+            <p>
+                Vehicle: {{ $notificationVehicle }}
+            </p>
 
-                        @endforelse
+            <small>
+                {{ $notificationDate }} • {{ $notificationTime }}
+            </small>
+
+        </div>
+    </a>
+
+@empty
+
+    <div class="notification-empty">
+        <i class="fa-regular fa-bell"></i>
+        <p>No new notifications</p>
+    </div>
+
+@endforelse
 
                     @else
 

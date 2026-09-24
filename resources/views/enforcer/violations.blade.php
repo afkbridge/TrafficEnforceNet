@@ -302,13 +302,20 @@
                                 </div>
 
 
-                                <!-- Violation Type -->
-
-                                <p class="text-sm font-semibold text-gray-800 mt-0.5 truncate">
-
-                                    {{ $violation->violationType?->name ?? 'Unknown Violation' }}
-
-                                </p>
+                                {{-- Violation Type --}}
+                                <div class="text-sm font-semibold text-gray-800 mt-0.5">
+                                    @if ($violation->violationTypes->count())
+                                        @foreach ($violation->violationTypes as $type)
+                                            <div class="truncate">
+                                                {{ $type->name }}
+                                            </div>
+                                        @endforeach
+                                    @else
+                                        <div class="truncate">
+                                            {{ $violation->violationType?->name ?? 'Unknown Violation' }}
+                                        </div>
+                                    @endif
+                                </div>
 
 
                                 <!-- Date -->
