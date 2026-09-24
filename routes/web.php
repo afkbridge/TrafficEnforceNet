@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 use App\Http\Controllers\ProfileController;
 
@@ -8,6 +9,9 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\ViolationController;
 use App\Http\Controllers\Admin\EnforcerController;
 use App\Http\Controllers\Admin\ReportController;
+use App\Http\Controllers\Admin\ViolationTypeController;
+use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\AuditTrailController;
 
 use App\Http\Controllers\Enforcer\DashboardController as EnforcerDashboardController;
 use App\Http\Controllers\Enforcer\ViolationController as EnforcerViolationController;
@@ -17,14 +21,10 @@ use App\Http\Controllers\BPLO\ViolationController as BPLOViolationController;
 
 use App\Http\Controllers\SuperAdmin\UserManagementController;
 
-use App\Http\Controllers\Admin\ViolationTypeController;
-use App\Http\Controllers\Admin\SettingsController;
-use App\Http\Controllers\Admin\AuditTrailController;
-
 use App\Models\Violation;
-use Illuminate\Http\Request;
 
 use App\Http\Controllers\PublicPortal\SearchController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -33,9 +33,11 @@ use App\Http\Controllers\PublicPortal\SearchController;
 */
 
 Route::get('/', function (Request $request) {
+
     $violation = null;
 
     if ($request->filled('ticket_number')) {
+
         $violation = Violation::with([
             'driver',
             'vehicle',
@@ -47,7 +49,9 @@ Route::get('/', function (Request $request) {
     }
 
     return view('landing', compact('violation'));
+
 })->name('landing');
+
 
 Route::get('/check-ticket', [SearchController::class, 'check'])
     ->name('public.ticket.check');
@@ -79,11 +83,31 @@ Route::get('/admin/dashboard', [DashboardController::class, 'index'])
 |--------------------------------------------------------------------------
 | Super Admin - User Management
 |--------------------------------------------------------------------------
+|
+| Super Administrator only.
+|
 */
 
-Route::get('/super-admin/users', [UserManagementController::class, 'index'])
-    ->middleware(['auth', 'role:Super Administrator', 'prevent-back'])
-    ->name('super-admin.users');
+Route::middleware(['auth', 'role:Super Administrator', 'prevent-back'])->group(function () {
+
+    Route::get('/super-admin/users', [UserManagementController::class, 'index'])
+        ->name('super-admin.users');
+
+    Route::post('/super-admin/users', [UserManagementController::class, 'store'])
+        ->name('super-admin.users.store');
+
+    Route::put('/super-admin/users/{user}', [UserManagementController::class, 'update'])
+        ->name('super-admin.users.update');
+
+    Route::patch('/super-admin/users/{user}/reset-password', [UserManagementController::class, 'resetPassword'])
+        ->name('super-admin.users.reset-password');
+
+    Route::patch('/super-admin/users/{user}/toggle-status', [UserManagementController::class, 'toggleStatus'])
+        ->name('super-admin.users.toggle-status');
+
+    Route::delete('/super-admin/users/{user}', [UserManagementController::class, 'destroy'])
+        ->name('super-admin.users.destroy');
+});
 
 
 /*
@@ -108,13 +132,23 @@ Route::get('/bplo/dashboard', [BPLODashboardController::class, 'index'])
     ->name('bplo.dashboard');
 
 
-// BPLO Violation Review
+/*
+|--------------------------------------------------------------------------
+| BPLO Violation Review
+|--------------------------------------------------------------------------
+*/
+
 Route::get('/bplo/violations', [BPLOViolationController::class, 'index'])
     ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
     ->name('bplo.violations.index');
 
 
-// BPLO Update Violation Status
+/*
+|--------------------------------------------------------------------------
+| BPLO Update Violation Status
+|--------------------------------------------------------------------------
+*/
+
 Route::patch(
     '/bplo/violations/{violation}/status',
     [BPLOViolationController::class, 'updateStatus']
@@ -150,6 +184,7 @@ Route::get('/dashboard', function () {
     }
 
     return redirect('/');
+
 })->middleware('auth')->name('dashboard');
 
 
@@ -171,11 +206,11 @@ Route::middleware('auth')->group(function () {
         ->name('admin.reports.index');
 
 
-
-
-    // ==========================================================
-    // Audit Monitoring
-    // ==========================================================
+    /*
+    |--------------------------------------------------------------------------
+    | Audit Monitoring
+    |--------------------------------------------------------------------------
+    */
 
     Route::get(
         '/admin/audit-monitoring',
@@ -183,7 +218,8 @@ Route::middleware('auth')->group(function () {
     )
         ->middleware(['role:Administrator', 'prevent-back'])
         ->name('admin.audit.index');
-        
+
+
     /*
     |--------------------------------------------------------------------------
     | Admin Violation Management
@@ -197,34 +233,53 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('violations', ViolationController::class);
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Settings
+    |--------------------------------------------------------------------------
+    */
+
     Route::get('/admin/settings', function () {
         return view('admin.settings.index');
     })->name('admin.settings');
+
 
     Route::put(
         '/admin/settings/account',
         [SettingsController::class, 'updateAccount']
     )->name('admin.settings.account');
 
+
     Route::put(
         '/admin/settings/password',
         [SettingsController::class, 'updatePassword']
     )->name('admin.settings.password');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Violation Types
+    |--------------------------------------------------------------------------
+    */
 
     Route::get(
         '/admin/settings/violation-types',
         [ViolationTypeController::class, 'index']
     )->name('admin.violation-types.index');
 
+
     Route::post(
         '/admin/settings/violation-types',
         [ViolationTypeController::class, 'store']
     )->name('admin.violation-types.store');
 
+
     Route::put(
         '/admin/settings/violation-types/{violationType}',
         [ViolationTypeController::class, 'update']
     )->name('admin.violation-types.update');
+
 
     Route::delete(
         '/admin/settings/violation-types/{violationType}',
@@ -240,10 +295,12 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('enforcers', EnforcerController::class);
 
+
     Route::get(
         '/enforcers/{enforcer}/account',
         [EnforcerController::class, 'account']
     )->name('enforcers.account');
+
 
     Route::put(
         '/enforcers/{enforcer}/reset-password',
@@ -256,6 +313,7 @@ Route::middleware('auth')->group(function () {
     | Administrator & BPLO User Management
     |--------------------------------------------------------------------------
     */
+
 
     /*
     |--------------------------------------------------------------------------
@@ -324,6 +382,7 @@ Route::middleware('auth')->group(function () {
             [EnforcerViolationController::class, 'create']
         )->name('enforcer.violations.create');
 
+
         Route::post(
             '/enforcer/issue-ticket',
             [EnforcerViolationController::class, 'store']
@@ -365,6 +424,7 @@ Route::middleware('auth')->group(function () {
             [EnforcerViolationController::class, 'index']
         )->name('enforcer.violations.index');
 
+
         Route::get(
             '/enforcer/violations/{id}',
             [EnforcerViolationController::class, 'show']
@@ -398,7 +458,9 @@ Route::middleware('auth')->group(function () {
             return response()->json([
                 'success' => true,
             ]);
+
         })->name('enforcer.heartbeat');
+
     });
 
 
@@ -413,6 +475,7 @@ Route::middleware('auth')->group(function () {
         return view('enforcer.profile', [
             'user' => auth()->user()
         ]);
+
     })->middleware([
         'auth',
         'role:POSO Enforcer',
@@ -429,11 +492,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])
         ->name('profile.edit');
 
+
     Route::patch('/profile', [ProfileController::class, 'update'])
         ->name('profile.update');
 
+
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+
 });
 
 

@@ -14,34 +14,29 @@ class ViolationController extends Controller
         $status = $request->get('status', 'all');
         $search = $request->get('search');
 
-        /*
-        |--------------------------------------------------------------------------
-        | Violation Query
-        |--------------------------------------------------------------------------
-        */
+        // ==========================================================
+        // VIOLATION QUERY
+        // ==========================================================
 
         $query = Violation::with([
             'driver',
             'vehicle',
             'violationType',
+            'violationTypes',
             'user'
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | Filter by Status
-        |--------------------------------------------------------------------------
-        */
+        // ==========================================================
+        // FILTER BY STATUS
+        // ==========================================================
 
         if ($status === 'Pending' || $status === 'Settled') {
             $query->where('status', $status);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Search
-        |--------------------------------------------------------------------------
-        */
+        // ==========================================================
+        // SEARCH
+        // ==========================================================
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
@@ -57,49 +52,49 @@ class ViolationController extends Controller
                             ->orWhere('license_number', 'like', "%{$search}%");
                     })
 
-                    // Search violation type
+                    // Search legacy violation type
                     ->orWhereHas('violationType', function ($type) use ($search) {
+                        $type->where('name', 'like', "%{$search}%");
+                    })
+
+                    // Search multiple violation types
+                    ->orWhereHas('violationTypes', function ($type) use ($search) {
                         $type->where('name', 'like', "%{$search}%");
                     })
 
                     // Search officer
                     ->orWhereHas('user', function ($user) use ($search) {
                         $user->where('name', 'like', "%{$search}%");
-                    });
+                    })
+
+                    // Search vehicle plate
+                    ->orWhereHas('vehicle', function ($vehicle) use ($search) {
+                        $vehicle->where('plate_number', 'like', "%{$search}%");
+                    })
+
+                    // Search location
+                    ->orWhere('location', 'like', "%{$search}%");
             });
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Get Violations
-        |--------------------------------------------------------------------------
-        */
+        // ==========================================================
+        // GET VIOLATIONS
+        // ==========================================================
 
         $violations = $query
             ->orderBy('violation_date', 'desc')
             ->orderBy('violation_time', 'desc')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | All-Time Violation Counter
-        |--------------------------------------------------------------------------
-        |
-        | Counts every violation stored in the database.
-        | This does not reset every month.
-        |
-        */
+        // ==========================================================
+        // ALL-TIME VIOLATION COUNTER
+        // ==========================================================
 
         $allTimeViolations = Violation::count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Notification Data
-        |--------------------------------------------------------------------------
-        |
-        | Used by the BPLO topbar notification bell.
-        |
-        */
+        // ==========================================================
+        // NOTIFICATION DATA
+        // ==========================================================
 
         $pendingViolations = Violation::where('status', 'Pending')
             ->count();
@@ -108,6 +103,7 @@ class ViolationController extends Controller
             'driver',
             'vehicle',
             'violationType',
+            'violationTypes',
             'user'
         ])
             ->where('status', 'Pending')
@@ -116,11 +112,9 @@ class ViolationController extends Controller
             ->take(5)
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Return Violation Review Page
-        |--------------------------------------------------------------------------
-        */
+        // ==========================================================
+        // RETURN VIOLATION REVIEW PAGE
+        // ==========================================================
 
         return view('bplo.violations.index', compact(
             'violations',
@@ -132,57 +126,55 @@ class ViolationController extends Controller
         ));
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Update Violation Status
-    |--------------------------------------------------------------------------
-    */
-
-   public function updateStatus(Request $request, Violation $violation)
-{
     // ==========================================================
-    // Validate Status
+    // UPDATE VIOLATION STATUS
     // ==========================================================
 
-    $validated = $request->validate([
-        'status' => ['required', 'in:Pending,Settled'],
-    ]);
+    public function updateStatus(Request $request, Violation $violation)
+    {
+        // ==========================================================
+        // VALIDATE STATUS
+        // ==========================================================
 
-    // ==========================================================
-    // Store Previous Status
-    // ==========================================================
+        $validated = $request->validate([
+            'status' => ['required', 'in:Pending,Settled'],
+        ]);
 
-    $oldStatus = $violation->status;
-    $newStatus = $validated['status'];
+        // ==========================================================
+        // STORE PREVIOUS STATUS
+        // ==========================================================
 
-    // ==========================================================
-    // Update Database
-    // ==========================================================
+        $oldStatus = $violation->status;
+        $newStatus = $validated['status'];
 
-    $violation->status = $newStatus;
-    $violation->save();
+        // ==========================================================
+        // UPDATE DATABASE
+        // ==========================================================
 
-    // ==========================================================
-    // Audit Trail
-    // ==========================================================
+        $violation->status = $newStatus;
+        $violation->save();
 
-    AuditLogger::log(
-        'STATUS_UPDATE',
-        'Updated violation ticket ' . $violation->ticket_number .
-        ' status from ' . $oldStatus .
-        ' to ' . $newStatus . '.',
-        $violation
-    );
+        // ==========================================================
+        // AUDIT TRAIL
+        // ==========================================================
 
-    // ==========================================================
-    // Return to Violation Review
-    // ==========================================================
-
-    return redirect()
-        ->back()
-        ->with(
-            'success',
-            'Violation status updated successfully.'
+        AuditLogger::log(
+            'STATUS_UPDATE',
+            'Updated violation ticket ' . $violation->ticket_number .
+            ' status from ' . $oldStatus .
+            ' to ' . $newStatus . '.',
+            $violation
         );
-}
+
+        // ==========================================================
+        // RETURN TO VIOLATION REVIEW
+        // ==========================================================
+
+        return redirect()
+            ->back()
+            ->with(
+                'success',
+                'Violation status updated successfully.'
+            );
+    }
 }

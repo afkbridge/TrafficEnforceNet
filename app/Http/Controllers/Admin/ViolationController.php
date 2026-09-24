@@ -17,39 +17,59 @@ class ViolationController extends Controller
             'driver',
             'vehicle',
             'violationType',
+            'violationTypes',
             'user',
         ]);
 
-        // Search by ticket number, driver name,
-        // license number, or vehicle plate number.
         if ($request->filled('search')) {
             $search = $request->search;
 
             $query->where(function ($q) use ($search) {
-                $q->where('ticket_number', 'like', '%' . $search . '%')
-                    ->orWhereHas('driver', function ($driverQuery) use ($search) {
-                        $driverQuery
-                            ->where('first_name', 'like', '%' . $search . '%')
-                            ->orWhere('middle_name', 'like', '%' . $search . '%')
-                            ->orWhere('last_name', 'like', '%' . $search . '%')
-                            ->orWhere('license_number', 'like', '%' . $search . '%');
-                    })
-                    ->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
-                        $vehicleQuery->where(
-                            'plate_number',
+                $q->where(
+                    'ticket_number',
+                    'like',
+                    '%' . $search . '%'
+                )
+                ->orWhereHas('driver', function ($driverQuery) use ($search) {
+                    $driverQuery
+                        ->where(
+                            'first_name',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                        ->orWhere(
+                            'middle_name',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                        ->orWhere(
+                            'last_name',
+                            'like',
+                            '%' . $search . '%'
+                        )
+                        ->orWhere(
+                            'license_number',
                             'like',
                             '%' . $search . '%'
                         );
-                    });
+                })
+                ->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
+                    $vehicleQuery->where(
+                        'plate_number',
+                        'like',
+                        '%' . $search . '%'
+                    );
+                });
             });
         }
 
-        // Filter by status.
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $query->where(
+                'status',
+                $request->status
+            );
         }
 
-        // Filter from date.
         if ($request->filled('date_from')) {
             $query->whereDate(
                 'violation_date',
@@ -58,7 +78,6 @@ class ViolationController extends Controller
             );
         }
 
-        // Filter to date.
         if ($request->filled('date_to')) {
             $query->whereDate(
                 'violation_date',
@@ -67,7 +86,6 @@ class ViolationController extends Controller
             );
         }
 
-        // Get violation records with pagination.
         $violations = $query
             ->latest('violation_date')
             ->paginate(10)
@@ -85,6 +103,7 @@ class ViolationController extends Controller
             'driver',
             'vehicle',
             'violationType',
+            'violationTypes',
             'user',
             'images',
         ])->findOrFail($id);
@@ -101,6 +120,7 @@ class ViolationController extends Controller
             'driver',
             'vehicle',
             'violationType',
+            'violationTypes',
             'user',
             'images',
         ])->findOrFail($id);
@@ -124,25 +144,123 @@ class ViolationController extends Controller
         ])->findOrFail($id);
 
         $request->validate([
-            // Violation validation
-            'violation_type_id' => 'required',
-            'status' => 'required',
+            'violation_type_id' => [
+                'required',
+                'exists:violation_types,id',
+            ],
 
-            // Driver validation
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'license_number' => 'required',
-            'address' => 'required',
+            'additional_violation_type_ids' => [
+                'nullable',
+                'array',
+            ],
+
+            'additional_violation_type_ids.*' => [
+                'required',
+                'exists:violation_types,id',
+            ],
+
+            'status' => [
+                'required',
+                'in:Pending,Settled',
+            ],
+
+            'first_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'last_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'license_number' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'address' => [
+                'required',
+                'string',
+            ],
+
+            'middle_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'contact_number' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'license_type' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'remarks' => [
+                'nullable',
+                'string',
+            ],
         ]);
 
-        // Update violation record.
+        /*
+        |--------------------------------------------------------------------------
+        | COLLECT SELECTED VIOLATION TYPES
+        |--------------------------------------------------------------------------
+        */
+
+        $violationTypeIds = [
+            (int) $request->violation_type_id,
+        ];
+
+        if ($request->filled('additional_violation_type_ids')) {
+            foreach ($request->additional_violation_type_ids as $additionalId) {
+                $additionalId = (int) $additionalId;
+
+                if (!in_array($additionalId, $violationTypeIds, true)) {
+                    $violationTypeIds[] = $additionalId;
+                }
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE MAIN VIOLATION RECORD
+        |--------------------------------------------------------------------------
+        */
+
         $violation->update([
-            'violation_type_id' => $request->violation_type_id,
+            'violation_type_id' => $violationTypeIds[0],
             'status' => $request->status,
             'remarks' => $request->remarks,
         ]);
 
-        // Update driver information.
+        /*
+        |--------------------------------------------------------------------------
+        | SYNCHRONIZE MULTIPLE VIOLATION TYPES
+        |--------------------------------------------------------------------------
+        |
+        | This keeps the pivot table synchronized with the selections
+        | made on the Edit Violation page.
+        |
+        */
+
+        $violation->violationTypes()->sync($violationTypeIds);
+
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE DRIVER INFORMATION
+        |--------------------------------------------------------------------------
+        */
+
         if ($violation->driver) {
             $violation->driver->update([
                 'first_name' => $request->first_name,

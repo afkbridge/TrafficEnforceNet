@@ -8,7 +8,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
-
 use App\Models\Violation;
 use App\Models\ViolationType;
 use App\Models\Driver;
@@ -17,18 +16,17 @@ use App\Models\ViolationImage;
 
 class ViolationController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | VIOLATIONS LIST
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // VIOLATIONS LIST
+    // =======================================================
 
     public function index(Request $request)
     {
         $query = Violation::with([
             'driver',
             'vehicle',
-            'violationType'
+            'violationType',
+            'violationTypes'
         ])
             ->where('user_id', Auth::id());
 
@@ -59,11 +57,9 @@ class ViolationController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CREATE / ISSUE TICKET PAGE
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // CREATE / ISSUE TICKET PAGE
+    // =======================================================
 
     public function create()
     {
@@ -75,11 +71,9 @@ class ViolationController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DRIVER'S LICENSE OCR
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // DRIVER'S LICENSE OCR
+    // =======================================================
 
     public function ocrDriverLicense(
         Request $request,
@@ -103,7 +97,7 @@ class ViolationController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' =>
-                    'No text could be detected from the driver\'s license. Please upload a clearer image.',
+                        'No text could be detected from the driver\'s license. Please upload a clearer image.',
                 ], 422);
             }
 
@@ -112,7 +106,7 @@ class ViolationController extends Controller
             return response()->json([
                 'success' => true,
                 'message' =>
-                'Driver\'s license information extracted successfully.',
+                    'Driver\'s license information extracted successfully.',
                 'data' => $data,
                 'raw_text' => $text,
             ]);
@@ -124,11 +118,9 @@ class ViolationController extends Controller
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PARSE DRIVER'S LICENSE OCR TEXT
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // PARSE DRIVER'S LICENSE OCR TEXT
+    // =======================================================
 
     private function parseDriverLicenseText(string $text): array
     {
@@ -162,23 +154,18 @@ class ViolationController extends Controller
             $lines
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | DRIVER NAME
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // DRIVER NAME
+        // ===================================================
 
         foreach ($lines as $index => $line) {
-
             if (
                 stripos($line, 'Last Name') !== false &&
                 stripos($line, 'First Name') !== false
             ) {
-
                 $nameLine = $lines[$index + 1] ?? '';
 
                 if (strpos($nameLine, ',') !== false) {
-
                     $nameParts = array_map(
                         'trim',
                         explode(',', $nameLine, 2)
@@ -188,7 +175,6 @@ class ViolationController extends Controller
                         $nameParts[0] ?? '';
 
                     if (!empty($nameParts[1])) {
-
                         $firstMiddle =
                             preg_split(
                                 '/\s+/',
@@ -199,7 +185,6 @@ class ViolationController extends Controller
                             $firstMiddle[0] ?? '';
 
                         if (count($firstMiddle) > 1) {
-
                             $result['middle_name'] =
                                 implode(
                                     ' ',
@@ -216,11 +201,9 @@ class ViolationController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | LICENSE NUMBER
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // LICENSE NUMBER
+        // ===================================================
 
         if (
             preg_match(
@@ -229,18 +212,15 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $result['license_number'] =
                 strtoupper(
                     trim($match[1])
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | BIRTH DATE
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // BIRTH DATE
+        // ===================================================
 
         if (
             preg_match(
@@ -249,7 +229,6 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $birthDate =
                 trim($match[1]);
 
@@ -260,20 +239,16 @@ class ViolationController extends Controller
                 );
 
             if ($date) {
-
                 $result['birth_date'] =
                     $date->format('Y-m-d');
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | ADDRESS
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // ADDRESS
+        // ===================================================
 
         foreach ($lines as $index => $line) {
-
             if (
                 stripos($line, 'STREET') !== false ||
                 preg_match(
@@ -281,7 +256,6 @@ class ViolationController extends Controller
                     $line
                 )
             ) {
-
                 $addressParts = [];
 
                 if (
@@ -291,7 +265,6 @@ class ViolationController extends Controller
                         $lines[$index - 1]
                     )
                 ) {
-
                     $addressParts[] =
                         $lines[$index - 1];
                 }
@@ -300,7 +273,6 @@ class ViolationController extends Controller
                     $line;
 
                 if (isset($lines[$index + 1])) {
-
                     $nextLine =
                         $lines[$index + 1];
 
@@ -310,7 +282,6 @@ class ViolationController extends Controller
                             $nextLine
                         )
                     ) {
-
                         $addressParts[] =
                             $nextLine;
                     }
@@ -332,23 +303,18 @@ class ViolationController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | FALLBACK ADDRESS
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // FALLBACK ADDRESS
+        // ===================================================
 
         if ($result['address'] === '') {
-
             foreach ($lines as $index => $line) {
-
                 if (
                     preg_match(
                         '/\b\d{4}\b/',
                         $line
                     )
                 ) {
-
                     $previousLine =
                         $lines[$index - 1] ?? '';
 
@@ -358,7 +324,6 @@ class ViolationController extends Controller
                             $previousLine
                         )
                     ) {
-
                         $result['address'] =
                             trim(
                                 preg_replace(
@@ -379,11 +344,9 @@ class ViolationController extends Controller
         return $result;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | CITATION TICKET OCR
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // CITATION TICKET OCR
+    // =======================================================
 
     public function ocrCitationTicket(
         Request $request,
@@ -399,17 +362,15 @@ class ViolationController extends Controller
         ]);
 
         try {
-
             $text = $ocrSpaceService->extractText(
                 $request->file('ticket_image')
             );
 
             if (trim($text) === '') {
-
                 return response()->json([
                     'success' => false,
                     'message' =>
-                    'No text could be detected from the citation ticket. Please upload a clearer image.',
+                        'No text could be detected from the citation ticket. Please upload a clearer image.',
                 ], 422);
             }
 
@@ -421,12 +382,11 @@ class ViolationController extends Controller
             return response()->json([
                 'success' => true,
                 'message' =>
-                'Citation ticket information extracted successfully.',
+                    'Citation ticket information extracted successfully.',
                 'data' => $data,
                 'raw_text' => $text,
             ]);
         } catch (\Throwable $e) {
-
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
@@ -434,22 +394,13 @@ class ViolationController extends Controller
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | PARSE CITATION TICKET OCR TEXT
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // PARSE CITATION TICKET OCR TEXT
+    // =======================================================
 
     private function parseCitationTicketText(
         string $text
     ): array {
-
-        /*
-        |--------------------------------------------------------------------------
-        | CLEAN OCR TEXT
-        |--------------------------------------------------------------------------
-        */
-
         $text = str_replace(
             ["\r\n", "\r"],
             "\n",
@@ -477,12 +428,6 @@ class ViolationController extends Controller
             $lines
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | DEFAULT RESULT
-        |--------------------------------------------------------------------------
-        */
-
         $result = [
             'ticket_number' => '',
             'first_name' => '',
@@ -499,19 +444,9 @@ class ViolationController extends Controller
             'violations' => [],
         ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | TICKET NUMBER
-        |--------------------------------------------------------------------------
-        |
-        | Handles:
-        |
-        | N° 249204
-        | Nº 249204
-        | No. 249204
-        | No 249204
-        |
-        */
+        // ===================================================
+        // TICKET NUMBER
+        // ===================================================
 
         if (
             preg_match(
@@ -520,7 +455,6 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $result['ticket_number'] =
                 trim($match[1]);
         } elseif (
@@ -530,119 +464,60 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $result['ticket_number'] =
                 trim($match[1]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | DRIVER NAME
-        |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        |
-        | The actual citation ticket OCR is column-based.
-        |
-        | OCR result:
-        |
-        | LAST
-        | NAME
-        | FIRST
-        | NAME
-        | MIDDLE
-        | NAME
-        | DELA CRUZ
-        | JUAN MANUEL
-        | PEREZ
-        |
-        | The three actual values are listed AFTER
-        | the MIDDLE NAME label.
-        |
-        | Therefore:
-        |
-        | DELA CRUZ   = LAST NAME
-        | JUAN MANUEL = FIRST NAME
-        | PEREZ       = MIDDLE NAME
-        |
-        */
+        // ===================================================
+        // DRIVER NAME
+        // ===================================================
 
         $lastNameIndex = null;
         $firstNameIndex = null;
         $middleNameIndex = null;
 
         foreach ($lines as $index => $line) {
-
             if (
-                strtoupper($line) === 'LAST'
-                &&
-                isset($lines[$index + 1])
-                &&
+                strtoupper($line) === 'LAST' &&
+                isset($lines[$index + 1]) &&
                 strtoupper($lines[$index + 1]) === 'NAME'
             ) {
-
                 $lastNameIndex = $index;
-
                 break;
             }
         }
 
         foreach ($lines as $index => $line) {
-
             if (
-                strtoupper($line) === 'FIRST'
-                &&
-                isset($lines[$index + 1])
-                &&
+                strtoupper($line) === 'FIRST' &&
+                isset($lines[$index + 1]) &&
                 strtoupper($lines[$index + 1]) === 'NAME'
             ) {
-
                 $firstNameIndex = $index;
-
                 break;
             }
         }
 
         foreach ($lines as $index => $line) {
-
             if (
-                strtoupper($line) === 'MIDDLE'
-                &&
-                isset($lines[$index + 1])
-                &&
+                strtoupper($line) === 'MIDDLE' &&
+                isset($lines[$index + 1]) &&
                 strtoupper($lines[$index + 1]) === 'NAME'
             ) {
-
                 $middleNameIndex = $index;
-
                 break;
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | NAME VALUES
-        |--------------------------------------------------------------------------
-        |
-        | The OCR output places all three name values after
-        | the MIDDLE NAME label.
-        |
-        | Example:
-        |
-        | MIDDLE
-        | NAME
-        | DELA CRUZ
-        | JUAN MANUEL
-        | PEREZ
-        |
-        */
+        // ===================================================
+        // NAME VALUES
+        // ===================================================
 
         if (
             $lastNameIndex !== null &&
             $firstNameIndex !== null &&
             $middleNameIndex !== null
         ) {
-
             $nameValueStart =
                 $middleNameIndex + 2;
 
@@ -660,7 +535,6 @@ class ViolationController extends Controller
                 $firstName !== '' &&
                 $middleName !== ''
             ) {
-
                 $result['last_name'] =
                     trim($lastName);
 
@@ -672,21 +546,11 @@ class ViolationController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | FALLBACK NAME PARSING
-        |--------------------------------------------------------------------------
-        |
-        | Handles:
-        |
-        | Last Name: DELA CRUZ
-        | First Name: JUAN MANUEL
-        | Middle Name: PEREZ
-        |
-        */
+        // ===================================================
+        // FALLBACK NAME PARSING
+        // ===================================================
 
         if ($result['last_name'] === '') {
-
             if (
                 preg_match(
                     '/Last\s+Name\s*:?\s*(.+)/i',
@@ -694,14 +558,12 @@ class ViolationController extends Controller
                     $match
                 )
             ) {
-
                 $result['last_name'] =
                     trim($match[1]);
             }
         }
 
         if ($result['first_name'] === '') {
-
             if (
                 preg_match(
                     '/First\s+Name\s*:?\s*(.+)/i',
@@ -709,14 +571,12 @@ class ViolationController extends Controller
                     $match
                 )
             ) {
-
                 $result['first_name'] =
                     trim($match[1]);
             }
         }
 
         if ($result['middle_name'] === '') {
-
             if (
                 preg_match(
                     '/Middle\s+Name\s*:?\s*(.+)/i',
@@ -724,17 +584,14 @@ class ViolationController extends Controller
                     $match
                 )
             ) {
-
                 $result['middle_name'] =
                     trim($match[1]);
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | LICENSE NUMBER
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // LICENSE NUMBER
+        // ===================================================
 
         if (
             preg_match(
@@ -743,7 +600,6 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $result['license_number'] =
                 strtoupper(
                     trim($match[1])
@@ -755,48 +611,32 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $result['license_number'] =
                 strtoupper(
                     trim($match[1])
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | ADDRESS
-        |--------------------------------------------------------------------------
-        |
-        | Actual OCR:
-        |
-        | ADDRESS (Number, Street, Subd., City/Municipality)
-        | 25 MACABULOS ST., BARANGAY SAN
-        | LOQUE, TARLAC CITY, TARLAC
-        | LICENSE
-        | NUMBER
-        |
-        */
+        // ===================================================
+        // ADDRESS
+        // ===================================================
 
         $addressStart = null;
 
         foreach ($lines as $index => $line) {
-
             if (
                 preg_match(
                     '/^ADDRESS\b/i',
                     $line
                 )
             ) {
-
                 $addressStart =
                     $index + 1;
-
                 break;
             }
         }
 
         if ($addressStart !== null) {
-
             $addressParts = [];
 
             for (
@@ -804,7 +644,6 @@ class ViolationController extends Controller
                 $i < count($lines);
                 $i++
             ) {
-
                 $line =
                     $lines[$i];
 
@@ -855,7 +694,6 @@ class ViolationController extends Controller
             }
 
             if (!empty($addressParts)) {
-
                 $result['address'] =
                     trim(
                         preg_replace(
@@ -870,16 +708,12 @@ class ViolationController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | FALLBACK ADDRESS
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // FALLBACK ADDRESS
+        // ===================================================
 
         if ($result['address'] === '') {
-
             foreach ($lines as $index => $line) {
-
                 if (
                     preg_match(
                         '/^Address\s*:\s*(.+)$/i',
@@ -887,7 +721,6 @@ class ViolationController extends Controller
                         $match
                     )
                 ) {
-
                     $result['address'] =
                         trim($match[1]);
 
@@ -896,22 +729,9 @@ class ViolationController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | BIRTH DATE
-        |--------------------------------------------------------------------------
-        |
-        | Handles:
-        |
-        | BIRTH
-        | DATE
-        | 01/15/1990
-        |
-        | and:
-        |
-        | Birth Date: 01/15/1990
-        |
-        */
+        // ===================================================
+        // BIRTH DATE
+        // ===================================================
 
         if (
             preg_match(
@@ -920,7 +740,6 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $birthDate =
                 trim($match[1]);
 
@@ -931,22 +750,19 @@ class ViolationController extends Controller
                 );
 
             if ($date) {
-
                 $result['birth_date'] =
                     $date->format('Y-m-d');
             }
         }
 
         if (
-            $result['birth_date'] === ''
-            &&
+            $result['birth_date'] === '' &&
             preg_match(
                 '/\b(\d{1,2}\/\d{1,2}\/\d{4})\b/',
                 $fullText,
                 $match
             )
         ) {
-
             $birthDate =
                 trim($match[1]);
 
@@ -957,22 +773,14 @@ class ViolationController extends Controller
                 );
 
             if ($date) {
-
                 $result['birth_date'] =
                     $date->format('Y-m-d');
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | VEHICLE TYPE
-        |--------------------------------------------------------------------------
-        |
-        | Handles:
-        |
-        | SEDAN (e.g., Toyota Vios)
-        |
-        */
+        // ===================================================
+        // VEHICLE TYPE
+        // ===================================================
 
         $vehicleTypes = [
             'SEDAN',
@@ -991,7 +799,6 @@ class ViolationController extends Controller
         ];
 
         foreach ($vehicleTypes as $vehicleType) {
-
             if (
                 preg_match(
                     '/\b' .
@@ -1003,7 +810,6 @@ class ViolationController extends Controller
                     $fullText
                 )
             ) {
-
                 $result['vehicle_type'] =
                     $vehicleType;
 
@@ -1011,16 +817,9 @@ class ViolationController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PLATE NUMBER
-        |--------------------------------------------------------------------------
-        |
-        | Example:
-        |
-        | NDO 7890
-        |
-        */
+        // ===================================================
+        // PLATE NUMBER
+        // ===================================================
 
         if (
             preg_match(
@@ -1029,21 +828,15 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $result['plate_number'] =
                 strtoupper(
                     trim($match[1])
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | REGION NUMBER
-        |--------------------------------------------------------------------------
-        |
-        | Only populate when an actual Region label exists.
-        |
-        */
+        // ===================================================
+        // REGION NUMBER
+        // ===================================================
 
         if (
             preg_match(
@@ -1052,38 +845,24 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-
             $result['region_number'] =
                 strtoupper(
                     trim($match[1])
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | VEHICLE OWNER
-        |--------------------------------------------------------------------------
-        |
-        | Actual OCR:
-        |
-        | Vehicle
-        | Owner
-        | MARIA DELA CRUZ
-        |
-        */
+        // ===================================================
+        // VEHICLE OWNER
+        // ===================================================
 
         $vehicleOwnerIndex = null;
 
         foreach ($lines as $index => $line) {
-
             if (
-                strtoupper($line) === 'VEHICLE'
-                &&
-                isset($lines[$index + 1])
-                &&
+                strtoupper($line) === 'VEHICLE' &&
+                isset($lines[$index + 1]) &&
                 strtoupper($lines[$index + 1]) === 'OWNER'
             ) {
-
                 $vehicleOwnerIndex =
                     $index;
 
@@ -1092,78 +871,59 @@ class ViolationController extends Controller
         }
 
         if ($vehicleOwnerIndex !== null) {
-
             $ownerValueIndex =
                 $vehicleOwnerIndex + 2;
 
             if (
                 isset($lines[$ownerValueIndex])
             ) {
-
                 $ownerName =
                     trim(
                         $lines[$ownerValueIndex]
                     );
 
                 if (
-                    $ownerName !== ''
-                    &&
+                    $ownerName !== '' &&
                     !preg_match(
                         '/^(You|Notice|Apprehending|Officer|Driver)/i',
                         $ownerName
                     )
                 ) {
-
                     $result['owner_name'] =
                         $ownerName;
                 }
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | FALLBACK VEHICLE OWNER
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // FALLBACK VEHICLE OWNER
+        // ===================================================
 
         if (
-            $result['owner_name'] === ''
-            &&
+            $result['owner_name'] === '' &&
             preg_match(
                 '/Vehicle\s+Owner\s*:?\s*(.+)/i',
                 $fullText,
                 $match
             )
         ) {
-
             $result['owner_name'] =
                 trim($match[1]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | PLACE OF VIOLATION
-        |--------------------------------------------------------------------------
-        |
-        | Actual OCR:
-        |
-        | Place of Violation
-        | Street
-        | F. TANEDO ST.
-        |
-        */
+        // ===================================================
+        // PLACE OF VIOLATION
+        // ===================================================
 
         $placeIndex = null;
 
         foreach ($lines as $index => $line) {
-
             if (
                 stripos(
                     $line,
                     'Place of Violation'
                 ) !== false
             ) {
-
                 $placeIndex =
                     $index;
 
@@ -1172,13 +932,11 @@ class ViolationController extends Controller
         }
 
         if ($placeIndex !== null) {
-
             for (
                 $i = $placeIndex + 1;
                 $i < count($lines);
                 $i++
             ) {
-
                 $line =
                     trim($lines[$i]);
 
@@ -1194,10 +952,7 @@ class ViolationController extends Controller
                     break;
                 }
 
-                if (
-                    $line !== ''
-                ) {
-
+                if ($line !== '') {
                     $result['location'] =
                         $line;
 
@@ -1206,40 +961,25 @@ class ViolationController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | FALLBACK PLACE OF VIOLATION
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // FALLBACK PLACE OF VIOLATION
+        // ===================================================
 
         if (
-            $result['location'] === ''
-            &&
+            $result['location'] === '' &&
             preg_match(
                 '/Place\s+of\s+Violation\s*:?\s*(.+)/i',
                 $fullText,
                 $match
             )
         ) {
-
             $result['location'] =
                 trim($match[1]);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CHECKED VIOLATIONS
-        |--------------------------------------------------------------------------
-        |
-        | OCR.space converted checked boxes to "*"
-        | and unchecked boxes to "•".
-        |
-        | Example:
-        |
-        | *Disregarding Traffic lights/signs/Officer
-        | *Reckless Driving
-        |
-        */
+        // ===================================================
+        // CHECKED VIOLATIONS
+        // ===================================================
 
         $knownViolations = [
             'Truck Ban',
@@ -1260,7 +1000,6 @@ class ViolationController extends Controller
         ];
 
         foreach ($lines as $line) {
-
             if (
                 !preg_match(
                     '/^(?:\*|X|✓|✔|☑)\s*/u',
@@ -1284,14 +1023,12 @@ class ViolationController extends Controller
                 $knownViolations
                 as $knownViolation
             ) {
-
                 if (
                     stripos(
                         $cleanLine,
                         $knownViolation
                     ) !== false
                 ) {
-
                     $result['violations'][] =
                         $cleanLine;
 
@@ -1300,11 +1037,9 @@ class ViolationController extends Controller
             }
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | REMOVE DUPLICATE VIOLATIONS
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // REMOVE DUPLICATE VIOLATIONS
+        // ===================================================
 
         $result['violations'] =
             array_values(
@@ -1313,20 +1048,16 @@ class ViolationController extends Controller
                 )
             );
 
-        /*
-        |--------------------------------------------------------------------------
-        | RETURN RESULT
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // RETURN RESULT
+        // ===================================================
 
         return $result;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | STORE VIOLATION
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // STORE VIOLATION
+    // =======================================================
 
     public function store(Request $request)
     {
@@ -1338,38 +1069,61 @@ class ViolationController extends Controller
             ],
 
             'first_name' => 'required|string|max:255',
-
             'last_name' => 'required|string|max:255',
-
             'license_number' => 'required|string|max:255',
-
             'plate_number' => 'required|string|max:50',
 
-            'violation_type_id' => 'required',
+            'violation_type_id' => [
+                'required'
+            ],
+
+            'additional_violation_type_ids' => [
+                'nullable',
+                'array'
+            ],
+
+            'additional_violation_type_ids.*' => [
+                'required'
+            ],
+
+            'other_violation' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
+
+            'additional_other_violation_names' => [
+                'nullable',
+                'array'
+            ],
+
+            'additional_other_violation_names.*' => [
+                'nullable',
+                'string',
+                'max:255'
+            ],
 
             'location' => 'nullable|string|max:500',
-
             'latitude' => 'nullable|numeric',
-
             'longitude' => 'nullable|numeric',
-
             'remarks' => 'nullable|string',
 
             'ticket_image' => 'nullable|image|max:5120',
 
-            'evidence_images.*' => 'nullable|image|max:5120',
+            'evidence_images.*' => [
+                'nullable',
+                'image',
+                'max:5120'
+            ],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | SAVE TICKET IMAGE
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // SAVE TICKET IMAGE
+        // ===================================================
 
         $ticketImagePath = null;
 
         if ($request->hasFile('ticket_image')) {
-
             $ticketImagePath = $request
                 ->file('ticket_image')
                 ->store(
@@ -1378,103 +1132,198 @@ class ViolationController extends Controller
                 );
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | DRIVER
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // DRIVER
+        // ===================================================
 
         $driver = Driver::firstOrCreate(
             [
                 'license_number' =>
-                $request->license_number
+                    $request->license_number
             ],
             [
                 'first_name' =>
-                $request->first_name,
+                    $request->first_name,
 
                 'middle_name' =>
-                $request->middle_name,
+                    $request->middle_name,
 
                 'last_name' =>
-                $request->last_name,
+                    $request->last_name,
 
                 'address' =>
-                $request->address,
+                    $request->address,
 
                 'birth_date' =>
-                $request->birth_date,
+                    $request->birth_date,
 
-                'contact_number' => null,
+                'contact_number' =>
+                    null,
 
-                'license_type' => null,
+                'license_type' =>
+                    null,
 
-                'license_expiration' => null,
+                'license_expiration' =>
+                    null,
             ]
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | VEHICLE
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // VEHICLE
+        // ===================================================
 
         $vehicle = Vehicle::firstOrCreate(
             [
                 'plate_number' =>
-                strtoupper(
-                    $request->plate_number
-                )
+                    strtoupper(
+                        $request->plate_number
+                    )
             ],
             [
                 'driver_id' =>
-                $driver->id,
+                    $driver->id,
 
                 'vehicle_type' =>
-                $request->vehicle_type,
+                    $request->vehicle_type,
 
                 'region_number' =>
-                $request->region_number,
+                    $request->region_number,
 
                 'owner_name' =>
-                $request->owner_name,
+                    $request->owner_name,
             ]
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | HANDLE OTHER VIOLATION TYPE
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // COLLECT ALL VIOLATION TYPE IDS
+        // ===================================================
+
+        $violationTypeIds = [];
+
+        // ===================================================
+        // FIRST VIOLATION
+        // ===================================================
 
         if ($request->violation_type_id === 'other') {
+            $otherViolationName =
+                trim(
+                    (string) $request->other_violation
+                );
+
+            if ($otherViolationName === '') {
+                return back()
+                    ->withErrors([
+                        'other_violation' =>
+                            'Please specify the other violation.'
+                    ])
+                    ->withInput();
+            }
 
             $newViolationType =
                 ViolationType::create([
                     'name' =>
-                    $request->other_violation,
+                        $otherViolationName,
 
                     'description' =>
-                    'Added by enforcer during citation',
+                        'Added by enforcer during citation',
                 ]);
 
-            $violationTypeId =
+            $firstViolationTypeId =
                 $newViolationType->id;
         } else {
-
-            $violationTypeId =
-                $request->violation_type_id;
+            $firstViolationTypeId =
+                (int) $request->violation_type_id;
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | CREATE VIOLATION
-        |--------------------------------------------------------------------------
-        */
+        $violationTypeIds[] =
+            $firstViolationTypeId;
+
+        // ===================================================
+        // ADDITIONAL VIOLATIONS
+        // ===================================================
+
+        $additionalViolationIds =
+            $request->input(
+                'additional_violation_type_ids',
+                []
+            );
+
+        $additionalOtherNames =
+            $request->input(
+                'additional_other_violation_names',
+                []
+            );
+
+        foreach (
+            $additionalViolationIds
+            as $index => $additionalTypeId
+        ) {
+            // ===============================================
+            // HANDLE ADDITIONAL "OTHER"
+            // ===============================================
+
+            if ($additionalTypeId === 'other') {
+                $otherName =
+                    trim(
+                        (string) (
+                            $additionalOtherNames[$index]
+                            ?? ''
+                        )
+                    );
+
+                if ($otherName === '') {
+                    return back()
+                        ->withErrors([
+                            'additional_violation_type_ids' =>
+                                'Please specify every additional "Other" violation.'
+                        ])
+                        ->withInput();
+                }
+
+                $newAdditionalViolationType =
+                    ViolationType::create([
+                        'name' =>
+                            $otherName,
+
+                        'description' =>
+                            'Added by enforcer during citation',
+                    ]);
+
+                $additionalTypeId =
+                    $newAdditionalViolationType->id;
+            }
+
+            // ===============================================
+            // CONVERT TO INTEGER
+            // ===============================================
+
+            $additionalTypeId =
+                (int) $additionalTypeId;
+
+            // ===============================================
+            // PREVENT DUPLICATE VIOLATIONS
+            // ===============================================
+
+            if (
+                $additionalTypeId > 0 &&
+                !in_array(
+                    $additionalTypeId,
+                    $violationTypeIds,
+                    true
+                )
+            ) {
+                $violationTypeIds[] =
+                    $additionalTypeId;
+            }
+        }
+
+        // ===================================================
+        // CREATE MAIN VIOLATION RECORD
+        // ===================================================
 
         $violation = Violation::create([
             'ticket_number' =>
-            $request->ticket_number
+                $request->ticket_number
                 ??
                 'TN-' .
                 strtoupper(
@@ -1482,67 +1331,80 @@ class ViolationController extends Controller
                 ),
 
             'driver_id' =>
-            $driver->id,
+                $driver->id,
 
             'vehicle_id' =>
-            $vehicle->id,
+                $vehicle->id,
+
+            /*
+             * Keep the original column for compatibility
+             * with the existing system.
+             *
+             * The first selected violation is stored here.
+             * All selected violations are also stored in
+             * the violation_violation_type pivot table.
+             */
 
             'violation_type_id' =>
-            $violationTypeId,
+                $firstViolationTypeId,
 
             'user_id' =>
-            Auth::id(),
+                Auth::id(),
 
             'violation_date' =>
-            now()
-                ->setTimezone('Asia/Manila')
-                ->format('Y-m-d'),
+                now()
+                    ->setTimezone('Asia/Manila')
+                    ->format('Y-m-d'),
 
             'violation_time' =>
-            now()
-                ->setTimezone('Asia/Manila')
-                ->format('H:i:s'),
+                now()
+                    ->setTimezone('Asia/Manila')
+                    ->format('H:i:s'),
 
             'location' =>
-            $request->location
+                $request->location
                 ??
                 'Location not available',
 
             'latitude' =>
-            $request->latitude
+                $request->latitude
                 ??
                 null,
 
             'longitude' =>
-            $request->longitude
+                $request->longitude
                 ??
                 null,
 
             'remarks' =>
-            $request->remarks
+                $request->remarks
                 ??
                 null,
 
             'ticket_image' =>
-            $ticketImagePath,
+                $ticketImagePath,
 
             'status' =>
-            'Pending',
+                'Pending',
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | SAVE EVIDENCE IMAGES
-        |--------------------------------------------------------------------------
-        */
+        // ===================================================
+        // SAVE ALL VIOLATION TYPES TO PIVOT TABLE
+        // ===================================================
+
+        $violation->violationTypes()->sync(
+            $violationTypeIds
+        );
+
+        // ===================================================
+        // SAVE EVIDENCE IMAGES
+        // ===================================================
 
         if ($request->hasFile('evidence_images')) {
-
             foreach (
                 $request->file('evidence_images')
                 as $image
             ) {
-
                 $imagePath =
                     $image->store(
                         'violations/evidence',
@@ -1551,25 +1413,28 @@ class ViolationController extends Controller
 
                 ViolationImage::create([
                     'violation_id' =>
-                    $violation->id,
+                        $violation->id,
 
                     'image_path' =>
-                    $imagePath,
+                        $imagePath,
                 ]);
             }
         }
 
+        // ===================================================
+        // AUDIT LOG
+        // ===================================================
+
         AuditLogger::log(
             'CREATE',
-            'Created traffic violation ticket ' . $violation->ticket_number,
+            'Created traffic violation ticket ' .
+                $violation->ticket_number,
             $violation
         );
-        
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECT SUCCESS
-        |--------------------------------------------------------------------------
-        */
+
+        // ===================================================
+        // REDIRECT SUCCESS
+        // ===================================================
 
         return redirect()
             ->route('enforcer.success')
@@ -1579,11 +1444,9 @@ class ViolationController extends Controller
             );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SHOW VIOLATION
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // SHOW VIOLATION
+    // =======================================================
 
     public function show(string $id)
     {
@@ -1591,6 +1454,7 @@ class ViolationController extends Controller
             'driver',
             'vehicle',
             'violationType',
+            'violationTypes',
             'images',
             'user'
         ])
@@ -1606,22 +1470,18 @@ class ViolationController extends Controller
         );
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EDIT
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // EDIT
+    // =======================================================
 
     public function edit(string $id)
     {
         //
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | UPDATE
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // UPDATE
+    // =======================================================
 
     public function update(
         Request $request,
@@ -1630,22 +1490,18 @@ class ViolationController extends Controller
         //
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | DELETE
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // DELETE
+    // =======================================================
 
     public function destroy(string $id)
     {
         //
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | SUCCESS PAGE
-    |--------------------------------------------------------------------------
-    */
+    // =======================================================
+    // SUCCESS PAGE
+    // =======================================================
 
     public function success()
     {

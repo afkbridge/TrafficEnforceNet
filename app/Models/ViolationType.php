@@ -11,11 +11,29 @@ class ViolationType extends Model
         'description',
     ];
 
-    /**
-     * One violation type can have many violations.
-     */
+    /*
+    |--------------------------------------------------------------------------
+    | Existing relationship
+    |--------------------------------------------------------------------------
+    | Keep this so the current system continues to work.
+    */
     public function violations()
     {
         return $this->hasMany(Violation::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Multiple violation types relationship
+    |--------------------------------------------------------------------------
+    */
+    public function violationRecords()
+    {
+        return $this->belongsToMany(
+            Violation::class,
+            'violation_violation_type',
+            'violation_type_id',
+            'violation_id'
+        )->withTimestamps();
     }
 }
