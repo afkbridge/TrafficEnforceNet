@@ -229,15 +229,11 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // -----------------------------------------------
-        // PREVIEW
-        // -----------------------------------------------
-
         const preview = getElement("licensePreview");
         const container = getElement("licensePreviewContainer");
 
         if (preview && container) {
-            if (preview.src) {
+            if (preview.src && preview.src.startsWith("blob:")) {
                 URL.revokeObjectURL(preview.src);
             }
 
@@ -245,49 +241,33 @@ document.addEventListener("DOMContentLoaded", function () {
             container.classList.remove("hidden");
         }
 
-        // -----------------------------------------------
-        // STATUS
-        // -----------------------------------------------
-
         setDriverOcrStatus(
             "loading",
             "Reading driver's license...",
             "Please wait while the system extracts the driver information."
         );
 
-        // -----------------------------------------------
-        // FORM DATA
-        // -----------------------------------------------
-
         const formData = new FormData();
         formData.append("driver_license", file);
 
         try {
-            // -------------------------------------------
-            // SEND TO LARAVEL
-            // -------------------------------------------
-
-            const response = await fetch("/enforcer/ocr/driver-license", {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-CSRF-TOKEN":
-                        document
-                            .querySelector('meta[name="csrf-token"]')
-                            ?.getAttribute("content") || "",
-                    Accept: "application/json",
-                },
-            });
-
-            // -------------------------------------------
-            // READ RESPONSE
-            // -------------------------------------------
+            const response = await fetch(
+                "/enforcer/ocr/driver-license",
+                {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRF-TOKEN":
+                            document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute("content") || "",
+                        Accept: "application/json",
+                    },
+                    credentials: "same-origin",
+                }
+            );
 
             const data = await response.json();
-
-            // -------------------------------------------
-            // ERROR RESPONSE
-            // -------------------------------------------
 
             if (!response.ok || !data.success) {
                 throw new Error(
@@ -295,15 +275,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
 
-            // -------------------------------------------
-            // OCR DATA
-            // -------------------------------------------
-
             const result = data.data || {};
-
-            // -------------------------------------------
-            // POPULATE DRIVER FIELDS
-            // -------------------------------------------
 
             setFieldValue("first_name", result.first_name);
             setFieldValue("middle_name", result.middle_name);
@@ -311,10 +283,6 @@ document.addEventListener("DOMContentLoaded", function () {
             setFieldValue("license_number", result.license_number);
             setFieldValue("address", result.address);
             setFieldValue("birth_date", result.birth_date);
-
-            // -------------------------------------------
-            // SUCCESS
-            // -------------------------------------------
 
             setDriverOcrStatus(
                 "success",
@@ -330,7 +298,8 @@ document.addEventListener("DOMContentLoaded", function () {
             setDriverOcrStatus(
                 "error",
                 "OCR failed",
-                error.message || "Unable to read the driver's license."
+                error.message ||
+                    "Unable to read the driver's license."
             );
         }
     };
@@ -379,25 +348,17 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // -----------------------------------------------
-        // PREVIEW
-        // -----------------------------------------------
-
         const preview = getElement("ticketPreview");
         const container = getElement("ticketPreviewContainer");
 
         if (preview && container) {
-            if (preview.src) {
+            if (preview.src && preview.src.startsWith("blob:")) {
                 URL.revokeObjectURL(preview.src);
             }
 
             preview.src = URL.createObjectURL(file);
             container.classList.remove("hidden");
         }
-
-        // -----------------------------------------------
-        // START OCR
-        // -----------------------------------------------
 
         processCitationTicket(file);
     };
@@ -411,49 +372,33 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // -----------------------------------------------
-        // STATUS
-        // -----------------------------------------------
-
         setTicketOcrStatus(
             "loading",
             "Reading citation ticket...",
             "Please wait while the system extracts the ticket information."
         );
 
-        // -----------------------------------------------
-        // FORM DATA
-        // -----------------------------------------------
-
         const formData = new FormData();
         formData.append("ticket_image", file);
 
         try {
-            // -------------------------------------------
-            // SEND TO LARAVEL
-            // -------------------------------------------
-
-            const response = await fetch("/enforcer/ocr/citation-ticket", {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-CSRF-TOKEN":
-                        document
-                            .querySelector('meta[name="csrf-token"]')
-                            ?.getAttribute("content") || "",
-                    Accept: "application/json",
-                },
-            });
-
-            // -------------------------------------------
-            // READ RESPONSE
-            // -------------------------------------------
+            const response = await fetch(
+                "/enforcer/ocr/citation-ticket",
+                {
+                    method: "POST",
+                    body: formData,
+                    headers: {
+                        "X-CSRF-TOKEN":
+                            document
+                                .querySelector('meta[name="csrf-token"]')
+                                ?.getAttribute("content") || "",
+                        Accept: "application/json",
+                    },
+                    credentials: "same-origin",
+                }
+            );
 
             const data = await response.json();
-
-            // -------------------------------------------
-            // ERROR RESPONSE
-            // -------------------------------------------
 
             if (!response.ok || !data.success) {
                 throw new Error(
@@ -461,21 +406,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
 
-            // -------------------------------------------
-            // OCR RESULT
-            // -------------------------------------------
-
             const result = data.data || {};
 
-            // -------------------------------------------
-            // POPULATE TICKET NUMBER
-            // -------------------------------------------
-
-            setFieldValue("ticket_number", result.ticket_number);
-
-            // -------------------------------------------
-            // POPULATE DRIVER INFORMATION
-            // -------------------------------------------
+            setFieldValue(
+                "ticket_number",
+                result.ticket_number
+            );
 
             setFieldValue("first_name", result.first_name);
             setFieldValue("middle_name", result.middle_name);
@@ -484,33 +420,32 @@ document.addEventListener("DOMContentLoaded", function () {
             setFieldValue("address", result.address);
             setFieldValue("birth_date", result.birth_date);
 
-            // -------------------------------------------
-            // POPULATE VEHICLE INFORMATION
-            // -------------------------------------------
+            setFieldValue(
+                "plate_number",
+                result.plate_number
+            );
 
-            setFieldValue("plate_number", result.plate_number);
-            setFieldValue("vehicle_type", result.vehicle_type);
-            setFieldValue("region_number", result.region_number);
-            setFieldValue("owner_name", result.owner_name);
+            setFieldValue(
+                "vehicle_type",
+                result.vehicle_type
+            );
 
-            // -------------------------------------------
-            // IMPORTANT:
-            // DO NOT POPULATE GPS LOCATION FROM OCR
-            //
-            // The location field is controlled by GPS.
-            // The ticket's "Place of Violation" should
-            // not overwrite the actual captured GPS address.
-            // -------------------------------------------
+            setFieldValue(
+                "region_number",
+                result.region_number
+            );
 
-            // -------------------------------------------
-            // HANDLE DETECTED VIOLATIONS
-            // -------------------------------------------
+            setFieldValue(
+                "owner_name",
+                result.owner_name
+            );
 
-            handleDetectedViolations(result.violations || []);
+            // Location intentionally NOT populated by OCR.
+            // Location is controlled by GPS.
 
-            // -------------------------------------------
-            // SUCCESS
-            // -------------------------------------------
+            handleDetectedViolations(
+                result.violations || []
+            );
 
             setTicketOcrStatus(
                 "success",
@@ -521,10 +456,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             console.log("Citation Ticket OCR:", result);
 
-            // -------------------------------------------
-            // RAW OCR TEXT
-            // -------------------------------------------
-
             if (data.raw_text) {
                 console.log(
                     "Citation Ticket OCR Raw Text:",
@@ -532,12 +463,16 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
         } catch (error) {
-            console.error("Citation Ticket OCR Error:", error);
+            console.error(
+                "Citation Ticket OCR Error:",
+                error
+            );
 
             setTicketOcrStatus(
                 "error",
                 "OCR failed",
-                error.message || "Unable to read the citation ticket."
+                error.message ||
+                    "Unable to read the citation ticket."
             );
         }
     }
@@ -547,22 +482,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     function handleDetectedViolations(violations) {
-        if (!Array.isArray(violations) || violations.length === 0) {
+        if (
+            !Array.isArray(violations) ||
+            violations.length === 0
+        ) {
             return;
         }
 
         const select = getElement("violation_type_id");
-        const otherContainer = getElement("otherViolationContainer");
+        const otherContainer = getElement(
+            "otherViolationContainer"
+        );
         const otherInput = getElement("other_violation");
         const remarks = getElement("remarks");
 
         if (!select) {
             return;
         }
-
-        // -----------------------------------------------
-        // NORMALIZE VIOLATIONS
-        // -----------------------------------------------
 
         const detected = violations
             .map(function (violation) {
@@ -575,10 +511,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (detected.length === 0) {
             return;
         }
-
-        // -----------------------------------------------
-        // TRY TO MATCH EXISTING VIOLATION TYPE
-        // -----------------------------------------------
 
         const options = Array.from(select.options);
         const matchedOptions = [];
@@ -601,14 +533,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             });
 
-            if (match && match.value !== "other") {
+            if (
+                match &&
+                match.value !== "other"
+            ) {
                 matchedOptions.push(match);
             }
         });
-
-        // -----------------------------------------------
-        // SELECT FIRST MATCH
-        // -----------------------------------------------
 
         if (matchedOptions.length > 0) {
             select.value = matchedOptions[0].value;
@@ -616,13 +547,11 @@ document.addEventListener("DOMContentLoaded", function () {
             if (otherContainer) {
                 otherContainer.classList.add("hidden");
             }
-        }
 
-        // -----------------------------------------------
-        // IF NO MATCH, USE OTHER
-        // -----------------------------------------------
-
-        else {
+            if (otherInput) {
+                otherInput.required = false;
+            }
+        } else {
             const otherOption = options.find(function (option) {
                 return option.value === "other";
             });
@@ -636,13 +565,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (otherInput) {
                     otherInput.value = detected.join("; ");
+                    otherInput.required = true;
                 }
             }
         }
-
-        // -----------------------------------------------
-        // PUT DETECTED VIOLATIONS IN REMARKS
-        // -----------------------------------------------
 
         if (remarks) {
             const detectedText = detected.join("; ");
@@ -656,24 +582,55 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        console.log("Detected violations:", detected);
+        console.log(
+            "Detected violations:",
+            detected
+        );
     }
 
     // ===================================================
     // VIOLATION TYPE - OTHER
     // ===================================================
 
-    const violationSelect = getElement("violation_type_id");
-    const otherContainer = getElement("otherViolationContainer");
+    const violationSelect = getElement(
+        "violation_type_id"
+    );
 
-    if (violationSelect && otherContainer) {
-        violationSelect.addEventListener("change", function () {
-            if (this.value === "other") {
-                otherContainer.classList.remove("hidden");
-            } else {
-                otherContainer.classList.add("hidden");
+    const otherViolationContainer = getElement(
+        "otherViolationContainer"
+    );
+
+    const otherViolationInput = getElement(
+        "other_violation"
+    );
+
+    if (
+        violationSelect &&
+        otherViolationContainer
+    ) {
+        violationSelect.addEventListener(
+            "change",
+            function () {
+                if (this.value === "other") {
+                    otherViolationContainer.classList.remove(
+                        "hidden"
+                    );
+
+                    if (otherViolationInput) {
+                        otherViolationInput.required = true;
+                    }
+                } else {
+                    otherViolationContainer.classList.add(
+                        "hidden"
+                    );
+
+                    if (otherViolationInput) {
+                        otherViolationInput.required = false;
+                        otherViolationInput.value = "";
+                    }
+                }
             }
-        });
+        );
     }
 
     // ===================================================
@@ -682,25 +639,109 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const form = getElement("issueTicketForm");
 
-    const offlinePendingBox = getElement("offlinePendingBox");
-    const offlinePendingTitle = getElement("offlinePendingTitle");
-    const offlinePendingMessage = getElement("offlinePendingMessage");
-    const syncNowButton = getElement("syncNowButton");
+    const offlinePendingBox = getElement(
+        "offlinePendingBox"
+    );
 
-    const offlineSyncingBox = getElement("offlineSyncingBox");
-    const offlineSyncingMessage = getElement("offlineSyncingMessage");
+    const offlinePendingTitle = getElement(
+        "offlinePendingTitle"
+    );
 
-    const offlineSuccessBox = getElement("offlineSuccessBox");
-    const offlineSuccessMessage = getElement("offlineSuccessMessage");
+    const offlinePendingMessage = getElement(
+        "offlinePendingMessage"
+    );
 
-    const offlineErrorBox = getElement("offlineErrorBox");
-    const offlineErrorMessage = getElement("offlineErrorMessage");
+    const syncNowButton = getElement(
+        "syncNowButton"
+    );
 
-    const OFFLINE_DB_NAME = "TrafficEnforceNetDB";
+    const offlineSyncingBox = getElement(
+        "offlineSyncingBox"
+    );
+
+    const offlineSyncingMessage = getElement(
+        "offlineSyncingMessage"
+    );
+
+    const offlineSuccessBox = getElement(
+        "offlineSuccessBox"
+    );
+
+    const offlineSuccessMessage = getElement(
+        "offlineSuccessMessage"
+    );
+
+    const offlineErrorBox = getElement(
+        "offlineErrorBox"
+    );
+
+    const offlineErrorMessage = getElement(
+        "offlineErrorMessage"
+    );
+
+    const OFFLINE_DB_NAME =
+        "TrafficEnforceNetDB";
+
     const OFFLINE_DB_VERSION = 1;
-    const OFFLINE_STORE_NAME = "pendingTickets";
+
+    const OFFLINE_STORE_NAME =
+        "pendingTickets";
 
     let syncInProgress = false;
+
+    // ===================================================
+    // ENFORCE REQUIRED FIELDS
+    // ===================================================
+
+    function setupRequiredFields() {
+        if (!form) {
+            return;
+        }
+
+        const requiredFieldIds = [
+            "first_name",
+            "last_name",
+            "license_number",
+            "plate_number",
+            "violation_type_id",
+        ];
+
+        requiredFieldIds.forEach(function (id) {
+            const field = getElement(id);
+
+            if (field) {
+                field.required = true;
+            }
+        });
+
+        // Every dynamically added additional violation
+        // select must be required.
+        const additionalViolationSelects =
+            form.querySelectorAll(
+                'select[name="additional_violation_type_ids[]"]'
+            );
+
+        additionalViolationSelects.forEach(function (select) {
+            select.required = true;
+        });
+
+        // Primary "Other" violation.
+        const primaryViolation =
+            getElement("violation_type_id");
+
+        const primaryOther =
+            getElement("other_violation");
+
+        if (
+            primaryViolation &&
+            primaryOther
+        ) {
+            primaryOther.required =
+                primaryViolation.value === "other";
+        }
+    }
+
+    setupRequiredFields();
 
     // ===================================================
     // OPEN INDEXEDDB
@@ -714,6 +755,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         "IndexedDB is not supported on this device."
                     )
                 );
+
                 return;
             }
 
@@ -725,11 +767,18 @@ document.addEventListener("DOMContentLoaded", function () {
             request.onupgradeneeded = function (event) {
                 const db = event.target.result;
 
-                if (!db.objectStoreNames.contains(OFFLINE_STORE_NAME)) {
-                    db.createObjectStore(OFFLINE_STORE_NAME, {
-                        keyPath: "id",
-                        autoIncrement: true,
-                    });
+                if (
+                    !db.objectStoreNames.contains(
+                        OFFLINE_STORE_NAME
+                    )
+                ) {
+                    db.createObjectStore(
+                        OFFLINE_STORE_NAME,
+                        {
+                            keyPath: "id",
+                            autoIncrement: true,
+                        }
+                    );
                 }
             };
 
@@ -740,7 +789,9 @@ document.addEventListener("DOMContentLoaded", function () {
             request.onerror = function () {
                 reject(
                     request.error ||
-                        new Error("Unable to open offline storage.")
+                        new Error(
+                            "Unable to open offline storage."
+                        )
                 );
             };
         });
@@ -752,27 +803,37 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function saveTicketOffline() {
         if (!form) {
-            throw new Error("Issue ticket form was not found.");
+            throw new Error(
+                "Issue ticket form was not found."
+            );
         }
 
         const formData = new FormData(form);
         const fields = {};
         const files = {};
 
-        // -----------------------------------------------
-        // STORE FORM DATA
-        // -----------------------------------------------
-
         for (const [name, value] of formData.entries()) {
-            if (value instanceof File || value instanceof Blob) {
+            if (
+                value instanceof File ||
+                value instanceof Blob
+            ) {
                 if (!value.size) {
                     continue;
                 }
 
                 const fileData = {
-                    name: value.name || `${name}.file`,
-                    type: value.type || "application/octet-stream",
-                    lastModified: value.lastModified || Date.now(),
+                    name:
+                        value.name ||
+                        `${name}.file`,
+
+                    type:
+                        value.type ||
+                        "application/octet-stream",
+
+                    lastModified:
+                        value.lastModified ||
+                        Date.now(),
+
                     blob: value,
                 };
 
@@ -790,19 +851,20 @@ document.addEventListener("DOMContentLoaded", function () {
                     fields[name] = String(value);
                 } else {
                     if (!Array.isArray(fields[name])) {
-                        fields[name] = [fields[name]];
+                        fields[name] = [
+                            fields[name]
+                        ];
                     }
 
-                    fields[name].push(String(value));
+                    fields[name].push(
+                        String(value)
+                    );
                 }
             }
         }
 
-        // -----------------------------------------------
-        // SAVE TO INDEXEDDB
-        // -----------------------------------------------
-
-        const db = await openOfflineDatabase();
+        const db =
+            await openOfflineDatabase();
 
         return new Promise(function (resolve, reject) {
             const transaction = db.transaction(
@@ -810,13 +872,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 "readwrite"
             );
 
-            const store = transaction.objectStore(OFFLINE_STORE_NAME);
+            const store =
+                transaction.objectStore(
+                    OFFLINE_STORE_NAME
+                );
 
             const request = store.add({
                 fields: fields,
                 files: files,
                 action: form.action,
-                createdAt: new Date().toISOString(),
+                createdAt:
+                    new Date().toISOString(),
             });
 
             request.onsuccess = function () {
@@ -826,7 +892,9 @@ document.addEventListener("DOMContentLoaded", function () {
             request.onerror = function () {
                 reject(
                     request.error ||
-                        new Error("Unable to save ticket offline.")
+                        new Error(
+                            "Unable to save ticket offline."
+                        )
                 );
             };
         });
@@ -837,7 +905,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     async function getPendingTickets() {
-        const db = await openOfflineDatabase();
+        const db =
+            await openOfflineDatabase();
 
         return new Promise(function (resolve, reject) {
             const transaction = db.transaction(
@@ -845,17 +914,25 @@ document.addEventListener("DOMContentLoaded", function () {
                 "readonly"
             );
 
-            const store = transaction.objectStore(OFFLINE_STORE_NAME);
+            const store =
+                transaction.objectStore(
+                    OFFLINE_STORE_NAME
+                );
+
             const request = store.getAll();
 
             request.onsuccess = function () {
-                resolve(request.result || []);
+                resolve(
+                    request.result || []
+                );
             };
 
             request.onerror = function () {
                 reject(
                     request.error ||
-                        new Error("Unable to read pending tickets.")
+                        new Error(
+                            "Unable to read pending tickets."
+                        )
                 );
             };
         });
@@ -866,7 +943,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     async function deletePendingTicket(id) {
-        const db = await openOfflineDatabase();
+        const db =
+            await openOfflineDatabase();
 
         return new Promise(function (resolve, reject) {
             const transaction = db.transaction(
@@ -874,7 +952,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 "readwrite"
             );
 
-            const store = transaction.objectStore(OFFLINE_STORE_NAME);
+            const store =
+                transaction.objectStore(
+                    OFFLINE_STORE_NAME
+                );
+
             const request = store.delete(id);
 
             request.onsuccess = function () {
@@ -884,7 +966,9 @@ document.addEventListener("DOMContentLoaded", function () {
             request.onerror = function () {
                 reject(
                     request.error ||
-                        new Error("Unable to remove synced ticket.")
+                        new Error(
+                            "Unable to remove synced ticket."
+                        )
                 );
             };
         });
@@ -900,16 +984,18 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         if (meta) {
-            const token = meta.getAttribute("content");
+            const token =
+                meta.getAttribute("content");
 
             if (token) {
                 return token;
             }
         }
 
-        const tokenInput = form?.querySelector(
-            'input[name="_token"]'
-        );
+        const tokenInput =
+            form?.querySelector(
+                'input[name="_token"]'
+            );
 
         return tokenInput?.value || "";
     }
@@ -921,67 +1007,72 @@ document.addEventListener("DOMContentLoaded", function () {
     function buildSyncFormData(ticket) {
         const syncFormData = new FormData();
 
-        // -----------------------------------------------
-        // FORM FIELDS
-        // -----------------------------------------------
-
-        Object.entries(ticket.fields || {}).forEach(
-            function ([name, value]) {
-                if (Array.isArray(value)) {
-                    value.forEach(function (item) {
-                        syncFormData.append(name, item);
-                    });
-                } else {
-                    if (name !== "_token") {
-                        syncFormData.append(name, value);
-                    }
+        Object.entries(
+            ticket.fields || {}
+        ).forEach(function ([name, value]) {
+            if (Array.isArray(value)) {
+                value.forEach(function (item) {
+                    syncFormData.append(
+                        name,
+                        item
+                    );
+                });
+            } else {
+                if (name !== "_token") {
+                    syncFormData.append(
+                        name,
+                        value
+                    );
                 }
             }
-        );
-
-        // -----------------------------------------------
-        // USE CURRENT CSRF TOKEN
-        // -----------------------------------------------
+        });
 
         const csrfToken = getCsrfToken();
 
         if (csrfToken) {
-            syncFormData.append("_token", csrfToken);
+            syncFormData.append(
+                "_token",
+                csrfToken
+            );
         }
 
-        // -----------------------------------------------
-        // FILES
-        // -----------------------------------------------
-
-        Object.entries(ticket.files || {}).forEach(
-            function ([name, fileData]) {
-                if (Array.isArray(fileData)) {
-                    fileData.forEach(function (item) {
-                        const file = new File(
-                            [item.blob],
-                            item.name,
-                            {
-                                type: item.type,
-                                lastModified: item.lastModified,
-                            }
-                        );
-
-                        syncFormData.append(name, file);
-                    });
-                } else {
+        Object.entries(
+            ticket.files || {}
+        ).forEach(function ([name, fileData]) {
+            if (Array.isArray(fileData)) {
+                fileData.forEach(function (item) {
                     const file = new File(
-                        [fileData.blob],
-                        fileData.name,
+                        [item.blob],
+                        item.name,
                         {
-                            type: fileData.type,
-                            lastModified: fileData.lastModified,
+                            type: item.type,
+                            lastModified:
+                                item.lastModified,
                         }
                     );
 
-                    syncFormData.append(name, file);
-                }
+                    syncFormData.append(
+                        name,
+                        file
+                    );
+                });
+            } else {
+                const file = new File(
+                    [fileData.blob],
+                    fileData.name,
+                    {
+                        type: fileData.type,
+                        lastModified:
+                            fileData.lastModified,
+                    }
+                );
+
+                syncFormData.append(
+                    name,
+                    file
+                );
             }
-        );
+        });
 
         return syncFormData;
     }
@@ -992,19 +1083,27 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function hideOfflineStatus() {
         if (offlinePendingBox) {
-            offlinePendingBox.classList.add("hidden");
+            offlinePendingBox.classList.add(
+                "hidden"
+            );
         }
 
         if (offlineSyncingBox) {
-            offlineSyncingBox.classList.add("hidden");
+            offlineSyncingBox.classList.add(
+                "hidden"
+            );
         }
 
         if (offlineSuccessBox) {
-            offlineSuccessBox.classList.add("hidden");
+            offlineSuccessBox.classList.add(
+                "hidden"
+            );
         }
 
         if (offlineErrorBox) {
-            offlineErrorBox.classList.add("hidden");
+            offlineErrorBox.classList.add(
+                "hidden"
+            );
         }
     }
 
@@ -1017,7 +1116,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        offlinePendingBox.classList.remove("hidden");
+        offlinePendingBox.classList.remove(
+            "hidden"
+        );
 
         if (offlinePendingTitle) {
             offlinePendingTitle.innerText =
@@ -1040,11 +1141,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (syncNowButton) {
             if (navigator.onLine) {
-                syncNowButton.classList.remove("hidden");
+                syncNowButton.classList.remove(
+                    "hidden"
+                );
+
                 syncNowButton.disabled = false;
-                syncNowButton.innerText = "Sync Now";
+
+                syncNowButton.innerText =
+                    "Sync Now";
             } else {
-                syncNowButton.classList.add("hidden");
+                syncNowButton.classList.add(
+                    "hidden"
+                );
+
                 syncNowButton.disabled = true;
             }
         }
@@ -1058,7 +1167,9 @@ document.addEventListener("DOMContentLoaded", function () {
         hideOfflineStatus();
 
         if (offlineSyncingBox) {
-            offlineSyncingBox.classList.remove("hidden");
+            offlineSyncingBox.classList.remove(
+                "hidden"
+            );
         }
 
         if (offlineSyncingMessage) {
@@ -1077,7 +1188,9 @@ document.addEventListener("DOMContentLoaded", function () {
         hideOfflineStatus();
 
         if (offlineSuccessBox) {
-            offlineSuccessBox.classList.remove("hidden");
+            offlineSuccessBox.classList.remove(
+                "hidden"
+            );
         }
 
         if (offlineSuccessMessage) {
@@ -1100,7 +1213,9 @@ document.addEventListener("DOMContentLoaded", function () {
         hideOfflineStatus();
 
         if (offlineErrorBox) {
-            offlineErrorBox.classList.remove("hidden");
+            offlineErrorBox.classList.remove(
+                "hidden"
+            );
         }
 
         if (offlineErrorMessage) {
@@ -1116,7 +1231,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async function updatePendingSyncCount() {
         try {
-            const tickets = await getPendingTickets();
+            const tickets =
+                await getPendingTickets();
+
             const count = tickets.length;
 
             if (count === 0) {
@@ -1126,7 +1243,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             showPendingTickets(count);
         } catch (error) {
-            console.error("Offline storage error:", error);
+            console.error(
+                "Offline storage error:",
+                error
+            );
 
             showSyncError(
                 error.message ||
@@ -1146,7 +1266,8 @@ document.addEventListener("DOMContentLoaded", function () {
             );
         }
 
-        const syncFormData = buildSyncFormData(ticket);
+        const syncFormData =
+            buildSyncFormData(ticket);
 
         const response = await fetch(
             ticket.action || form.action,
@@ -1154,23 +1275,23 @@ document.addEventListener("DOMContentLoaded", function () {
                 method: "POST",
                 body: syncFormData,
                 credentials: "same-origin",
+
                 headers: {
                     Accept: "application/json",
-                    "X-Requested-With": "XMLHttpRequest",
+
+                    "X-Requested-With":
+                        "XMLHttpRequest",
                 },
             }
         );
-
-        // -----------------------------------------------
-        // SERVER VALIDATION / ERROR
-        // -----------------------------------------------
 
         if (!response.ok) {
             let message =
                 `Server returned HTTP ${response.status}.`;
 
             try {
-                const data = await response.json();
+                const data =
+                    await response.json();
 
                 if (data.message) {
                     message = data.message;
@@ -1202,7 +1323,8 @@ document.addEventListener("DOMContentLoaded", function () {
         syncInProgress = true;
 
         try {
-            const tickets = await getPendingTickets();
+            const tickets =
+                await getPendingTickets();
 
             if (tickets.length === 0) {
                 hideOfflineStatus();
@@ -1217,7 +1339,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
             for (const ticket of tickets) {
                 if (!navigator.onLine) {
-                    failedCount += tickets.length - syncedCount;
+                    failedCount +=
+                        tickets.length -
+                        syncedCount;
 
                     lastError =
                         "Internet connection was lost during synchronization.";
@@ -1228,12 +1352,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 try {
                     await syncOneTicket(ticket);
 
-                    // -----------------------------------
-                    // IMPORTANT:
-                    // DELETE ONLY AFTER SUCCESS
-                    // -----------------------------------
-
-                    await deletePendingTicket(ticket.id);
+                    await deletePendingTicket(
+                        ticket.id
+                    );
 
                     syncedCount++;
                 } catch (error) {
@@ -1250,23 +1371,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
 
-            // -------------------------------------------
-            // REFRESH PENDING TICKETS
-            // -------------------------------------------
-
             const remainingTickets =
                 await getPendingTickets();
 
             const remainingCount =
                 remainingTickets.length;
 
-            // -------------------------------------------
-            // EVERYTHING SYNCED
-            // -------------------------------------------
-
             if (remainingCount === 0) {
                 if (syncedCount > 0) {
-                    showSyncSuccess(syncedCount);
+                    showSyncSuccess(
+                        syncedCount
+                    );
                 } else {
                     hideOfflineStatus();
                 }
@@ -1274,20 +1389,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            // -------------------------------------------
-            // SOME FAILED
-            // -------------------------------------------
-
             showSyncError(
                 `${remainingCount} ticket${
-                    remainingCount === 1 ? "" : "s"
+                    remainingCount === 1
+                        ? ""
+                        : "s"
                 } remain pending. ${
                     lastError ||
                     "Please try again when the connection is stable."
                 }`
             );
 
-            // Show pending information again
             setTimeout(function () {
                 updatePendingSyncCount();
             }, 2500);
@@ -1334,6 +1446,106 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===================================================
+    // VALIDATE FORM BEFORE OFFLINE SAVE
+    // ===================================================
+
+    function validateTicketForm() {
+        if (!form) {
+            return false;
+        }
+
+        // Make sure the required fields are enforced
+        // every time validation runs.
+        setupRequiredFields();
+
+        // -------------------------------------------------
+        // Browser's native required-field validation.
+        // -------------------------------------------------
+
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return false;
+        }
+
+        // -------------------------------------------------
+        // Primary "Other" violation.
+        // -------------------------------------------------
+
+        const primaryViolation =
+            getElement("violation_type_id");
+
+        const primaryOther =
+            getElement("other_violation");
+
+        if (
+            primaryViolation &&
+            primaryViolation.value === "other"
+        ) {
+            if (
+                !primaryOther ||
+                primaryOther.value.trim() === ""
+            ) {
+                if (primaryOther) {
+                    primaryOther.required = true;
+                    primaryOther.reportValidity();
+                }
+
+                return false;
+            }
+        }
+
+        // -------------------------------------------------
+        // Validate every additional violation row.
+        // -------------------------------------------------
+
+        const additionalViolationSelects =
+            form.querySelectorAll(
+                'select[name="additional_violation_type_ids[]"]'
+            );
+
+        for (
+            const select of additionalViolationSelects
+        ) {
+            // Every additional violation row requires
+            // a selected violation type.
+            select.required = true;
+
+            if (!select.value) {
+                select.reportValidity();
+                return false;
+            }
+
+            // -------------------------------------------------
+            // Additional "Other" violation.
+            // -------------------------------------------------
+
+            if (select.value === "other") {
+                const row =
+                    select.closest(
+                        ".additional-violation-row"
+                    ) || select.parentElement;
+
+                const otherInput =
+                    row?.querySelector(
+                        'input[name="additional_other_violation_names[]"]'
+                    );
+
+                if (
+                    otherInput &&
+                    otherInput.value.trim() === ""
+                ) {
+                    otherInput.required = true;
+                    otherInput.reportValidity();
+
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    // ===================================================
     // INTERCEPT FORM SUBMISSION WHEN OFFLINE
     // ===================================================
 
@@ -1341,28 +1553,43 @@ document.addEventListener("DOMContentLoaded", function () {
         form.addEventListener(
             "submit",
             async function (event) {
-                // ---------------------------------------
+                // -------------------------------------------------
                 // ONLINE
-                // ---------------------------------------
+                // -------------------------------------------------
                 //
-                // Allow the browser to submit the form
-                // normally to Laravel.
-                //
-                // Laravel will then redirect to:
-                // enforcer.success
-                //
+                // Let Laravel handle normal online submission.
+                // Native/browser validation still runs.
+                // -------------------------------------------------
 
                 if (navigator.onLine) {
-                    return true;
+                    return;
                 }
 
-                // ---------------------------------------
+                // -------------------------------------------------
+                // OFFLINE VALIDATION
+                // -------------------------------------------------
+                //
+                // This is the important offline behavior:
+                //
+                // Offline
+                //   ↓
+                // Submit
+                //   ↓
+                // Validate required fields
+                //   ↓
+                // Invalid = stay on form
+                //   ↓
+                // Valid = save to IndexedDB
+                // -------------------------------------------------
+
+                if (!validateTicketForm()) {
+                    event.preventDefault();
+                    return;
+                }
+
+                // -------------------------------------------------
                 // OFFLINE
-                // ---------------------------------------
-                //
-                // Prevent the normal Laravel submission
-                // and save the ticket locally instead.
-                //
+                // -------------------------------------------------
 
                 event.preventDefault();
 
@@ -1371,37 +1598,49 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 try {
-                    // -----------------------------------
-                    // SAVE LOCALLY
-                    // -----------------------------------
-
                     await saveTicketOffline();
 
-                    // -----------------------------------
-                    // UPDATE STATUS
-                    // -----------------------------------
-
                     await updatePendingSyncCount();
-
-                    // -----------------------------------
-                    // INFORM USER
-                    // -----------------------------------
 
                     if (offlinePendingMessage) {
                         const tickets =
                             await getPendingTickets();
 
-                        const count = tickets.length;
+                        const count =
+                            tickets.length;
 
                         offlinePendingMessage.innerText =
                             `You are offline. Your ticket has been saved on this device. ${count} ticket${
-                                count === 1 ? "" : "s"
+                                count === 1
+                                    ? ""
+                                    : "s"
                             } waiting to sync.`;
                     }
 
                     console.log(
                         "Ticket saved successfully for offline synchronization."
                     );
+
+                    // -------------------------------------------------
+                    // Clear the form only AFTER successful offline save.
+                    // -------------------------------------------------
+
+                    form.reset();
+
+                    // Re-apply required fields after reset.
+                    setupRequiredFields();
+
+                    // Re-apply the hidden state of the primary
+                    // "Other" field.
+                    if (otherViolationContainer) {
+                        otherViolationContainer.classList.add(
+                            "hidden"
+                        );
+                    }
+
+                    if (otherViolationInput) {
+                        otherViolationInput.required = false;
+                    }
                 } catch (error) {
                     console.error(
                         "Offline ticket save error:",
@@ -1421,23 +1660,33 @@ document.addEventListener("DOMContentLoaded", function () {
     // CONNECTION RESTORED
     // ===================================================
 
-    window.addEventListener("online", function () {
-        console.log("Internet connection restored.");
+    window.addEventListener(
+        "online",
+        function () {
+            console.log(
+                "Internet connection restored."
+            );
 
-        setTimeout(function () {
-            syncPendingTickets();
-        }, 1500);
-    });
+            setTimeout(function () {
+                syncPendingTickets();
+            }, 1500);
+        }
+    );
 
     // ===================================================
     // CONNECTION LOST
     // ===================================================
 
-    window.addEventListener("offline", function () {
-        console.log("Internet connection lost.");
+    window.addEventListener(
+        "offline",
+        function () {
+            console.log(
+                "Internet connection lost."
+            );
 
-        updatePendingSyncCount();
-    });
+            updatePendingSyncCount();
+        }
+    );
 
     // ===================================================
     // INITIALIZE OFFLINE SYNC
@@ -1449,12 +1698,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // GPS ELEMENTS
     // ===================================================
 
-    const locationInput = getElement("location");
-    const latitudeInput = getElement("latitude");
-    const longitudeInput = getElement("longitude");
-    const gpsBadge = getElement("gpsStatusBadge");
-    const gpsCoordinates = getElement("gpsCoordinates");
-    const locationIcon = getElement("locationIcon");
+    const locationInput =
+        getElement("location");
+
+    const latitudeInput =
+        getElement("latitude");
+
+    const longitudeInput =
+        getElement("longitude");
+
+    const gpsBadge =
+        getElement("gpsStatusBadge");
+
+    const gpsCoordinates =
+        getElement("gpsCoordinates");
+
+    const locationIcon =
+        getElement("locationIcon");
 
     // ===================================================
     // CHECK GPS SUPPORT
@@ -1481,7 +1741,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (locationInput) {
             locationInput.value =
-                "GPS is not supported on this device";
+                "Location services are not available on this device";
         }
 
         if (locationIcon) {
@@ -1497,248 +1757,85 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (gpsBadge) {
         gpsBadge.innerText = "Detecting";
+
+        gpsBadge.classList.remove(
+            "bg-blue-50",
+            "bg-green-50",
+            "bg-red-50",
+            "text-blue-700",
+            "text-green-700",
+            "text-red-700"
+        );
+
+        gpsBadge.classList.add(
+            "bg-yellow-50",
+            "text-yellow-700"
+        );
     }
 
     if (locationInput) {
         locationInput.value =
-            "Detecting current location...";
+            "Getting accurate GPS location...";
     }
 
     if (locationIcon) {
         locationIcon.innerText = "⏳";
     }
 
+    if (gpsCoordinates) {
+        gpsCoordinates.classList.remove(
+            "hidden"
+        );
+
+        gpsCoordinates.innerHTML = `
+            <p class="text-xs text-blue-700">
+                ⏳ Searching for the most accurate GPS reading...
+            </p>
+            <p class="text-[11px] text-blue-500 mt-1">
+                Please keep the device outdoors or near a clear view of the sky.
+            </p>
+        `;
+    }
+
     // ===================================================
-    // GET HIGH-ACCURACY GPS
+    // HIGH-ACCURACY GPS SETTINGS
     // ===================================================
 
-    navigator.geolocation.getCurrentPosition(
-        // =================================================
-        // GPS SUCCESS
-        // =================================================
+    const TARGET_ACCURACY = 10;
+    const MAX_GPS_TIME = 20000;
 
-        function (position) {
-            const latitude = position.coords.latitude;
-            const longitude = position.coords.longitude;
-            const accuracy = position.coords.accuracy;
+    let bestPosition = null;
+    let bestAccuracy = Infinity;
+    let gpsWatchId = null;
+    let gpsFinished = false;
 
-            // =================================================
-            // GPS DEBUG
-            // =================================================
+    // ===================================================
+    // FINISH GPS CAPTURE
+    // ===================================================
 
-            console.log("GPS Latitude:", latitude);
-            console.log("GPS Longitude:", longitude);
-            console.log(
-                "GPS Accuracy:",
-                accuracy,
-                "meters"
+    function finishGPS(position) {
+        if (gpsFinished) {
+            return;
+        }
+
+        gpsFinished = true;
+
+        if (gpsWatchId !== null) {
+            navigator.geolocation.clearWatch(
+                gpsWatchId
             );
 
-            // =================================================
-            // SAVE COORDINATES
-            // =================================================
+            gpsWatchId = null;
+        }
 
-            latitudeInput.value = latitude;
-            longitudeInput.value = longitude;
+        // -------------------------------------------------
+        // NO GPS POSITION
+        // -------------------------------------------------
 
-            // =================================================
-            // GPS BADGE
-            // =================================================
-
+        if (!position) {
             if (gpsBadge) {
                 gpsBadge.innerText =
-                    `Captured ±${Math.round(accuracy)}m`;
-
-                gpsBadge.classList.remove(
-                    "bg-yellow-50",
-                    "text-yellow-700",
-                    "bg-red-50",
-                    "text-red-700"
-                );
-
-                gpsBadge.classList.add(
-                    "bg-green-50",
-                    "text-green-700"
-                );
-            }
-
-            // =================================================
-            // GPS COORDINATE INFORMATION
-            // =================================================
-
-            if (gpsCoordinates) {
-                gpsCoordinates.classList.remove(
-                    "hidden"
-                );
-
-                gpsCoordinates.innerHTML = `
-                    <p class="text-xs text-blue-700">
-                        ✓ GPS coordinates captured successfully.
-                    </p>
-                    <p class="text-[11px] text-blue-500 mt-1">
-                        Accuracy: approximately ${Math.round(
-                            accuracy
-                        )} meters
-                    </p>
-                `;
-            }
-
-            // =================================================
-            // PREPARE ADDRESS DETECTION
-            // =================================================
-
-            if (locationInput) {
-                locationInput.value =
-                    "Detecting address...";
-            }
-
-            if (locationIcon) {
-                locationIcon.innerText = "⏳";
-            }
-
-            // =================================================
-            // REVERSE GEOCODING
-            // =================================================
-
-            const reverseGeocodeUrl =
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`;
-
-            fetch(reverseGeocodeUrl, {
-                headers: {
-                    "Accept-Language": "en",
-                },
-            })
-                .then(function (response) {
-                    if (!response.ok) {
-                        throw new Error(
-                            `HTTP ${response.status}`
-                        );
-                    }
-
-                    return response.json();
-                })
-                .then(function (data) {
-                    if (data && data.address) {
-                        const address = data.address;
-
-                        // =================================================
-                        // ADDRESS COMPONENTS
-                        // =================================================
-
-                        const road =
-                            address.road ||
-                            address.pedestrian ||
-                            address.highway ||
-                            "";
-
-                        const barangay =
-                            address.suburb ||
-                            address.village ||
-                            address.quarter ||
-                            address.neighbourhood ||
-                            "";
-
-                        const city =
-                            address.city ||
-                            address.town ||
-                            address.municipality ||
-                            "";
-
-                        const province =
-                            address.state || "";
-
-                        // =================================================
-                        // FORMAT ADDRESS
-                        // =================================================
-
-                        const formattedAddress = [
-                            road,
-                            barangay,
-                            city,
-                            province,
-                        ]
-                            .filter(Boolean)
-                            .join(", ");
-
-                        if (locationInput) {
-                            locationInput.value =
-                                formattedAddress ||
-                                "Address unavailable";
-                        }
-
-                        if (locationIcon) {
-                            locationIcon.innerText = "✓";
-                        }
-
-                        // =================================================
-                        // DEBUG ADDRESS DATA
-                        // =================================================
-
-                        console.log(
-                            "GPS Address:",
-                            data.display_name
-                        );
-
-                        console.log(
-                            "Road:",
-                            road
-                        );
-
-                        console.log(
-                            "Barangay:",
-                            barangay
-                        );
-
-                        console.log(
-                            "City/Municipality:",
-                            city
-                        );
-
-                        console.log(
-                            "Province:",
-                            province
-                        );
-                    } else {
-                        if (locationInput) {
-                            locationInput.value =
-                                "Address unavailable";
-                        }
-
-                        if (locationIcon) {
-                            locationIcon.innerText = "⚠️";
-                        }
-                    }
-                })
-                .catch(function (error) {
-                    console.error(
-                        "Reverse geocoding error:",
-                        error
-                    );
-
-                    if (locationInput) {
-                        locationInput.value =
-                            "Unable to get address";
-                    }
-
-                    if (locationIcon) {
-                        locationIcon.innerText = "⚠️";
-                    }
-                });
-        },
-
-        // =================================================
-        // GPS ERROR
-        // =================================================
-
-        function (error) {
-            console.error(
-                "GPS Error:",
-                error.code,
-                error.message
-            );
-
-            if (gpsBadge) {
-                gpsBadge.innerText = "Unavailable";
+                    "Unavailable";
 
                 gpsBadge.classList.remove(
                     "bg-yellow-50",
@@ -1759,16 +1856,490 @@ document.addEventListener("DOMContentLoaded", function () {
             if (locationIcon) {
                 locationIcon.innerText = "⚠️";
             }
-        },
 
-        // =================================================
-        // GPS OPTIONS
-        // =================================================
+            if (gpsCoordinates) {
+                gpsCoordinates.innerHTML = `
+                    <p class="text-xs text-red-700">
+                        ⚠️ Unable to obtain GPS coordinates.
+                    </p>
+                    <p class="text-[11px] text-red-500 mt-1">
+                        Check that Location Services and browser location permission are enabled.
+                    </p>
+                `;
+            }
 
-        {
-            enableHighAccuracy: true,
-            timeout: 15000,
-            maximumAge: 0,
+            return;
         }
-    );
+
+        // =================================================
+        // FINAL GPS VALUES
+        // =================================================
+
+        const latitude =
+            position.coords.latitude;
+
+        const longitude =
+            position.coords.longitude;
+
+        const accuracy =
+            position.coords.accuracy;
+
+        console.log(
+            "================================="
+        );
+
+        console.log(
+            "FINAL GPS LOCATION"
+        );
+
+        console.log(
+            "Latitude:",
+            latitude
+        );
+
+        console.log(
+            "Longitude:",
+            longitude
+        );
+
+        console.log(
+            "Accuracy:",
+            accuracy,
+            "meters"
+        );
+
+        console.log(
+            "================================="
+        );
+
+        // =================================================
+        // SAVE COORDINATES TO FORM
+        // =================================================
+
+        latitudeInput.value = latitude;
+        longitudeInput.value = longitude;
+
+        // =================================================
+        // GPS SUCCESS STATUS
+        // =================================================
+
+        if (gpsBadge) {
+            gpsBadge.innerText =
+                `Captured ±${Math.round(accuracy)}m`;
+
+            gpsBadge.classList.remove(
+                "bg-yellow-50",
+                "text-yellow-700",
+                "bg-red-50",
+                "text-red-700"
+            );
+
+            gpsBadge.classList.add(
+                "bg-green-50",
+                "text-green-700"
+            );
+        }
+
+        if (gpsCoordinates) {
+            gpsCoordinates.classList.remove(
+                "hidden"
+            );
+
+            gpsCoordinates.innerHTML = `
+                <p class="text-xs text-blue-700">
+                    ✓ GPS coordinates captured successfully.
+                </p>
+                <p class="text-[11px] text-blue-500 mt-1">
+                    Accuracy: approximately ${Math.round(accuracy)} meters
+                </p>
+            `;
+        }
+
+        // =================================================
+        // START REVERSE GEOCODING
+        // =================================================
+
+        if (locationInput) {
+            locationInput.value =
+                "Detecting address...";
+        }
+
+        if (locationIcon) {
+            locationIcon.innerText = "⏳";
+        }
+
+        const reverseGeocodeUrl =
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(
+                latitude
+            )}&lon=${encodeURIComponent(
+                longitude
+            )}&zoom=18&addressdetails=1`;
+
+        fetch(reverseGeocodeUrl, {
+            headers: {
+                "Accept-Language": "en",
+            },
+        })
+            .then(function (response) {
+                if (!response.ok) {
+                    throw new Error(
+                        `HTTP ${response.status}`
+                    );
+                }
+
+                return response.json();
+            })
+            .then(function (data) {
+                if (
+                    data &&
+                    data.address
+                ) {
+                    const address =
+                        data.address;
+
+                    const road =
+                        address.road ||
+                        address.pedestrian ||
+                        address.highway ||
+                        "";
+
+                    const barangay =
+                        address.suburb ||
+                        address.village ||
+                        address.quarter ||
+                        address.neighbourhood ||
+                        "";
+
+                    const city =
+                        address.city ||
+                        address.town ||
+                        address.municipality ||
+                        "";
+
+                    const province =
+                        address.state ||
+                        "";
+
+                    const formattedAddress = [
+                        road,
+                        barangay,
+                        city,
+                        province,
+                    ]
+                        .filter(Boolean)
+                        .join(", ");
+
+                    if (locationInput) {
+                        locationInput.value =
+                            formattedAddress ||
+                            "Address unavailable";
+                    }
+
+                    if (locationIcon) {
+                        locationIcon.innerText = "✓";
+                    }
+
+                    console.log(
+                        "GPS Address:",
+                        data.display_name
+                    );
+
+                    console.log(
+                        "Road:",
+                        road
+                    );
+
+                    console.log(
+                        "Barangay:",
+                        barangay
+                    );
+
+                    console.log(
+                        "City/Municipality:",
+                        city
+                    );
+
+                    console.log(
+                        "Province:",
+                        province
+                    );
+                } else {
+                    if (locationInput) {
+                        locationInput.value =
+                            "Address unavailable";
+                    }
+
+                    if (locationIcon) {
+                        locationIcon.innerText =
+                            "⚠️";
+                    }
+                }
+            })
+            .catch(function (error) {
+                console.error(
+                    "Reverse geocoding error:",
+                    error
+                );
+
+                if (locationInput) {
+                    locationInput.value =
+                        "Unable to get address";
+                }
+
+                if (locationIcon) {
+                    locationIcon.innerText =
+                        "⚠️";
+                }
+            });
+    }
+
+    // ===================================================
+    // GPS ERROR HANDLER
+    // ===================================================
+
+    function handleGPSError(error) {
+        console.error(
+            "GPS Error:",
+            error.code,
+            error.message
+        );
+
+        if (gpsFinished) {
+            return;
+        }
+
+        // -------------------------------------------------
+        // IF WE ALREADY HAVE A READING, KEEP IT
+        // -------------------------------------------------
+
+        if (bestPosition) {
+            finishGPS(bestPosition);
+            return;
+        }
+
+        // -------------------------------------------------
+        // PERMISSION DENIED
+        // -------------------------------------------------
+
+        if (error.code === 1) {
+            finishGPS(null);
+
+            if (gpsCoordinates) {
+                gpsCoordinates.innerHTML = `
+                    <p class="text-xs text-red-700">
+                        ⚠️ Location permission was denied.
+                    </p>
+                    <p class="text-[11px] text-red-500 mt-1">
+                        Please allow location access in the browser and try again.
+                    </p>
+                `;
+            }
+
+            if (locationInput) {
+                locationInput.value =
+                    "Location permission denied";
+            }
+
+            return;
+        }
+
+        // -------------------------------------------------
+        // POSITION UNAVAILABLE
+        // -------------------------------------------------
+
+        if (error.code === 2) {
+            finishGPS(null);
+
+            if (gpsCoordinates) {
+                gpsCoordinates.innerHTML = `
+                    <p class="text-xs text-red-700">
+                        ⚠️ GPS signal is unavailable.
+                    </p>
+                    <p class="text-[11px] text-red-500 mt-1">
+                        Try moving outdoors or to an area with a clearer view of the sky.
+                    </p>
+                `;
+            }
+
+            if (locationInput) {
+                locationInput.value =
+                    "GPS signal unavailable";
+            }
+
+            return;
+        }
+
+        // -------------------------------------------------
+        // TIMEOUT
+        // -------------------------------------------------
+
+        if (error.code === 3) {
+            console.log(
+                "GPS reading timed out. Waiting for the maximum GPS capture period."
+            );
+
+            if (gpsBadge) {
+                gpsBadge.innerText =
+                    "Searching";
+            }
+
+            if (gpsCoordinates) {
+                gpsCoordinates.classList.remove(
+                    "hidden"
+                );
+
+                gpsCoordinates.innerHTML = `
+                    <p class="text-xs text-blue-700">
+                        ⏳ GPS is still being checked...
+                    </p>
+                    <p class="text-[11px] text-blue-500 mt-1">
+                        Waiting for the best available location reading.
+                    </p>
+                `;
+            }
+
+            return;
+        }
+
+        // -------------------------------------------------
+        // UNKNOWN ERROR
+        // -------------------------------------------------
+
+        finishGPS(null);
+    }
+
+    // ===================================================
+    // START HIGH-ACCURACY GPS WATCH
+    // ===================================================
+
+    gpsWatchId =
+        navigator.geolocation.watchPosition(
+            function (position) {
+                if (gpsFinished) {
+                    return;
+                }
+
+                const accuracy =
+                    position.coords.accuracy;
+
+                console.log(
+                    "GPS Reading:",
+                    position.coords.latitude,
+                    position.coords.longitude,
+                    "Accuracy:",
+                    accuracy,
+                    "meters"
+                );
+
+                // -------------------------------------------------
+                // KEEP THE MOST ACCURATE READING
+                // -------------------------------------------------
+
+                if (
+                    !bestPosition ||
+                    accuracy < bestAccuracy
+                ) {
+                    bestPosition = position;
+                    bestAccuracy = accuracy;
+
+                    console.log(
+                        "New best GPS accuracy:",
+                        bestAccuracy,
+                        "meters"
+                    );
+
+                    if (gpsBadge) {
+                        gpsBadge.innerText =
+                            `Improving ±${Math.round(
+                                accuracy
+                            )}m`;
+
+                        gpsBadge.classList.remove(
+                            "bg-green-50",
+                            "text-green-700",
+                            "bg-red-50",
+                            "text-red-700"
+                        );
+
+                        gpsBadge.classList.add(
+                            "bg-yellow-50",
+                            "text-yellow-700"
+                        );
+                    }
+
+                    if (gpsCoordinates) {
+                        gpsCoordinates.classList.remove(
+                            "hidden"
+                        );
+
+                        gpsCoordinates.innerHTML = `
+                            <p class="text-xs text-blue-700">
+                                ⏳ Improving GPS accuracy...
+                            </p>
+                            <p class="text-[11px] text-blue-500 mt-1">
+                                Current accuracy: approximately ${Math.round(
+                                    accuracy
+                                )} meters
+                            </p>
+                        `;
+                    }
+                }
+
+                // -------------------------------------------------
+                // STOP ONCE TARGET ACCURACY IS REACHED
+                // -------------------------------------------------
+
+                if (
+                    accuracy <= TARGET_ACCURACY
+                ) {
+                    console.log(
+                        "Target GPS accuracy reached:",
+                        accuracy,
+                        "meters"
+                    );
+
+                    finishGPS(bestPosition);
+                }
+            },
+
+            function (error) {
+                handleGPSError(error);
+            },
+
+            {
+                enableHighAccuracy: true,
+                timeout: MAX_GPS_TIME,
+                maximumAge: 0,
+            }
+        );
+
+    // ===================================================
+    // GPS MAXIMUM WAIT TIMER
+    // ===================================================
+
+    setTimeout(function () {
+        if (gpsFinished) {
+            return;
+        }
+
+        console.log(
+            "GPS maximum wait time reached."
+        );
+
+        if (bestPosition) {
+            console.log(
+                "Using best available GPS accuracy:",
+                bestAccuracy,
+                "meters"
+            );
+
+            finishGPS(bestPosition);
+        } else {
+            console.log(
+                "No GPS reading was obtained."
+            );
+
+            finishGPS(null);
+        }
+    }, MAX_GPS_TIME);
 });

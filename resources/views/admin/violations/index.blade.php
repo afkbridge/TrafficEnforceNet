@@ -17,7 +17,13 @@
                     Monitor and review recorded traffic violations.
                 </p>
             </div>
-            <div>
+
+            <div class="d-flex gap-2">
+                <a href="{{ route('admin.violations.create') }}" class="btn btn-primary">
+                    <i class="fa-solid fa-plus me-1"></i>
+                    Add Citation
+                </a>
+
                 <a href="{{ route('admin.violations.export', [
                     'search' => request('search'),
                     'status' => request('status'),

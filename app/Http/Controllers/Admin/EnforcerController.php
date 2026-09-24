@@ -107,7 +107,6 @@ class EnforcerController extends Controller
         ));
     }
 
-
     /**
      * Show the form for creating a new enforcer.
      */
@@ -115,7 +114,6 @@ class EnforcerController extends Controller
     {
         return view('admin.enforcers.create');
     }
-
 
     /**
      * Store a newly created enforcer and user account.
@@ -126,7 +124,16 @@ class EnforcerController extends Controller
             'badge_number' => 'required|unique:enforcers,badge_number',
             'first_name' => 'required',
             'last_name' => 'required',
-            'position' => 'required',
+
+            // POSO positions
+            'position' => [
+                'required',
+                Rule::in([
+                    'Traffic Enforcer',
+                    'Traffic Aide',
+                ]),
+            ],
+
             'employment_status' => 'required',
 
             'username' => [
@@ -142,6 +149,8 @@ class EnforcerController extends Controller
                 'confirmed'
             ],
 
+            // Kept temporarily for database compatibility.
+            // Email is no longer collected from the UI.
             'email' => [
                 'nullable',
                 'email',
@@ -189,7 +198,6 @@ class EnforcerController extends Controller
             ->route('enforcers.index')
             ->with('success', 'Enforcer and account created successfully.');
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -262,7 +270,6 @@ class EnforcerController extends Controller
             );
     }
 
-
     /**
      * Reset password for an Administrator or BPLO account.
      */
@@ -299,7 +306,6 @@ class EnforcerController extends Controller
         );
     }
 
-
     /**
      * Disable or enable an Administrator or BPLO account.
      */
@@ -328,10 +334,9 @@ class EnforcerController extends Controller
 
         return back()->with(
             'success',
-            $user->name . '\'s account is now ' . $newStatus . '.'
+            $user->name . "'s account is now " . $newStatus . '.'
         );
     }
-
 
     /**
      * Delete an Administrator or BPLO account.
@@ -370,10 +375,9 @@ class EnforcerController extends Controller
 
         return back()->with(
             'success',
-            $name . '\'s account was deleted successfully.'
+            $name . "'s account was deleted successfully."
         );
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -389,7 +393,6 @@ class EnforcerController extends Controller
         return view('admin.enforcers.edit', compact('enforcer'));
     }
 
-
     /**
      * Show the enforcer account information.
      */
@@ -403,7 +406,6 @@ class EnforcerController extends Controller
         );
     }
 
-
     /**
      * Update an enforcer and their linked user account.
      */
@@ -416,8 +418,18 @@ class EnforcerController extends Controller
             ],
 
             'first_name' => 'required',
+
             'last_name' => 'required',
-            'position' => 'required',
+
+            // POSO positions
+            'position' => [
+                'required',
+                Rule::in([
+                    'Traffic Enforcer',
+                    'Traffic Aide',
+                ]),
+            ],
+
             'employment_status' => 'required',
 
             'username' => [
@@ -429,6 +441,7 @@ class EnforcerController extends Controller
                 ),
             ],
 
+            // Kept temporarily for database compatibility.
             'email' => 'nullable|email|max:255',
         ]);
 
@@ -470,7 +483,6 @@ class EnforcerController extends Controller
             );
     }
 
-
     /**
      * Delete an enforcer and their linked user account.
      */
@@ -504,7 +516,6 @@ class EnforcerController extends Controller
                 'Enforcer deleted successfully.'
             );
     }
-
 
     /**
      * Reset the password of an enforcer's account.

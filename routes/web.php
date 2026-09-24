@@ -49,7 +49,6 @@ Route::get('/', function (Request $request) {
     }
 
     return view('landing', compact('violation'));
-
 })->name('landing');
 
 
@@ -184,7 +183,6 @@ Route::get('/dashboard', function () {
     }
 
     return redirect('/');
-
 })->middleware('auth')->name('dashboard');
 
 
@@ -232,6 +230,13 @@ Route::middleware('auth')->group(function () {
     )->name('admin.violations.export');
 
     Route::resource('violations', ViolationController::class);
+
+    Route::get('/violations/create', [ViolationController::class, 'create'])
+        ->name('admin.violations.create');
+
+    Route::post('/violations', [ViolationController::class, 'store'])
+        ->name('admin.violations.store');
+
 
 
     /*
@@ -458,9 +463,7 @@ Route::middleware('auth')->group(function () {
             return response()->json([
                 'success' => true,
             ]);
-
         })->name('enforcer.heartbeat');
-
     });
 
 
@@ -475,7 +478,6 @@ Route::middleware('auth')->group(function () {
         return view('enforcer.profile', [
             'user' => auth()->user()
         ]);
-
     })->middleware([
         'auth',
         'role:POSO Enforcer',
@@ -499,7 +501,6 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
-
 });
 
 

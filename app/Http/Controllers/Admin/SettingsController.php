@@ -15,11 +15,12 @@ class SettingsController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => [
+
+            'username' => [
                 'required',
-                'email',
+                'string',
                 'max:255',
-                Rule::unique('users', 'email')->ignore($user->id),
+                Rule::unique('users', 'username')->ignore($user->id),
             ],
         ]);
 

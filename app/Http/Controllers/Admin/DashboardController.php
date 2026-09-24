@@ -76,7 +76,6 @@ class DashboardController extends Controller
         $monthlyViolations = [];
 
         for ($month = 1; $month <= 12; $month++) {
-
             $monthlyViolations[] = Violation::whereMonth(
                 'violation_date',
                 $month
@@ -103,13 +102,10 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-
         $violationLabels = $topViolations->map(function ($item) {
-
             return $item->violationType->name
                 ?? 'Unknown';
         })->values();
-
 
         $violationCounts = $topViolations
             ->pluck('total')
@@ -118,19 +114,9 @@ class DashboardController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | PEAK VIOLATION HOURS
+        | PEAK VIOLATION PERIODS
         |--------------------------------------------------------------------------
-        |
-        | Uses created_at because this contains the time the record
-        | was actually entered into the system.
-        |
         */
-
-        /*
-|--------------------------------------------------------------------------
-| PEAK VIOLATION PERIODS
-|--------------------------------------------------------------------------
-*/
 
         $peakPeriods = [
             '6 AM - 9 AM' => [6, 9],
@@ -145,7 +131,6 @@ class DashboardController extends Controller
         $peakPeriodCounts = [];
 
         foreach ($peakPeriods as $label => $hours) {
-
             $count = Violation::whereMonth(
                 'created_at',
                 now()->month
@@ -167,14 +152,19 @@ class DashboardController extends Controller
             $peakPeriodLabels[] = $label;
             $peakPeriodCounts[] = $count;
         }
+
+
         /*
-|--------------------------------------------------------------------------
-| PEAK VIOLATION PERIOD INSIGHT
-|--------------------------------------------------------------------------
-*/
+        |--------------------------------------------------------------------------
+        | PEAK VIOLATION PERIOD INSIGHT
+        |--------------------------------------------------------------------------
+        */
 
         $peakPeriodIndex = !empty($peakPeriodCounts)
-            ? array_keys($peakPeriodCounts, max($peakPeriodCounts))[0]
+            ? array_keys(
+                $peakPeriodCounts,
+                max($peakPeriodCounts)
+            )[0]
             : null;
 
         $peakPeriodName = $peakPeriodIndex !== null
@@ -184,6 +174,7 @@ class DashboardController extends Controller
         $peakPeriodCount = $peakPeriodIndex !== null
             ? $peakPeriodCounts[$peakPeriodIndex]
             : 0;
+
 
         /*
         |--------------------------------------------------------------------------
@@ -199,21 +190,17 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-
         $enforcerLabels = $enforcerActivity->map(function ($item) {
-
             if ($item->user) {
-
                 return trim(
                     ($item->user->first_name ?? '') .
-                        ' ' .
-                        ($item->user->last_name ?? '')
-                ) ?: $item->user->name ?? 'Unknown';
+                    ' ' .
+                    ($item->user->last_name ?? '')
+                ) ?: ($item->user->name ?? 'Unknown');
             }
 
             return 'Unknown';
         })->values();
-
 
         $enforcerCounts = $enforcerActivity
             ->pluck('total')
@@ -221,13 +208,13 @@ class DashboardController extends Controller
 
 
         /*
-|--------------------------------------------------------------------------
-| VIOLATION HOTSPOT DATA
-|--------------------------------------------------------------------------
-|
-| Groups nearby violation records into hotspot areas.
-|
-*/
+        |--------------------------------------------------------------------------
+        | VIOLATION HOTSPOT DATA
+        |--------------------------------------------------------------------------
+        |
+        | Groups nearby violation records into hotspot areas.
+        |
+        */
 
         $violationLocations = Violation::with('violationType')
             ->select(
@@ -243,19 +230,18 @@ class DashboardController extends Controller
         $hotspotGroups = [];
 
         foreach ($violationLocations as $violation) {
-
             $latitude = (float) $violation->latitude;
             $longitude = (float) $violation->longitude;
 
             /*
-    |--------------------------------------------------------------------------
-    | GROUP NEARBY LOCATIONS
-    |--------------------------------------------------------------------------
-    |
-    | Rounding to 3 decimal places groups locations roughly within
-    | around 100 meters of each other.
-    |
-    */
+            |--------------------------------------------------------------------------
+            | GROUP NEARBY LOCATIONS
+            |--------------------------------------------------------------------------
+            |
+            | Rounding to 3 decimal places groups locations roughly
+            | within around 100 meters of each other.
+            |
+            */
 
             $gridLatitude = round($latitude, 3);
             $gridLongitude = round($longitude, 3);
@@ -263,32 +249,23 @@ class DashboardController extends Controller
             $groupKey = $gridLatitude . ',' . $gridLongitude;
 
             if (!isset($hotspotGroups[$groupKey])) {
-
                 $hotspotGroups[$groupKey] = [
-
                     'latitude' => 0,
-
                     'longitude' => 0,
-
                     'violations' => 0,
-
                     'violation_types' => []
-
                 ];
             }
 
             $hotspotGroups[$groupKey]['latitude'] += $latitude;
-
             $hotspotGroups[$groupKey]['longitude'] += $longitude;
-
             $hotspotGroups[$groupKey]['violations']++;
 
-
             /*
-    |--------------------------------------------------------------------------
-    | COUNT VIOLATION TYPES
-    |--------------------------------------------------------------------------
-    */
+            |--------------------------------------------------------------------------
+            | COUNT VIOLATION TYPES
+            |--------------------------------------------------------------------------
+            */
 
             $violationTypeName =
                 $violation->violationType?->name
@@ -299,7 +276,6 @@ class DashboardController extends Controller
                     $hotspotGroups[$groupKey]['violation_types'][$violationTypeName]
                 )
             ) {
-
                 $hotspotGroups[$groupKey]['violation_types'][$violationTypeName] = 0;
             }
 
@@ -308,44 +284,39 @@ class DashboardController extends Controller
 
 
         /*
-|--------------------------------------------------------------------------
-| PREPARE HOTSPOT DATA FOR MAP
-|--------------------------------------------------------------------------
-*/
-
-        $hotspots = collect($hotspotGroups)
-            ->map(function ($group) {
-
-                $count = $group['violations'];
-
-                /*
         |--------------------------------------------------------------------------
-        | DETERMINE HOTSPOT LEVEL
+        | PREPARE HOTSPOT DATA FOR MAP
         |--------------------------------------------------------------------------
         */
 
-                if ($count >= 8) {
+        $hotspots = collect($hotspotGroups)
+            ->map(function ($group) {
+                $count = $group['violations'];
 
+                /*
+                |--------------------------------------------------------------------------
+                | DETERMINE HOTSPOT LEVEL
+                |--------------------------------------------------------------------------
+                */
+
+                if ($count >= 8) {
                     $level = 'high';
                 } elseif ($count >= 4) {
-
                     $level = 'moderate';
                 } else {
-
                     $level = 'low';
                 }
 
 
                 /*
-        |--------------------------------------------------------------------------
-        | FIND MOST COMMON VIOLATION
-        |--------------------------------------------------------------------------
-        */
+                |--------------------------------------------------------------------------
+                | FIND MOST COMMON VIOLATION
+                |--------------------------------------------------------------------------
+                */
 
                 $mostCommonViolation = 'Unknown';
 
                 if (!empty($group['violation_types'])) {
-
                     arsort($group['violation_types']);
 
                     $mostCommonViolation =
@@ -354,27 +325,52 @@ class DashboardController extends Controller
                         );
                 }
 
-
                 return [
-
                     'latitude' =>
-                    $group['latitude'] / $count,
+                        $group['latitude'] / $count,
 
                     'longitude' =>
-                    $group['longitude'] / $count,
+                        $group['longitude'] / $count,
 
                     'violation_count' =>
-                    $count,
+                        $count,
 
                     'level' =>
-                    $level,
+                        $level,
 
                     'most_common_violation' =>
-                    $mostCommonViolation
-
+                        $mostCommonViolation
                 ];
             })
             ->values();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | VIOLATIONS BY LOCATION
+        |--------------------------------------------------------------------------
+        |
+        | Groups violation records using the location field.
+        | The top 10 locations are displayed in the dashboard chart.
+        |
+        */
+
+        $locationViolations = Violation::selectRaw(
+            "COALESCE(NULLIF(TRIM(location), ''), 'Location Not Specified') as location_name, COUNT(*) as total"
+        )
+            ->groupBy('location_name')
+            ->orderByDesc('total')
+            ->limit(10)
+            ->get();
+
+        $locationLabels = $locationViolations
+            ->pluck('location_name')
+            ->values();
+
+        $locationCounts = $locationViolations
+            ->pluck('total')
+            ->values();
+
 
         /*
         |--------------------------------------------------------------------------
@@ -398,13 +394,11 @@ class DashboardController extends Controller
         */
 
         if ($lastMonthViolations > 0) {
-
             $monthlyChange = (
                 ($thisMonthViolations - $lastMonthViolations)
                 / $lastMonthViolations
             ) * 100;
         } else {
-
             $monthlyChange = $thisMonthViolations > 0
                 ? 100
                 : 0;
@@ -431,7 +425,6 @@ class DashboardController extends Controller
         */
 
         return view('admin.dashboard.index', compact(
-
             'totalViolations',
             'todayTickets',
             'pendingCases',
@@ -446,7 +439,6 @@ class DashboardController extends Controller
             'violationLabels',
             'violationCounts',
 
-
             'peakPeriodLabels',
             'peakPeriodCounts',
             'peakPeriodName',
@@ -457,11 +449,12 @@ class DashboardController extends Controller
 
             'hotspots',
 
+            'locationLabels',
+            'locationCounts',
+
             'recentViolations',
 
             'mostCommonViolationName'
-
-
         ));
     }
 }
