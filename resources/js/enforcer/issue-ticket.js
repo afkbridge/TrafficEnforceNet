@@ -4,6 +4,8 @@
 // =======================================================
 
 document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
+
     // ===================================================
     // HELPER - GET ELEMENT
     // ===================================================
@@ -28,6 +30,46 @@ document.addEventListener("DOMContentLoaded", function () {
             field.value = String(value).trim();
         }
     }
+
+    // ===================================================
+    // CONNECTION STATUS
+    // ===================================================
+
+    function updateConnectionStatus() {
+        const status = getElement("connectionStatus");
+        const icon = getElement("connectionStatusIcon");
+        const text = getElement("connectionStatusText");
+
+        if (!status || !icon || !text) {
+            return;
+        }
+
+        if (navigator.onLine) {
+            status.className =
+                "bg-green-50 border border-green-200 text-green-700 rounded-2xl px-4 py-3 text-sm font-medium flex items-center gap-2";
+
+            icon.textContent = "●";
+            text.textContent = "Online - Data can be synchronized";
+        } else {
+            status.className =
+                "bg-yellow-50 border border-yellow-200 text-yellow-700 rounded-2xl px-4 py-3 text-sm font-medium flex items-center gap-2";
+
+            icon.textContent = "●";
+            text.textContent =
+                "Offline - Data will be saved for synchronization";
+        }
+    }
+
+    window.addEventListener("online", updateConnectionStatus);
+    window.addEventListener("offline", updateConnectionStatus);
+
+    updateConnectionStatus();
+
+    // ===================================================
+    // FORM
+    // ===================================================
+
+    const form = getElement("issueTicketForm");
 
     // ===================================================
     // DRIVER'S LICENSE OCR STATUS
@@ -80,16 +122,28 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             if (type === "success") {
-                badge.classList.add("bg-green-100", "text-green-700");
+                badge.classList.add(
+                    "bg-green-100",
+                    "text-green-700"
+                );
                 badge.innerText = "Completed";
             } else if (type === "error") {
-                badge.classList.add("bg-red-100", "text-red-700");
+                badge.classList.add(
+                    "bg-red-100",
+                    "text-red-700"
+                );
                 badge.innerText = "Error";
             } else if (type === "loading") {
-                badge.classList.add("bg-yellow-100", "text-yellow-700");
+                badge.classList.add(
+                    "bg-yellow-100",
+                    "text-yellow-700"
+                );
                 badge.innerText = "Processing";
             } else {
-                badge.classList.add("bg-blue-100", "text-blue-700");
+                badge.classList.add(
+                    "bg-blue-100",
+                    "text-blue-700"
+                );
                 badge.innerText = "Ready";
             }
         }
@@ -158,16 +212,28 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             if (type === "success") {
-                badge.classList.add("bg-green-100", "text-green-700");
+                badge.classList.add(
+                    "bg-green-100",
+                    "text-green-700"
+                );
                 badge.innerText = "Completed";
             } else if (type === "error") {
-                badge.classList.add("bg-red-100", "text-red-700");
+                badge.classList.add(
+                    "bg-red-100",
+                    "text-red-700"
+                );
                 badge.innerText = "Error";
             } else if (type === "loading") {
-                badge.classList.add("bg-yellow-100", "text-yellow-700");
+                badge.classList.add(
+                    "bg-yellow-100",
+                    "text-yellow-700"
+                );
                 badge.innerText = "Processing";
             } else {
-                badge.classList.add("bg-blue-100", "text-blue-700");
+                badge.classList.add(
+                    "bg-blue-100",
+                    "text-blue-700"
+                );
                 badge.innerText = "Ready";
             }
         }
@@ -230,10 +296,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const preview = getElement("licensePreview");
-        const container = getElement("licensePreviewContainer");
+        const container = getElement(
+            "licensePreviewContainer"
+        );
 
         if (preview && container) {
-            if (preview.src && preview.src.startsWith("blob:")) {
+            if (
+                preview.src &&
+                preview.src.startsWith("blob:")
+            ) {
                 URL.revokeObjectURL(preview.src);
             }
 
@@ -259,7 +330,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     headers: {
                         "X-CSRF-TOKEN":
                             document
-                                .querySelector('meta[name="csrf-token"]')
+                                .querySelector(
+                                    'meta[name="csrf-token"]'
+                                )
                                 ?.getAttribute("content") || "",
                         Accept: "application/json",
                     },
@@ -271,18 +344,42 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (!response.ok || !data.success) {
                 throw new Error(
-                    data.message || "Driver's license OCR failed."
+                    data.message ||
+                        "Driver's license OCR failed."
                 );
             }
 
             const result = data.data || {};
 
-            setFieldValue("first_name", result.first_name);
-            setFieldValue("middle_name", result.middle_name);
-            setFieldValue("last_name", result.last_name);
-            setFieldValue("license_number", result.license_number);
-            setFieldValue("address", result.address);
-            setFieldValue("birth_date", result.birth_date);
+            setFieldValue(
+                "first_name",
+                result.first_name
+            );
+
+            setFieldValue(
+                "middle_name",
+                result.middle_name
+            );
+
+            setFieldValue(
+                "last_name",
+                result.last_name
+            );
+
+            setFieldValue(
+                "license_number",
+                result.license_number
+            );
+
+            setFieldValue(
+                "address",
+                result.address
+            );
+
+            setFieldValue(
+                "birth_date",
+                result.birth_date
+            );
 
             setDriverOcrStatus(
                 "success",
@@ -291,9 +388,15 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Driver information was extracted successfully."
             );
 
-            console.log("Driver License OCR:", result);
+            console.log(
+                "Driver License OCR:",
+                result
+            );
         } catch (error) {
-            console.error("Driver License OCR Error:", error);
+            console.error(
+                "Driver License OCR Error:",
+                error
+            );
 
             setDriverOcrStatus(
                 "error",
@@ -312,11 +415,17 @@ document.addEventListener("DOMContentLoaded", function () {
         const input = getElement("ticket_image");
 
         if (!input) {
-            console.error("Ticket image input not found.");
+            console.error(
+                "Ticket image input not found."
+            );
             return;
         }
 
-        input.setAttribute("capture", "environment");
+        input.setAttribute(
+            "capture",
+            "environment"
+        );
+
         input.click();
     };
 
@@ -328,7 +437,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const input = getElement("ticket_image");
 
         if (!input) {
-            console.error("Ticket image input not found.");
+            console.error(
+                "Ticket image input not found."
+            );
             return;
         }
 
@@ -348,16 +459,30 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const preview = getElement("ticketPreview");
-        const container = getElement("ticketPreviewContainer");
+        const preview = getElement(
+            "ticketPreview"
+        );
+
+        const container = getElement(
+            "ticketPreviewContainer"
+        );
 
         if (preview && container) {
-            if (preview.src && preview.src.startsWith("blob:")) {
-                URL.revokeObjectURL(preview.src);
+            if (
+                preview.src &&
+                preview.src.startsWith("blob:")
+            ) {
+                URL.revokeObjectURL(
+                    preview.src
+                );
             }
 
-            preview.src = URL.createObjectURL(file);
-            container.classList.remove("hidden");
+            preview.src =
+                URL.createObjectURL(file);
+
+            container.classList.remove(
+                "hidden"
+            );
         }
 
         processCitationTicket(file);
@@ -379,7 +504,11 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         const formData = new FormData();
-        formData.append("ticket_image", file);
+
+        formData.append(
+            "ticket_image",
+            file
+        );
 
         try {
             const response = await fetch(
@@ -390,35 +519,68 @@ document.addEventListener("DOMContentLoaded", function () {
                     headers: {
                         "X-CSRF-TOKEN":
                             document
-                                .querySelector('meta[name="csrf-token"]')
-                                ?.getAttribute("content") || "",
+                                .querySelector(
+                                    'meta[name="csrf-token"]'
+                                )
+                                ?.getAttribute(
+                                    "content"
+                                ) || "",
                         Accept: "application/json",
                     },
                     credentials: "same-origin",
                 }
             );
 
-            const data = await response.json();
+            const data =
+                await response.json();
 
-            if (!response.ok || !data.success) {
+            if (
+                !response.ok ||
+                !data.success
+            ) {
                 throw new Error(
-                    data.message || "Citation ticket OCR failed."
+                    data.message ||
+                        "Citation ticket OCR failed."
                 );
             }
 
-            const result = data.data || {};
+            const result =
+                data.data || {};
 
             setFieldValue(
                 "ticket_number",
                 result.ticket_number
             );
 
-            setFieldValue("first_name", result.first_name);
-            setFieldValue("middle_name", result.middle_name);
-            setFieldValue("last_name", result.last_name);
-            setFieldValue("license_number", result.license_number);
-            setFieldValue("address", result.address);
-            setFieldValue("birth_date", result.birth_date);
+            setFieldValue(
+                "first_name",
+                result.first_name
+            );
+
+            setFieldValue(
+                "middle_name",
+                result.middle_name
+            );
+
+            setFieldValue(
+                "last_name",
+                result.last_name
+            );
+
+            setFieldValue(
+                "license_number",
+                result.license_number
+            );
+
+            setFieldValue(
+                "address",
+                result.address
+            );
+
+            setFieldValue(
+                "birth_date",
+                result.birth_date
+            );
 
             setFieldValue(
                 "plate_number",
@@ -440,8 +602,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 result.owner_name
             );
 
-            // Location intentionally NOT populated by OCR.
-            // Location is controlled by GPS.
+            // Location is intentionally NOT populated
+            // by OCR. Location is controlled by GPS.
 
             handleDetectedViolations(
                 result.violations || []
@@ -454,7 +616,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Ticket information was extracted successfully."
             );
 
-            console.log("Citation Ticket OCR:", result);
+            console.log(
+                "Citation Ticket OCR:",
+                result
+            );
 
             if (data.raw_text) {
                 console.log(
@@ -481,7 +646,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // HANDLE OCR DETECTED VIOLATIONS
     // ===================================================
 
-    function handleDetectedViolations(violations) {
+    function handleDetectedViolations(
+        violations
+    ) {
         if (
             !Array.isArray(violations) ||
             violations.length === 0
@@ -489,96 +656,184 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const select = getElement("violation_type_id");
-        const otherContainer = getElement(
-            "otherViolationContainer"
-        );
-        const otherInput = getElement("other_violation");
-        const remarks = getElement("remarks");
+        const select =
+            getElement(
+                "violation_type_id"
+            );
+
+        const otherContainer =
+            getElement(
+                "otherViolationContainer"
+            );
+
+        const otherInput =
+            getElement(
+                "other_violation"
+            );
+
+        const remarks =
+            getElement("remarks");
 
         if (!select) {
             return;
         }
 
-        const detected = violations
-            .map(function (violation) {
-                return String(violation)
-                    .replace(/\s+/g, " ")
-                    .trim();
-            })
-            .filter(Boolean);
+        const detected =
+            violations
+                .map(function (violation) {
+                    return String(violation)
+                        .replace(
+                            /\s+/g,
+                            " "
+                        )
+                        .trim();
+                })
+                .filter(Boolean);
 
-        if (detected.length === 0) {
+        if (
+            detected.length === 0
+        ) {
             return;
         }
 
-        const options = Array.from(select.options);
-        const matchedOptions = [];
+        const options =
+            Array.from(
+                select.options
+            );
 
-        detected.forEach(function (detectedViolation) {
-            const cleanDetected = detectedViolation
-                .toLowerCase()
-                .replace(/\s+/g, " ")
-                .trim();
+        const matchedOptions =
+            [];
 
-            const match = options.find(function (option) {
-                const optionText = option.textContent
-                    .toLowerCase()
-                    .replace(/\s+/g, " ")
-                    .trim();
+        detected.forEach(
+            function (
+                detectedViolation
+            ) {
+                const cleanDetected =
+                    detectedViolation
+                        .toLowerCase()
+                        .replace(
+                            /\s+/g,
+                            " "
+                        )
+                        .trim();
 
-                return (
-                    optionText.includes(cleanDetected) ||
-                    cleanDetected.includes(optionText)
-                );
-            });
+                const match =
+                    options.find(
+                        function (
+                            option
+                        ) {
+                            const optionText =
+                                option.textContent
+                                    .toLowerCase()
+                                    .replace(
+                                        /\s+/g,
+                                        " "
+                                    )
+                                    .trim();
+
+                            return (
+                                optionText.includes(
+                                    cleanDetected
+                                ) ||
+                                cleanDetected.includes(
+                                    optionText
+                                )
+                            );
+                        }
+                    );
+
+                if (
+                    match &&
+                    match.value !==
+                        "other"
+                ) {
+                    matchedOptions.push(
+                        match
+                    );
+                }
+            }
+        );
+
+        if (
+            matchedOptions.length >
+            0
+        ) {
+            select.value =
+                matchedOptions[0]
+                    .value;
 
             if (
-                match &&
-                match.value !== "other"
+                otherContainer
             ) {
-                matchedOptions.push(match);
-            }
-        });
-
-        if (matchedOptions.length > 0) {
-            select.value = matchedOptions[0].value;
-
-            if (otherContainer) {
-                otherContainer.classList.add("hidden");
+                otherContainer.classList.add(
+                    "hidden"
+                );
             }
 
-            if (otherInput) {
-                otherInput.required = false;
+            if (
+                otherInput
+            ) {
+                otherInput.required =
+                    false;
             }
         } else {
-            const otherOption = options.find(function (option) {
-                return option.value === "other";
-            });
+            const otherOption =
+                options.find(
+                    function (
+                        option
+                    ) {
+                        return (
+                            option.value ===
+                            "other"
+                        );
+                    }
+                );
 
             if (otherOption) {
-                select.value = "other";
+                select.value =
+                    "other";
 
-                if (otherContainer) {
-                    otherContainer.classList.remove("hidden");
+                if (
+                    otherContainer
+                ) {
+                    otherContainer.classList.remove(
+                        "hidden"
+                    );
                 }
 
-                if (otherInput) {
-                    otherInput.value = detected.join("; ");
-                    otherInput.required = true;
+                if (
+                    otherInput
+                ) {
+                    otherInput.value =
+                        detected.join(
+                            "; "
+                        );
+
+                    otherInput.required =
+                        true;
                 }
             }
         }
 
         if (remarks) {
-            const detectedText = detected.join("; ");
-            const existingRemarks = remarks.value.trim();
-            const label = "OCR Detected Violations: ";
+            const detectedText =
+                detected.join("; ");
 
-            if (!existingRemarks.includes(label)) {
-                remarks.value = existingRemarks
-                    ? `${existingRemarks}\n\n${label}${detectedText}`
-                    : `${label}${detectedText}`;
+            const existingRemarks =
+                remarks.value.trim();
+
+            const label =
+                "OCR Detected Violations: ";
+
+            if (
+                !existingRemarks.includes(
+                    label
+                )
+            ) {
+                remarks.value =
+                    existingRemarks
+                        ? `${existingRemarks}\n\n${label}${detectedText}`
+                        : `${label}${detectedText}`;
             }
         }
 
@@ -592,105 +847,139 @@ document.addEventListener("DOMContentLoaded", function () {
     // VIOLATION TYPE - OTHER
     // ===================================================
 
-    const violationSelect = getElement(
-        "violation_type_id"
-    );
+    const violationSelect =
+        getElement(
+            "violation_type_id"
+        );
 
-    const otherViolationContainer = getElement(
-        "otherViolationContainer"
-    );
+    const otherViolationContainer =
+        getElement(
+            "otherViolationContainer"
+        );
 
-    const otherViolationInput = getElement(
-        "other_violation"
-    );
+    const otherViolationInput =
+        getElement(
+            "other_violation"
+        );
 
-    if (
-        violationSelect &&
-        otherViolationContainer
-    ) {
+    function updatePrimaryOtherViolation() {
+        if (
+            !violationSelect ||
+            !otherViolationContainer
+        ) {
+            return;
+        }
+
+        if (
+            violationSelect.value ===
+            "other"
+        ) {
+            otherViolationContainer.classList.remove(
+                "hidden"
+            );
+
+            if (
+                otherViolationInput
+            ) {
+                otherViolationInput.required =
+                    true;
+            }
+        } else {
+            otherViolationContainer.classList.add(
+                "hidden"
+            );
+
+            if (
+                otherViolationInput
+            ) {
+                otherViolationInput.required =
+                    false;
+
+                otherViolationInput.value =
+                    "";
+            }
+        }
+    }
+
+    if (violationSelect) {
         violationSelect.addEventListener(
             "change",
-            function () {
-                if (this.value === "other") {
-                    otherViolationContainer.classList.remove(
-                        "hidden"
-                    );
-
-                    if (otherViolationInput) {
-                        otherViolationInput.required = true;
-                    }
-                } else {
-                    otherViolationContainer.classList.add(
-                        "hidden"
-                    );
-
-                    if (otherViolationInput) {
-                        otherViolationInput.required = false;
-                        otherViolationInput.value = "";
-                    }
-                }
-            }
+            updatePrimaryOtherViolation
         );
     }
 
     // ===================================================
-    // OFFLINE SYNC
+    // OFFLINE SYNC UI
     // ===================================================
 
-    const form = getElement("issueTicketForm");
+    const offlinePendingBox =
+        getElement(
+            "offlinePendingBox"
+        );
 
-    const offlinePendingBox = getElement(
-        "offlinePendingBox"
-    );
+    const offlinePendingTitle =
+        getElement(
+            "offlinePendingTitle"
+        );
 
-    const offlinePendingTitle = getElement(
-        "offlinePendingTitle"
-    );
+    const offlinePendingMessage =
+        getElement(
+            "offlinePendingMessage"
+        );
 
-    const offlinePendingMessage = getElement(
-        "offlinePendingMessage"
-    );
+    const syncNowButton =
+        getElement(
+            "syncNowButton"
+        );
 
-    const syncNowButton = getElement(
-        "syncNowButton"
-    );
+    const offlineSyncingBox =
+        getElement(
+            "offlineSyncingBox"
+        );
 
-    const offlineSyncingBox = getElement(
-        "offlineSyncingBox"
-    );
+    const offlineSyncingMessage =
+        getElement(
+            "offlineSyncingMessage"
+        );
 
-    const offlineSyncingMessage = getElement(
-        "offlineSyncingMessage"
-    );
+    const offlineSuccessBox =
+        getElement(
+            "offlineSuccessBox"
+        );
 
-    const offlineSuccessBox = getElement(
-        "offlineSuccessBox"
-    );
+    const offlineSuccessMessage =
+        getElement(
+            "offlineSuccessMessage"
+        );
 
-    const offlineSuccessMessage = getElement(
-        "offlineSuccessMessage"
-    );
+    const offlineErrorBox =
+        getElement(
+            "offlineErrorBox"
+        );
 
-    const offlineErrorBox = getElement(
-        "offlineErrorBox"
-    );
+    const offlineErrorMessage =
+        getElement(
+            "offlineErrorMessage"
+        );
 
-    const offlineErrorMessage = getElement(
-        "offlineErrorMessage"
-    );
+    // ===================================================
+    // INDEXEDDB SETTINGS
+    // ===================================================
 
     const OFFLINE_DB_NAME =
         "TrafficEnforceNetDB";
 
-    const OFFLINE_DB_VERSION = 1;
+    const OFFLINE_DB_VERSION =
+        1;
 
     const OFFLINE_STORE_NAME =
         "pendingTickets";
 
-    let syncInProgress = false;
+    let syncInProgress =
+        false;
 
     // ===================================================
-    // ENFORCE REQUIRED FIELDS
+    // REQUIRED FIELD RULES
     // ===================================================
 
     function setupRequiredFields() {
@@ -706,95 +995,191 @@ document.addEventListener("DOMContentLoaded", function () {
             "violation_type_id",
         ];
 
-        requiredFieldIds.forEach(function (id) {
-            const field = getElement(id);
+        requiredFieldIds.forEach(
+            function (id) {
+                const field =
+                    getElement(id);
 
-            if (field) {
-                field.required = true;
+                if (field) {
+                    field.required =
+                        true;
+                }
             }
-        });
+        );
 
-        // Every dynamically added additional violation
-        // select must be required.
+        // Primary "Other" violation.
+        updatePrimaryOtherViolation();
+
+        // Every dynamically added additional
+        // violation select is required.
         const additionalViolationSelects =
             form.querySelectorAll(
                 'select[name="additional_violation_type_ids[]"]'
             );
 
-        additionalViolationSelects.forEach(function (select) {
-            select.required = true;
-        });
+        additionalViolationSelects.forEach(
+            function (select) {
+                select.required =
+                    true;
 
-        // Primary "Other" violation.
-        const primaryViolation =
-            getElement("violation_type_id");
+                const row =
+                    select.closest(
+                        ".additional-violation-row"
+                    ) ||
+                    select.parentElement;
 
-        const primaryOther =
-            getElement("other_violation");
+                const additionalOtherInput =
+                    row?.querySelector(
+                        'input[name="additional_other_violation_names[]"]'
+                    );
 
-        if (
-            primaryViolation &&
-            primaryOther
-        ) {
-            primaryOther.required =
-                primaryViolation.value === "other";
-        }
+                if (
+                    additionalOtherInput
+                ) {
+                    additionalOtherInput.required =
+                        select.value ===
+                        "other";
+                }
+            }
+        );
     }
 
     setupRequiredFields();
+
+    // ===================================================
+    // HANDLE DYNAMIC ADDITIONAL VIOLATIONS
+    // ===================================================
+
+    if (form) {
+        form.addEventListener(
+            "change",
+            function (event) {
+                const target =
+                    event.target;
+
+                if (
+                    target.matches(
+                        'select[name="additional_violation_type_ids[]"]'
+                    )
+                ) {
+                    target.required =
+                        true;
+
+                    const row =
+                        target.closest(
+                            ".additional-violation-row"
+                        ) ||
+                        target.parentElement;
+
+                    const additionalOtherInput =
+                        row?.querySelector(
+                            'input[name="additional_other_violation_names[]"]'
+                        );
+
+                    if (
+                        additionalOtherInput
+                    ) {
+                        additionalOtherInput.required =
+                            target.value ===
+                            "other";
+                    }
+                }
+            }
+        );
+
+        // Ensure newly-created dynamic rows
+        // receive the required attribute.
+        if (
+            window.MutationObserver
+        ) {
+            const observer =
+                new MutationObserver(
+                    function () {
+                        setupRequiredFields();
+                    }
+                );
+
+            observer.observe(
+                form,
+                {
+                    childList: true,
+                    subtree: true,
+                }
+            );
+        }
+    }
 
     // ===================================================
     // OPEN INDEXEDDB
     // ===================================================
 
     function openOfflineDatabase() {
-        return new Promise(function (resolve, reject) {
-            if (!window.indexedDB) {
-                reject(
-                    new Error(
-                        "IndexedDB is not supported on this device."
-                    )
-                );
-
-                return;
-            }
-
-            const request = indexedDB.open(
-                OFFLINE_DB_NAME,
-                OFFLINE_DB_VERSION
-            );
-
-            request.onupgradeneeded = function (event) {
-                const db = event.target.result;
-
+        return new Promise(
+            function (
+                resolve,
+                reject
+            ) {
                 if (
-                    !db.objectStoreNames.contains(
-                        OFFLINE_STORE_NAME
-                    )
+                    !window.indexedDB
                 ) {
-                    db.createObjectStore(
-                        OFFLINE_STORE_NAME,
-                        {
-                            keyPath: "id",
-                            autoIncrement: true,
-                        }
-                    );
-                }
-            };
-
-            request.onsuccess = function () {
-                resolve(request.result);
-            };
-
-            request.onerror = function () {
-                reject(
-                    request.error ||
+                    reject(
                         new Error(
-                            "Unable to open offline storage."
+                            "IndexedDB is not supported on this device."
                         )
-                );
-            };
-        });
+                    );
+
+                    return;
+                }
+
+                const request =
+                    indexedDB.open(
+                        OFFLINE_DB_NAME,
+                        OFFLINE_DB_VERSION
+                    );
+
+                request.onupgradeneeded =
+                    function (
+                        event
+                    ) {
+                        const db =
+                            event.target
+                                .result;
+
+                        if (
+                            !db.objectStoreNames.contains(
+                                OFFLINE_STORE_NAME
+                            )
+                        ) {
+                            db.createObjectStore(
+                                OFFLINE_STORE_NAME,
+                                {
+                                    keyPath:
+                                        "id",
+                                    autoIncrement:
+                                        true,
+                                }
+                            );
+                        }
+                    };
+
+                request.onsuccess =
+                    function () {
+                        resolve(
+                            request.result
+                        );
+                    };
+
+                request.onerror =
+                    function () {
+                        reject(
+                            request.error ||
+                                new Error(
+                                    "Unable to open offline storage."
+                                )
+                        );
+                    };
+            }
+        );
     }
 
     // ===================================================
@@ -808,11 +1193,18 @@ document.addEventListener("DOMContentLoaded", function () {
             );
         }
 
-        const formData = new FormData(form);
+        const formData =
+            new FormData(form);
+
         const fields = {};
         const files = {};
 
-        for (const [name, value] of formData.entries()) {
+        for (
+            const [
+                name,
+                value,
+            ] of formData.entries()
+        ) {
             if (
                 value instanceof File ||
                 value instanceof Blob
@@ -837,22 +1229,37 @@ document.addEventListener("DOMContentLoaded", function () {
                     blob: value,
                 };
 
-                if (name.endsWith("[]")) {
+                if (
+                    name.endsWith(
+                        "[]"
+                    )
+                ) {
                     if (!files[name]) {
                         files[name] = [];
                     }
 
-                    files[name].push(fileData);
+                    files[name].push(
+                        fileData
+                    );
                 } else {
-                    files[name] = fileData;
+                    files[name] =
+                        fileData;
                 }
             } else {
-                if (fields[name] === undefined) {
-                    fields[name] = String(value);
+                if (
+                    fields[name] ===
+                    undefined
+                ) {
+                    fields[name] =
+                        String(value);
                 } else {
-                    if (!Array.isArray(fields[name])) {
-                        fields[name] = [
+                    if (
+                        !Array.isArray(
                             fields[name]
+                        )
+                    ) {
+                        fields[name] = [
+                            fields[name],
                         ];
                     }
 
@@ -866,112 +1273,150 @@ document.addEventListener("DOMContentLoaded", function () {
         const db =
             await openOfflineDatabase();
 
-        return new Promise(function (resolve, reject) {
-            const transaction = db.transaction(
-                OFFLINE_STORE_NAME,
-                "readwrite"
-            );
+        return new Promise(
+            function (
+                resolve,
+                reject
+            ) {
+                const transaction =
+                    db.transaction(
+                        OFFLINE_STORE_NAME,
+                        "readwrite"
+                    );
 
-            const store =
-                transaction.objectStore(
-                    OFFLINE_STORE_NAME
-                );
+                const store =
+                    transaction.objectStore(
+                        OFFLINE_STORE_NAME
+                    );
 
-            const request = store.add({
-                fields: fields,
-                files: files,
-                action: form.action,
-                createdAt:
-                    new Date().toISOString(),
-            });
+                const request =
+                    store.add({
+                        fields:
+                            fields,
 
-            request.onsuccess = function () {
-                resolve(request.result);
-            };
+                        files:
+                            files,
 
-            request.onerror = function () {
-                reject(
-                    request.error ||
-                        new Error(
-                            "Unable to save ticket offline."
-                        )
-                );
-            };
-        });
+                        action:
+                            form.action,
+
+                        createdAt:
+                            new Date().toISOString(),
+                    });
+
+                request.onsuccess =
+                    function () {
+                        resolve(
+                            request.result
+                        );
+                    };
+
+                request.onerror =
+                    function () {
+                        reject(
+                            request.error ||
+                                new Error(
+                                    "Unable to save ticket offline."
+                                )
+                        );
+                    };
+            }
+        );
     }
 
     // ===================================================
-    // GET ALL PENDING TICKETS
+    // GET PENDING TICKETS
     // ===================================================
 
     async function getPendingTickets() {
         const db =
             await openOfflineDatabase();
 
-        return new Promise(function (resolve, reject) {
-            const transaction = db.transaction(
-                OFFLINE_STORE_NAME,
-                "readonly"
-            );
+        return new Promise(
+            function (
+                resolve,
+                reject
+            ) {
+                const transaction =
+                    db.transaction(
+                        OFFLINE_STORE_NAME,
+                        "readonly"
+                    );
 
-            const store =
-                transaction.objectStore(
-                    OFFLINE_STORE_NAME
-                );
+                const store =
+                    transaction.objectStore(
+                        OFFLINE_STORE_NAME
+                    );
 
-            const request = store.getAll();
+                const request =
+                    store.getAll();
 
-            request.onsuccess = function () {
-                resolve(
-                    request.result || []
-                );
-            };
+                request.onsuccess =
+                    function () {
+                        resolve(
+                            request.result ||
+                                []
+                        );
+                    };
 
-            request.onerror = function () {
-                reject(
-                    request.error ||
-                        new Error(
-                            "Unable to read pending tickets."
-                        )
-                );
-            };
-        });
+                request.onerror =
+                    function () {
+                        reject(
+                            request.error ||
+                                new Error(
+                                    "Unable to read pending tickets."
+                                )
+                        );
+                    };
+            }
+        );
     }
 
     // ===================================================
     // DELETE SYNCED TICKET
     // ===================================================
 
-    async function deletePendingTicket(id) {
+    async function deletePendingTicket(
+        id
+    ) {
         const db =
             await openOfflineDatabase();
 
-        return new Promise(function (resolve, reject) {
-            const transaction = db.transaction(
-                OFFLINE_STORE_NAME,
-                "readwrite"
-            );
+        return new Promise(
+            function (
+                resolve,
+                reject
+            ) {
+                const transaction =
+                    db.transaction(
+                        OFFLINE_STORE_NAME,
+                        "readwrite"
+                    );
 
-            const store =
-                transaction.objectStore(
-                    OFFLINE_STORE_NAME
-                );
+                const store =
+                    transaction.objectStore(
+                        OFFLINE_STORE_NAME
+                    );
 
-            const request = store.delete(id);
+                const request =
+                    store.delete(id);
 
-            request.onsuccess = function () {
-                resolve();
-            };
+                request.onsuccess =
+                    function () {
+                        resolve();
+                    };
 
-            request.onerror = function () {
-                reject(
-                    request.error ||
-                        new Error(
-                            "Unable to remove synced ticket."
-                        )
-                );
-            };
-        });
+                request.onerror =
+                    function () {
+                        reject(
+                            request.error ||
+                                new Error(
+                                    "Unable to remove synced ticket."
+                                )
+                        );
+                    };
+            }
+        );
     }
 
     // ===================================================
@@ -979,13 +1424,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     function getCsrfToken() {
-        const meta = document.querySelector(
-            'meta[name="csrf-token"]'
-        );
+        const meta =
+            document.querySelector(
+                'meta[name="csrf-token"]'
+            );
 
         if (meta) {
             const token =
-                meta.getAttribute("content");
+                meta.getAttribute(
+                    "content"
+                );
 
             if (token) {
                 return token;
@@ -997,37 +1445,59 @@ document.addEventListener("DOMContentLoaded", function () {
                 'input[name="_token"]'
             );
 
-        return tokenInput?.value || "";
+        return tokenInput?.value ||
+            "";
     }
 
     // ===================================================
-    // BUILD FORM DATA FOR SYNC
+    // BUILD FORMDATA FOR SYNC
     // ===================================================
 
-    function buildSyncFormData(ticket) {
-        const syncFormData = new FormData();
+    function buildSyncFormData(
+        ticket
+    ) {
+        const syncFormData =
+            new FormData();
 
         Object.entries(
             ticket.fields || {}
-        ).forEach(function ([name, value]) {
-            if (Array.isArray(value)) {
-                value.forEach(function (item) {
-                    syncFormData.append(
-                        name,
-                        item
+        ).forEach(
+            function (
+                [
+                    name,
+                    value,
+                ]
+            ) {
+                if (
+                    name === "_token"
+                ) {
+                    return;
+                }
+
+                if (
+                    Array.isArray(value)
+                ) {
+                    value.forEach(
+                        function (
+                            item
+                        ) {
+                            syncFormData.append(
+                                name,
+                                item
+                            );
+                        }
                     );
-                });
-            } else {
-                if (name !== "_token") {
+                } else {
                     syncFormData.append(
                         name,
                         value
                     );
                 }
             }
-        });
+        );
 
-        const csrfToken = getCsrfToken();
+        const csrfToken =
+            getCsrfToken();
 
         if (csrfToken) {
             syncFormData.append(
@@ -1038,47 +1508,66 @@ document.addEventListener("DOMContentLoaded", function () {
 
         Object.entries(
             ticket.files || {}
-        ).forEach(function ([name, fileData]) {
-            if (Array.isArray(fileData)) {
-                fileData.forEach(function (item) {
-                    const file = new File(
-                        [item.blob],
-                        item.name,
-                        {
-                            type: item.type,
-                            lastModified:
-                                item.lastModified,
+        ).forEach(
+            function (
+                [
+                    name,
+                    fileData,
+                ]
+            ) {
+                if (
+                    Array.isArray(
+                        fileData
+                    )
+                ) {
+                    fileData.forEach(
+                        function (
+                            item
+                        ) {
+                            const file =
+                                new File(
+                                    [item.blob],
+                                    item.name,
+                                    {
+                                        type:
+                                            item.type,
+                                        lastModified:
+                                            item.lastModified,
+                                    }
+                                );
+
+                            syncFormData.append(
+                                name,
+                                file
+                            );
                         }
                     );
+                } else {
+                    const file =
+                        new File(
+                            [fileData.blob],
+                            fileData.name,
+                            {
+                                type:
+                                    fileData.type,
+                                lastModified:
+                                    fileData.lastModified,
+                            }
+                        );
 
                     syncFormData.append(
                         name,
                         file
                     );
-                });
-            } else {
-                const file = new File(
-                    [fileData.blob],
-                    fileData.name,
-                    {
-                        type: fileData.type,
-                        lastModified:
-                            fileData.lastModified,
-                    }
-                );
-
-                syncFormData.append(
-                    name,
-                    file
-                );
+                }
             }
-        });
+        );
 
         return syncFormData;
     }
 
     // ===================================================
-    // SHOW / HIDE OFFLINE STATUS
+    // HIDE OFFLINE STATUS
     // ===================================================
 
     function hideOfflineStatus() {
@@ -1111,7 +1600,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // SHOW PENDING TICKETS
     // ===================================================
 
-    function showPendingTickets(count) {
+    function showPendingTickets(
+        count
+    ) {
         if (!offlinePendingBox) {
             return;
         }
@@ -1129,12 +1620,16 @@ document.addEventListener("DOMContentLoaded", function () {
             if (navigator.onLine) {
                 offlinePendingMessage.innerText =
                     `${count} ticket${
-                        count === 1 ? "" : "s"
+                        count === 1
+                            ? ""
+                            : "s"
                     } waiting to sync.`;
             } else {
                 offlinePendingMessage.innerText =
                     `You are offline. ${count} ticket${
-                        count === 1 ? "" : "s"
+                        count === 1
+                            ? ""
+                            : "s"
                     } saved on this device and waiting to sync.`;
             }
         }
@@ -1145,7 +1640,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     "hidden"
                 );
 
-                syncNowButton.disabled = false;
+                syncNowButton.disabled =
+                    false;
 
                 syncNowButton.innerText =
                     "Sync Now";
@@ -1154,7 +1650,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     "hidden"
                 );
 
-                syncNowButton.disabled = true;
+                syncNowButton.disabled =
+                    true;
             }
         }
     }
@@ -1163,7 +1660,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // SHOW SYNCING
     // ===================================================
 
-    function showSyncing(count) {
+    function showSyncing(
+        count
+    ) {
         hideOfflineStatus();
 
         if (offlineSyncingBox) {
@@ -1175,7 +1674,9 @@ document.addEventListener("DOMContentLoaded", function () {
         if (offlineSyncingMessage) {
             offlineSyncingMessage.innerText =
                 `Uploading ${count} pending ticket${
-                    count === 1 ? "" : "s"
+                    count === 1
+                        ? ""
+                        : "s"
                 }...`;
         }
     }
@@ -1184,7 +1685,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // SHOW SUCCESS
     // ===================================================
 
-    function showSyncSuccess(count) {
+    function showSyncSuccess(
+        count
+    ) {
         hideOfflineStatus();
 
         if (offlineSuccessBox) {
@@ -1196,20 +1699,27 @@ document.addEventListener("DOMContentLoaded", function () {
         if (offlineSuccessMessage) {
             offlineSuccessMessage.innerText =
                 `${count} ticket${
-                    count === 1 ? "" : "s"
+                    count === 1
+                        ? ""
+                        : "s"
                 } synchronized successfully.`;
         }
 
-        setTimeout(function () {
-            updatePendingSyncCount();
-        }, 3000);
+        setTimeout(
+            function () {
+                updatePendingSyncCount();
+            },
+            3000
+        );
     }
 
     // ===================================================
-    // SHOW SYNC ERROR
+    // SHOW ERROR
     // ===================================================
 
-    function showSyncError(message) {
+    function showSyncError(
+        message
+    ) {
         hideOfflineStatus();
 
         if (offlineErrorBox) {
@@ -1234,14 +1744,17 @@ document.addEventListener("DOMContentLoaded", function () {
             const tickets =
                 await getPendingTickets();
 
-            const count = tickets.length;
+            const count =
+                tickets.length;
 
             if (count === 0) {
                 hideOfflineStatus();
                 return;
             }
 
-            showPendingTickets(count);
+            showPendingTickets(
+                count
+            );
         } catch (error) {
             console.error(
                 "Offline storage error:",
@@ -1259,7 +1772,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // SYNC ONE TICKET
     // ===================================================
 
-    async function syncOneTicket(ticket) {
+    async function syncOneTicket(
+        ticket
+    ) {
         if (!navigator.onLine) {
             throw new Error(
                 "Internet connection is unavailable."
@@ -1267,23 +1782,36 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         const syncFormData =
-            buildSyncFormData(ticket);
+            buildSyncFormData(
+                ticket
+            );
 
-        const response = await fetch(
-            ticket.action || form.action,
-            {
-                method: "POST",
-                body: syncFormData,
-                credentials: "same-origin",
+        const action =
+            ticket.action ||
+            form?.action ||
+            "/enforcer/issue-ticket";
 
-                headers: {
-                    Accept: "application/json",
+        const response =
+            await fetch(
+                action,
+                {
+                    method: "POST",
 
-                    "X-Requested-With":
-                        "XMLHttpRequest",
-                },
-            }
-        );
+                    body:
+                        syncFormData,
+
+                    credentials:
+                        "same-origin",
+
+                    headers: {
+                        Accept:
+                            "application/json",
+
+                        "X-Requested-With":
+                            "XMLHttpRequest",
+                    },
+                }
+            );
 
         if (!response.ok) {
             let message =
@@ -1293,14 +1821,41 @@ document.addEventListener("DOMContentLoaded", function () {
                 const data =
                     await response.json();
 
-                if (data.message) {
-                    message = data.message;
+                if (
+                    data.message
+                ) {
+                    message =
+                        data.message;
                 }
-            } catch (error) {
+
+                if (
+                    data.errors
+                ) {
+                    const firstError =
+                        Object.values(
+                            data.errors
+                        )
+                            .flat()
+                            .find(
+                                Boolean
+                            );
+
+                    if (
+                        firstError
+                    ) {
+                        message =
+                            firstError;
+                    }
+                }
+            } catch (
+                error
+            ) {
                 // Response was not JSON.
             }
 
-            throw new Error(message);
+            throw new Error(
+                message
+            );
         }
 
         return true;
@@ -1320,29 +1875,37 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        syncInProgress = true;
+        syncInProgress =
+            true;
 
         try {
             const tickets =
                 await getPendingTickets();
 
-            if (tickets.length === 0) {
+            if (
+                tickets.length === 0
+            ) {
                 hideOfflineStatus();
                 return;
             }
 
-            showSyncing(tickets.length);
+            showSyncing(
+                tickets.length
+            );
 
-            let syncedCount = 0;
-            let failedCount = 0;
-            let lastError = "";
+            let syncedCount =
+                0;
 
-            for (const ticket of tickets) {
-                if (!navigator.onLine) {
-                    failedCount +=
-                        tickets.length -
-                        syncedCount;
+            let lastError =
+                "";
 
+            for (
+                const ticket
+                of tickets
+            ) {
+                if (
+                    !navigator.onLine
+                ) {
                     lastError =
                         "Internet connection was lost during synchronization.";
 
@@ -1350,24 +1913,33 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 try {
-                    await syncOneTicket(ticket);
+                    await syncOneTicket(
+                        ticket
+                    );
 
+                    // IMPORTANT:
+                    // Delete only after Laravel
+                    // successfully accepts the ticket.
                     await deletePendingTicket(
                         ticket.id
                     );
 
                     syncedCount++;
-                } catch (error) {
+                } catch (
+                    error
+                ) {
                     console.error(
                         `Failed to sync ticket ${ticket.id}:`,
                         error
                     );
 
-                    failedCount++;
-
                     lastError =
                         error.message ||
                         "Unable to synchronize ticket.";
+
+                    // Keep failed ticket in IndexedDB.
+                    // Stop here and retry later.
+                    break;
                 }
             }
 
@@ -1377,8 +1949,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const remainingCount =
                 remainingTickets.length;
 
-            if (remainingCount === 0) {
-                if (syncedCount > 0) {
+            if (
+                remainingCount === 0
+            ) {
+                if (
+                    syncedCount > 0
+                ) {
                     showSyncSuccess(
                         syncedCount
                     );
@@ -1400,10 +1976,15 @@ document.addEventListener("DOMContentLoaded", function () {
                 }`
             );
 
-            setTimeout(function () {
-                updatePendingSyncCount();
-            }, 2500);
-        } catch (error) {
+            setTimeout(
+                function () {
+                    updatePendingSyncCount();
+                },
+                2500
+            );
+        } catch (
+            error
+        ) {
             console.error(
                 "Offline synchronization error:",
                 error
@@ -1414,7 +1995,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     "Unable to synchronize offline tickets."
             );
         } finally {
-            syncInProgress = false;
+            syncInProgress =
+                false;
         }
     }
 
@@ -1425,14 +2007,20 @@ document.addEventListener("DOMContentLoaded", function () {
     if (syncNowButton) {
         syncNowButton.addEventListener(
             "click",
-            async function (event) {
+            async function (
+                event
+            ) {
                 event.preventDefault();
 
-                if (syncInProgress) {
+                if (
+                    syncInProgress
+                ) {
                     return;
                 }
 
-                if (!navigator.onLine) {
+                if (
+                    !navigator.onLine
+                ) {
                     showSyncError(
                         "Internet connection is unavailable. Please reconnect and try again."
                     );
@@ -1446,7 +2034,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===================================================
-    // VALIDATE FORM BEFORE OFFLINE SAVE
+    // VALIDATE FORM
     // ===================================================
 
     function validateTicketForm() {
@@ -1454,15 +2042,59 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        // Make sure the required fields are enforced
-        // every time validation runs.
+        // Reapply all required rules.
         setupRequiredFields();
 
         // -------------------------------------------------
-        // Browser's native required-field validation.
+        // Validate required text fields.
+        // This also catches whitespace-only values.
         // -------------------------------------------------
 
-        if (!form.checkValidity()) {
+        const requiredTextFieldIds = [
+            "first_name",
+            "last_name",
+            "license_number",
+            "plate_number",
+        ];
+
+        for (
+            const id
+            of requiredTextFieldIds
+        ) {
+            const field =
+                getElement(id);
+
+            if (
+                field &&
+                field.value.trim() === ""
+            ) {
+                field.setCustomValidity(
+                    "Please fill out this field."
+                );
+
+                field.reportValidity();
+
+                field.setCustomValidity(
+                    ""
+                );
+
+                return false;
+            }
+
+            if (field) {
+                field.setCustomValidity(
+                    ""
+                );
+            }
+        }
+
+        // -------------------------------------------------
+        // Browser native validation.
+        // -------------------------------------------------
+
+        if (
+            !form.checkValidity()
+        ) {
             form.reportValidity();
             return false;
         }
@@ -1472,22 +2104,40 @@ document.addEventListener("DOMContentLoaded", function () {
         // -------------------------------------------------
 
         const primaryViolation =
-            getElement("violation_type_id");
+            getElement(
+                "violation_type_id"
+            );
 
         const primaryOther =
-            getElement("other_violation");
+            getElement(
+                "other_violation"
+            );
 
         if (
             primaryViolation &&
-            primaryViolation.value === "other"
+            primaryViolation.value ===
+                "other"
         ) {
             if (
                 !primaryOther ||
-                primaryOther.value.trim() === ""
+                primaryOther.value.trim() ===
+                    ""
             ) {
-                if (primaryOther) {
-                    primaryOther.required = true;
+                if (
+                    primaryOther
+                ) {
+                    primaryOther.required =
+                        true;
+
+                    primaryOther.setCustomValidity(
+                        "Please specify the other violation."
+                    );
+
                     primaryOther.reportValidity();
+
+                    primaryOther.setCustomValidity(
+                        ""
+                    );
                 }
 
                 return false;
@@ -1495,7 +2145,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // -------------------------------------------------
-        // Validate every additional violation row.
+        // Additional violations.
         // -------------------------------------------------
 
         const additionalViolationSelects =
@@ -1504,26 +2154,28 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
         for (
-            const select of additionalViolationSelects
+            const select
+            of additionalViolationSelects
         ) {
-            // Every additional violation row requires
-            // a selected violation type.
-            select.required = true;
+            select.required =
+                true;
 
-            if (!select.value) {
+            if (
+                !select.value
+            ) {
                 select.reportValidity();
                 return false;
             }
 
-            // -------------------------------------------------
-            // Additional "Other" violation.
-            // -------------------------------------------------
-
-            if (select.value === "other") {
+            if (
+                select.value ===
+                "other"
+            ) {
                 const row =
                     select.closest(
                         ".additional-violation-row"
-                    ) || select.parentElement;
+                    ) ||
+                    select.parentElement;
 
                 const otherInput =
                     row?.querySelector(
@@ -1531,11 +2183,26 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                 if (
-                    otherInput &&
-                    otherInput.value.trim() === ""
+                    !otherInput ||
+                    otherInput.value.trim() ===
+                        ""
                 ) {
-                    otherInput.required = true;
-                    otherInput.reportValidity();
+                    if (
+                        otherInput
+                    ) {
+                        otherInput.required =
+                            true;
+
+                        otherInput.setCustomValidity(
+                            "Please specify the other violation."
+                        );
+
+                        otherInput.reportValidity();
+
+                        otherInput.setCustomValidity(
+                            ""
+                        );
+                    }
 
                     return false;
                 }
@@ -1546,44 +2213,36 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===================================================
-    // INTERCEPT FORM SUBMISSION WHEN OFFLINE
+    // FORM SUBMISSION
     // ===================================================
 
     if (form) {
         form.addEventListener(
             "submit",
-            async function (event) {
+            async function (
+                event
+            ) {
+                // -------------------------------------------------
+                // ALWAYS VALIDATE FIRST
+                // -------------------------------------------------
+
+                if (
+                    !validateTicketForm()
+                ) {
+                    event.preventDefault();
+                    return;
+                }
+
                 // -------------------------------------------------
                 // ONLINE
                 // -------------------------------------------------
                 //
                 // Let Laravel handle normal online submission.
-                // Native/browser validation still runs.
                 // -------------------------------------------------
 
-                if (navigator.onLine) {
-                    return;
-                }
-
-                // -------------------------------------------------
-                // OFFLINE VALIDATION
-                // -------------------------------------------------
-                //
-                // This is the important offline behavior:
-                //
-                // Offline
-                //   ↓
-                // Submit
-                //   ↓
-                // Validate required fields
-                //   ↓
-                // Invalid = stay on form
-                //   ↓
-                // Valid = save to IndexedDB
-                // -------------------------------------------------
-
-                if (!validateTicketForm()) {
-                    event.preventDefault();
+                if (
+                    navigator.onLine
+                ) {
                     return;
                 }
 
@@ -1593,7 +2252,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 event.preventDefault();
 
-                if (syncInProgress) {
+                if (
+                    syncInProgress
+                ) {
                     return;
                 }
 
@@ -1602,13 +2263,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                     await updatePendingSyncCount();
 
-                    if (offlinePendingMessage) {
-                        const tickets =
-                            await getPendingTickets();
+                    const tickets =
+                        await getPendingTickets();
 
-                        const count =
-                            tickets.length;
+                    const count =
+                        tickets.length;
 
+                    if (
+                        offlinePendingMessage
+                    ) {
                         offlinePendingMessage.innerText =
                             `You are offline. Your ticket has been saved on this device. ${count} ticket${
                                 count === 1
@@ -1622,26 +2285,33 @@ document.addEventListener("DOMContentLoaded", function () {
                     );
 
                     // -------------------------------------------------
-                    // Clear the form only AFTER successful offline save.
+                    // Clear only AFTER successful IndexedDB save.
                     // -------------------------------------------------
 
                     form.reset();
 
-                    // Re-apply required fields after reset.
                     setupRequiredFields();
 
-                    // Re-apply the hidden state of the primary
-                    // "Other" field.
-                    if (otherViolationContainer) {
+                    if (
+                        otherViolationContainer
+                    ) {
                         otherViolationContainer.classList.add(
                             "hidden"
                         );
                     }
 
-                    if (otherViolationInput) {
-                        otherViolationInput.required = false;
+                    if (
+                        otherViolationInput
+                    ) {
+                        otherViolationInput.required =
+                            false;
+
+                        otherViolationInput.value =
+                            "";
                     }
-                } catch (error) {
+                } catch (
+                    error
+                ) {
                     console.error(
                         "Offline ticket save error:",
                         error
@@ -1657,7 +2327,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===================================================
-    // CONNECTION RESTORED
+    // INTERNET CONNECTION RESTORED
     // ===================================================
 
     window.addEventListener(
@@ -1667,14 +2337,19 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Internet connection restored."
             );
 
-            setTimeout(function () {
-                syncPendingTickets();
-            }, 1500);
+            updateConnectionStatus();
+
+            setTimeout(
+                function () {
+                    syncPendingTickets();
+                },
+                1500
+            );
         }
     );
 
     // ===================================================
-    // CONNECTION LOST
+    // INTERNET CONNECTION LOST
     // ===================================================
 
     window.addEventListener(
@@ -1684,15 +2359,65 @@ document.addEventListener("DOMContentLoaded", function () {
                 "Internet connection lost."
             );
 
+            updateConnectionStatus();
+
             updatePendingSyncCount();
         }
     );
 
     // ===================================================
-    // INITIALIZE OFFLINE SYNC
+    // INITIALIZE OFFLINE STORAGE
+    // ===================================================
+
+    openOfflineDatabase()
+        .then(function (db) {
+            console.log(
+                "TrafficEnforceNet IndexedDB is ready."
+            );
+
+            console.log(
+                "Database:",
+                db.name
+            );
+
+            console.log(
+                "Object stores:",
+                Array.from(
+                    db.objectStoreNames
+                )
+            );
+
+            db.close();
+        })
+        .catch(function (error) {
+            console.error(
+                "Unable to initialize IndexedDB:",
+                error
+            );
+        });
+
+    // ===================================================
+    // INITIALIZE PENDING COUNT
     // ===================================================
 
     updatePendingSyncCount();
+
+    // ===================================================
+    // TRY SYNCHRONIZATION WHEN PAGE LOADS ONLINE
+    // ===================================================
+
+    if (navigator.onLine) {
+        console.log(
+            "Page loaded while online. Checking pending tickets..."
+        );
+
+        setTimeout(
+            function () {
+                syncPendingTickets();
+            },
+            1000
+        );
+    }
 
     // ===================================================
     // GPS ELEMENTS
@@ -1708,13 +2433,19 @@ document.addEventListener("DOMContentLoaded", function () {
         getElement("longitude");
 
     const gpsBadge =
-        getElement("gpsStatusBadge");
+        getElement(
+            "gpsStatusBadge"
+        );
 
     const gpsCoordinates =
-        getElement("gpsCoordinates");
+        getElement(
+            "gpsCoordinates"
+        );
 
     const locationIcon =
-        getElement("locationIcon");
+        getElement(
+            "locationIcon"
+        );
 
     // ===================================================
     // CHECK GPS SUPPORT
@@ -1726,7 +2457,8 @@ document.addEventListener("DOMContentLoaded", function () {
         !longitudeInput
     ) {
         if (gpsBadge) {
-            gpsBadge.innerText = "Unavailable";
+            gpsBadge.innerText =
+                "Unavailable";
 
             gpsBadge.classList.remove(
                 "bg-yellow-50",
@@ -1745,7 +2477,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (locationIcon) {
-            locationIcon.innerText = "⚠️";
+            locationIcon.innerText =
+                "⚠️";
         }
 
         return;
@@ -1756,7 +2489,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     if (gpsBadge) {
-        gpsBadge.innerText = "Detecting";
+        gpsBadge.innerText =
+            "Detecting";
 
         gpsBadge.classList.remove(
             "bg-blue-50",
@@ -1779,7 +2513,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     if (locationIcon) {
-        locationIcon.innerText = "⏳";
+        locationIcon.innerText =
+            "⏳";
     }
 
     if (gpsCoordinates) {
@@ -1801,31 +2536,48 @@ document.addEventListener("DOMContentLoaded", function () {
     // HIGH-ACCURACY GPS SETTINGS
     // ===================================================
 
-    const TARGET_ACCURACY = 10;
-    const MAX_GPS_TIME = 20000;
+    const TARGET_ACCURACY =
+        10;
 
-    let bestPosition = null;
-    let bestAccuracy = Infinity;
-    let gpsWatchId = null;
-    let gpsFinished = false;
+    const MAX_GPS_TIME =
+        20000;
+
+    let bestPosition =
+        null;
+
+    let bestAccuracy =
+        Infinity;
+
+    let gpsWatchId =
+        null;
+
+    let gpsFinished =
+        false;
 
     // ===================================================
     // FINISH GPS CAPTURE
     // ===================================================
 
-    function finishGPS(position) {
+    function finishGPS(
+        position
+    ) {
         if (gpsFinished) {
             return;
         }
 
-        gpsFinished = true;
+        gpsFinished =
+            true;
 
-        if (gpsWatchId !== null) {
+        if (
+            gpsWatchId !==
+            null
+        ) {
             navigator.geolocation.clearWatch(
                 gpsWatchId
             );
 
-            gpsWatchId = null;
+            gpsWatchId =
+                null;
         }
 
         // -------------------------------------------------
@@ -1854,7 +2606,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             if (locationIcon) {
-                locationIcon.innerText = "⚠️";
+                locationIcon.innerText =
+                    "⚠️";
             }
 
             if (gpsCoordinates) {
@@ -1871,9 +2624,9 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // =================================================
+        // -------------------------------------------------
         // FINAL GPS VALUES
-        // =================================================
+        // -------------------------------------------------
 
         const latitude =
             position.coords.latitude;
@@ -1912,20 +2665,25 @@ document.addEventListener("DOMContentLoaded", function () {
             "================================="
         );
 
-        // =================================================
+        // -------------------------------------------------
         // SAVE COORDINATES TO FORM
-        // =================================================
+        // -------------------------------------------------
 
-        latitudeInput.value = latitude;
-        longitudeInput.value = longitude;
+        latitudeInput.value =
+            latitude;
 
-        // =================================================
+        longitudeInput.value =
+            longitude;
+
+        // -------------------------------------------------
         // GPS SUCCESS STATUS
-        // =================================================
+        // -------------------------------------------------
 
         if (gpsBadge) {
             gpsBadge.innerText =
-                `Captured ±${Math.round(accuracy)}m`;
+                `Captured ±${Math.round(
+                    accuracy
+                )}m`;
 
             gpsBadge.classList.remove(
                 "bg-yellow-50",
@@ -1950,14 +2708,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     ✓ GPS coordinates captured successfully.
                 </p>
                 <p class="text-[11px] text-blue-500 mt-1">
-                    Accuracy: approximately ${Math.round(accuracy)} meters
+                    Accuracy: approximately ${Math.round(
+                        accuracy
+                    )} meters
                 </p>
             `;
         }
 
-        // =================================================
+        // -------------------------------------------------
         // START REVERSE GEOCODING
-        // =================================================
+        // -------------------------------------------------
 
         if (locationInput) {
             locationInput.value =
@@ -1965,7 +2725,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (locationIcon) {
-            locationIcon.innerText = "⏳";
+            locationIcon.innerText =
+                "⏳";
         }
 
         const reverseGeocodeUrl =
@@ -1975,129 +2736,165 @@ document.addEventListener("DOMContentLoaded", function () {
                 longitude
             )}&zoom=18&addressdetails=1`;
 
-        fetch(reverseGeocodeUrl, {
-            headers: {
-                "Accept-Language": "en",
-            },
-        })
-            .then(function (response) {
-                if (!response.ok) {
-                    throw new Error(
-                        `HTTP ${response.status}`
-                    );
-                }
-
-                return response.json();
-            })
-            .then(function (data) {
-                if (
-                    data &&
-                    data.address
+        fetch(
+            reverseGeocodeUrl,
+            {
+                headers: {
+                    "Accept-Language":
+                        "en",
+                },
+            }
+        )
+            .then(
+                function (
+                    response
                 ) {
-                    const address =
-                        data.address;
+                    if (
+                        !response.ok
+                    ) {
+                        throw new Error(
+                            `HTTP ${response.status}`
+                        );
+                    }
 
-                    const road =
-                        address.road ||
-                        address.pedestrian ||
-                        address.highway ||
-                        "";
+                    return response.json();
+                }
+            )
+            .then(
+                function (data) {
+                    if (
+                        data &&
+                        data.address
+                    ) {
+                        const address =
+                            data.address;
 
-                    const barangay =
-                        address.suburb ||
-                        address.village ||
-                        address.quarter ||
-                        address.neighbourhood ||
-                        "";
+                        const road =
+                            address.road ||
+                            address.pedestrian ||
+                            address.highway ||
+                            "";
 
-                    const city =
-                        address.city ||
-                        address.town ||
-                        address.municipality ||
-                        "";
+                        const barangay =
+                            address.suburb ||
+                            address.village ||
+                            address.quarter ||
+                            address.neighbourhood ||
+                            "";
 
-                    const province =
-                        address.state ||
-                        "";
+                        const city =
+                            address.city ||
+                            address.town ||
+                            address.municipality ||
+                            "";
 
-                    const formattedAddress = [
-                        road,
-                        barangay,
-                        city,
-                        province,
-                    ]
-                        .filter(Boolean)
-                        .join(", ");
+                        const province =
+                            address.state ||
+                            "";
 
-                    if (locationInput) {
+                        const formattedAddress =
+                            [
+                                road,
+                                barangay,
+                                city,
+                                province,
+                            ]
+                                .filter(
+                                    Boolean
+                                )
+                                .join(
+                                    ", "
+                                );
+
+                        if (
+                            locationInput
+                        ) {
+                            locationInput.value =
+                                formattedAddress ||
+                                "Address unavailable";
+                        }
+
+                        if (
+                            locationIcon
+                        ) {
+                            locationIcon.innerText =
+                                "✓";
+                        }
+
+                        console.log(
+                            "GPS Address:",
+                            data.display_name
+                        );
+
+                        console.log(
+                            "Road:",
+                            road
+                        );
+
+                        console.log(
+                            "Barangay:",
+                            barangay
+                        );
+
+                        console.log(
+                            "City/Municipality:",
+                            city
+                        );
+
+                        console.log(
+                            "Province:",
+                            province
+                        );
+                    } else {
+                        if (
+                            locationInput
+                        ) {
+                            locationInput.value =
+                                "Address unavailable";
+                        }
+
+                        if (
+                            locationIcon
+                        ) {
+                            locationIcon.innerText =
+                                "⚠️";
+                        }
+                    }
+                }
+            )
+            .catch(
+                function (
+                    error
+                ) {
+                    console.error(
+                        "Reverse geocoding error:",
+                        error
+                    );
+
+                    if (
+                        locationInput
+                    ) {
                         locationInput.value =
-                            formattedAddress ||
-                            "Address unavailable";
+                            "Unable to get address";
                     }
 
-                    if (locationIcon) {
-                        locationIcon.innerText = "✓";
-                    }
-
-                    console.log(
-                        "GPS Address:",
-                        data.display_name
-                    );
-
-                    console.log(
-                        "Road:",
-                        road
-                    );
-
-                    console.log(
-                        "Barangay:",
-                        barangay
-                    );
-
-                    console.log(
-                        "City/Municipality:",
-                        city
-                    );
-
-                    console.log(
-                        "Province:",
-                        province
-                    );
-                } else {
-                    if (locationInput) {
-                        locationInput.value =
-                            "Address unavailable";
-                    }
-
-                    if (locationIcon) {
+                    if (
+                        locationIcon
+                    ) {
                         locationIcon.innerText =
                             "⚠️";
                     }
                 }
-            })
-            .catch(function (error) {
-                console.error(
-                    "Reverse geocoding error:",
-                    error
-                );
-
-                if (locationInput) {
-                    locationInput.value =
-                        "Unable to get address";
-                }
-
-                if (locationIcon) {
-                    locationIcon.innerText =
-                        "⚠️";
-                }
-            });
+            );
     }
 
     // ===================================================
     // GPS ERROR HANDLER
     // ===================================================
 
-    function handleGPSError(error) {
+    function handleGPSError(
+        error
+    ) {
         console.error(
             "GPS Error:",
             error.code,
@@ -2113,7 +2910,10 @@ document.addEventListener("DOMContentLoaded", function () {
         // -------------------------------------------------
 
         if (bestPosition) {
-            finishGPS(bestPosition);
+            finishGPS(
+                bestPosition
+            );
+
             return;
         }
 
@@ -2214,18 +3014,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     gpsWatchId =
         navigator.geolocation.watchPosition(
-            function (position) {
+            function (
+                position
+            ) {
                 if (gpsFinished) {
                     return;
                 }
 
                 const accuracy =
-                    position.coords.accuracy;
+                    position.coords
+                        .accuracy;
 
                 console.log(
                     "GPS Reading:",
-                    position.coords.latitude,
-                    position.coords.longitude,
+                    position.coords
+                        .latitude,
+                    position.coords
+                        .longitude,
                     "Accuracy:",
                     accuracy,
                     "meters"
@@ -2237,10 +3042,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 if (
                     !bestPosition ||
-                    accuracy < bestAccuracy
+                    accuracy <
+                        bestAccuracy
                 ) {
-                    bestPosition = position;
-                    bestAccuracy = accuracy;
+                    bestPosition =
+                        position;
+
+                    bestAccuracy =
+                        accuracy;
 
                     console.log(
                         "New best GPS accuracy:",
@@ -2267,7 +3076,9 @@ document.addEventListener("DOMContentLoaded", function () {
                         );
                     }
 
-                    if (gpsCoordinates) {
+                    if (
+                        gpsCoordinates
+                    ) {
                         gpsCoordinates.classList.remove(
                             "hidden"
                         );
@@ -2290,7 +3101,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 // -------------------------------------------------
 
                 if (
-                    accuracy <= TARGET_ACCURACY
+                    accuracy <=
+                    TARGET_ACCURACY
                 ) {
                     console.log(
                         "Target GPS accuracy reached:",
@@ -2298,18 +3110,29 @@ document.addEventListener("DOMContentLoaded", function () {
                         "meters"
                     );
 
-                    finishGPS(bestPosition);
+                    finishGPS(
+                        bestPosition
+                    );
                 }
             },
 
-            function (error) {
-                handleGPSError(error);
+            function (
+                error
+            ) {
+                handleGPSError(
+                    error
+                );
             },
 
             {
-                enableHighAccuracy: true,
-                timeout: MAX_GPS_TIME,
-                maximumAge: 0,
+                enableHighAccuracy:
+                    true,
+
+                timeout:
+                    MAX_GPS_TIME,
+
+                maximumAge:
+                    0,
             }
         );
 
@@ -2317,29 +3140,34 @@ document.addEventListener("DOMContentLoaded", function () {
     // GPS MAXIMUM WAIT TIMER
     // ===================================================
 
-    setTimeout(function () {
-        if (gpsFinished) {
-            return;
-        }
+    setTimeout(
+        function () {
+            if (gpsFinished) {
+                return;
+            }
 
-        console.log(
-            "GPS maximum wait time reached."
-        );
-
-        if (bestPosition) {
             console.log(
-                "Using best available GPS accuracy:",
-                bestAccuracy,
-                "meters"
+                "GPS maximum wait time reached."
             );
 
-            finishGPS(bestPosition);
-        } else {
-            console.log(
-                "No GPS reading was obtained."
-            );
+            if (bestPosition) {
+                console.log(
+                    "Using best available GPS accuracy:",
+                    bestAccuracy,
+                    "meters"
+                );
 
-            finishGPS(null);
-        }
-    }, MAX_GPS_TIME);
+                finishGPS(
+                    bestPosition
+                );
+            } else {
+                console.log(
+                    "No GPS reading was obtained."
+                );
+
+                finishGPS(null);
+            }
+        },
+        MAX_GPS_TIME
+    );
 });
