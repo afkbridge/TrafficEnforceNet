@@ -141,7 +141,9 @@ Route::get('/bplo/violations', [BPLOViolationController::class, 'index'])
     ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
     ->name('bplo.violations.index');
 
-
+Route::get('/bplo/violations/export', [BPLOViolationController::class, 'export'])
+    ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
+    ->name('bplo.violations.export');
 /*
 |--------------------------------------------------------------------------
 | BPLO Update Violation Status

@@ -7,7 +7,8 @@ use App\Models\Violation;
 use App\Models\Driver;
 use Illuminate\Http\Request;
 use App\Services\AuditLogger;
-
+use App\Exports\BploViolationsExport;
+use Maatwebsite\Excel\Facades\Excel;
 class ViolationController extends Controller
 {
     // ==========================================================
@@ -326,5 +327,21 @@ class ViolationController extends Controller
                 'success',
                 'Violation status updated successfully.'
             );
+    }
+}
+        // ==========================================================
+    // EXPORT BPLO VIOLATION RECORDS TO EXCEL
+    // ==========================================================
+
+    public function export()
+    {
+        $fileName = 'BPLO_Violation_Report_' .
+            now()->format('Y-m-d_H-i-s') .
+            '.xlsx';
+
+        return Excel::download(
+            new BploViolationsExport(),
+            $fileName
+        );
     }
 }

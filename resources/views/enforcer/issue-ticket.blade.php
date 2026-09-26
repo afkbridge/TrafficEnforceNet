@@ -1,3 +1,4 @@
+
 @extends('layouts.enforcer')
 
 @section('title', 'Issue Traffic Citation')
@@ -24,6 +25,7 @@
                 </a>
 
                 <div class="min-w-0">
+
                     <h1 class="text-lg sm:text-xl font-bold leading-tight">
                         Issue Traffic Citation
                     </h1>
@@ -31,6 +33,7 @@
                     <p class="text-blue-100 text-xs sm:text-sm mt-1">
                         Record a traffic violation and capture the required evidence.
                     </p>
+
                 </div>
 
             </div>
@@ -353,6 +356,60 @@
                             onchange="processDriverLicense(event)"
                         >
 
+
+                        {{-- DRIVER LICENSE OCR STATUS --}}
+                        <div class="mt-5">
+
+                            <div class="flex items-center justify-between gap-3 mb-4">
+
+                                <h2 class="font-bold text-gray-800">
+                                    🤖 Driver's License OCR Status
+                                </h2>
+
+                                <span
+                                    id="ocrBadge"
+                                    class="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 shrink-0"
+                                >
+                                    Ready
+                                </span>
+
+                            </div>
+
+
+                            <div
+                                id="ocrStatus"
+                                class="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl p-4"
+                            >
+
+                                <div
+                                    id="ocrIcon"
+                                    class="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center text-lg flex-shrink-0"
+                                >
+                                    🪪
+                                </div>
+
+                                <div class="min-w-0">
+
+                                    <p
+                                        id="ocrTitle"
+                                        class="font-semibold text-gray-700 text-sm"
+                                    >
+                                        Ready for scanning
+                                    </p>
+
+                                    <p
+                                        id="ocrMessage"
+                                        class="text-xs text-gray-500 mt-1 leading-relaxed"
+                                    >
+                                        Upload a clear driver's license image to begin OCR.
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
 
@@ -372,7 +429,7 @@
                                 </h2>
 
                                 <p class="text-xs text-gray-500 mt-1 leading-relaxed">
-                                    Capture or upload the citation ticket to automatically extract ticket and vehicle information.
+                                    Capture or upload the citation ticket to automatically extract ticket information.
                                 </p>
 
                             </div>
@@ -452,121 +509,55 @@
                             onchange="previewTicket(event)"
                         >
 
-                    </div>
 
-                </div>
+                        {{-- CITATION TICKET OCR STATUS --}}
+                        <div class="mt-5">
 
-            </section>
+                            <div class="flex items-center justify-between gap-3 mb-4">
 
+                                <h2 class="font-bold text-gray-800">
+                                    🤖 Citation Ticket OCR Status
+                                </h2>
 
-            {{-- =================================================
-                 OCR STATUS
-            ================================================== --}}
-            <section>
+                                <span
+                                    id="ticketOcrBadge"
+                                    class="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 shrink-0"
+                                >
+                                    Ready
+                                </span>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                            </div>
 
-
-                    {{-- CITATION OCR --}}
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
-
-                        <div class="flex items-center justify-between gap-3 mb-4">
-
-                            <h2 class="font-bold text-gray-800">
-                                🤖 Citation Ticket OCR Status
-                            </h2>
-
-                            <span
-                                id="ticketOcrBadge"
-                                class="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 shrink-0"
-                            >
-                                Ready
-                            </span>
-
-                        </div>
-
-
-                        <div
-                            id="ticketOcrStatus"
-                            class="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl p-4"
-                        >
 
                             <div
-                                id="ticketOcrIcon"
-                                class="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center text-lg flex-shrink-0"
+                                id="ticketOcrStatus"
+                                class="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl p-4"
                             >
-                                🎫
-                            </div>
 
-                            <div class="min-w-0">
-
-                                <p
-                                    id="ticketOcrTitle"
-                                    class="font-semibold text-gray-700 text-sm"
+                                <div
+                                    id="ticketOcrIcon"
+                                    class="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center text-lg flex-shrink-0"
                                 >
-                                    Ready for scanning
-                                </p>
+                                    🎫
+                                </div>
 
-                                <p
-                                    id="ticketOcrMessage"
-                                    class="text-xs text-gray-500 mt-1 leading-relaxed"
-                                >
-                                    Upload a clear citation ticket image to begin OCR.
-                                </p>
+                                <div class="min-w-0">
 
-                            </div>
+                                    <p
+                                        id="ticketOcrTitle"
+                                        class="font-semibold text-gray-700 text-sm"
+                                    >
+                                        Ready for scanning
+                                    </p>
 
-                        </div>
+                                    <p
+                                        id="ticketOcrMessage"
+                                        class="text-xs text-gray-500 mt-1 leading-relaxed"
+                                    >
+                                        Upload a clear citation ticket image to begin OCR.
+                                    </p>
 
-                    </div>
-
-
-                    {{-- LICENSE OCR --}}
-                    <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5">
-
-                        <div class="flex items-center justify-between gap-3 mb-4">
-
-                            <h2 class="font-bold text-gray-800">
-                                🪪 Driver's License OCR Status
-                            </h2>
-
-                            <span
-                                id="ocrBadge"
-                                class="text-xs font-medium px-2.5 py-1 rounded-full bg-gray-100 text-gray-500 shrink-0"
-                            >
-                                Ready
-                            </span>
-
-                        </div>
-
-
-                        <div
-                            id="ocrStatus"
-                            class="flex items-center gap-3 bg-gray-50 border border-gray-100 rounded-2xl p-4"
-                        >
-
-                            <div
-                                id="ocrIcon"
-                                class="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center text-lg flex-shrink-0"
-                            >
-                                🪪
-                            </div>
-
-                            <div class="min-w-0">
-
-                                <p
-                                    id="ocrTitle"
-                                    class="font-semibold text-gray-700 text-sm"
-                                >
-                                    Ready for scanning
-                                </p>
-
-                                <p
-                                    id="ocrMessage"
-                                    class="text-xs text-gray-500 mt-1 leading-relaxed"
-                                >
-                                    Upload a clear driver's license image to begin OCR.
-                                </p>
+                                </div>
 
                             </div>
 
@@ -655,7 +646,6 @@
 
 
                     <div class="space-y-4">
-
 
                         {{-- FIRST / MIDDLE NAME --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -867,7 +857,6 @@
 
                     <div class="space-y-4">
 
-
                         {{-- PLATE / VEHICLE TYPE --}}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
@@ -1019,7 +1008,6 @@
                         id="violationRows"
                         class="space-y-4"
                     >
-
 
                         {{-- PRIMARY VIOLATION --}}
                         <div class="violation-row rounded-2xl border border-gray-200 bg-gray-50 p-4">
@@ -1291,7 +1279,10 @@
                     </div>
 
 
-                    <label class="border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 rounded-3xl min-h-[220px] flex flex-col items-center justify-center cursor-pointer transition p-6 text-center">
+                    {{-- EVIDENCE PHOTO INPUT --}}
+                    <label
+                        class="border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 rounded-3xl min-h-[220px] flex flex-col items-center justify-center cursor-pointer transition p-6 text-center"
+                    >
 
                         <div class="w-16 h-16 rounded-2xl bg-blue-50 flex items-center justify-center text-3xl">
                             📷
@@ -1311,9 +1302,9 @@
 
                         <input
                             type="file"
+                            id="evidence_images"
                             name="evidence_images[]"
                             accept="image/*"
-                            capture="environment"
                             multiple
                             class="hidden"
                         >
@@ -1321,6 +1312,37 @@
                     </label>
 
 
+                    {{-- SELECTED EVIDENCE PREVIEW --}}
+                    <div
+                        id="evidencePreviewContainer"
+                        class="hidden mt-4"
+                    >
+
+                        <div class="flex items-center justify-between mb-2">
+
+                            <p class="text-xs font-semibold text-gray-600">
+                                Selected Evidence
+                            </p>
+
+                            <p
+                                id="evidenceCount"
+                                class="text-xs text-gray-400"
+                            >
+                                0 photos
+                            </p>
+
+                        </div>
+
+
+                        <div
+                            id="evidencePreview"
+                            class="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                        ></div>
+
+                    </div>
+
+
+                    {{-- RECOMMENDED EVIDENCE --}}
                     <div class="mt-4 bg-gray-50 rounded-2xl p-4">
 
                         <p class="text-xs font-semibold text-gray-600">
@@ -1734,6 +1756,327 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     }
+
+});
+</script>
+
+
+{{-- ===========================================================
+     EVIDENCE PHOTO PREVIEW
+============================================================ --}}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const evidenceInput = document.getElementById('evidence_images');
+    const evidencePreviewContainer = document.getElementById('evidencePreviewContainer');
+    const evidencePreview = document.getElementById('evidencePreview');
+    const evidenceCount = document.getElementById('evidenceCount');
+
+    if (!evidenceInput) {
+        return;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | MASTER FILE LIST
+    |--------------------------------------------------------------------------
+    |
+    | This array is the ONLY source of truth.
+    |
+    | If a photo is deleted from this array,
+    | it will NEVER be added back automatically.
+    |
+    */
+    let evidenceFiles = [];
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE REAL FILE INPUT
+    |--------------------------------------------------------------------------
+    |
+    | Makes sure the files submitted with the form
+    | exactly match evidenceFiles.
+    |
+    */
+    function syncFileInput() {
+
+        const dataTransfer = new DataTransfer();
+
+        evidenceFiles.forEach(function (file) {
+            dataTransfer.items.add(file);
+        });
+
+        evidenceInput.files = dataTransfer.files;
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE UNIQUE FILE KEY
+    |--------------------------------------------------------------------------
+    |
+    | Used to identify the same file.
+    |
+    */
+    function getFileKey(file) {
+
+        return [
+            file.name,
+            file.size,
+            file.lastModified,
+            file.type
+        ].join('|');
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK IF FILE ALREADY EXISTS
+    |--------------------------------------------------------------------------
+    */
+    function fileExists(file) {
+
+        const newFileKey = getFileKey(file);
+
+        return evidenceFiles.some(function (existingFile) {
+
+            return getFileKey(existingFile) === newFileKey;
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | RENDER PREVIEWS
+    |--------------------------------------------------------------------------
+    */
+    function renderEvidencePreviews() {
+
+        /*
+        | Clear current previews.
+        */
+        evidencePreview.innerHTML = '';
+
+
+        /*
+        | No photos.
+        */
+        if (evidenceFiles.length === 0) {
+
+            evidencePreviewContainer.classList.add('hidden');
+
+            evidenceCount.textContent = '0 photos';
+
+            return;
+        }
+
+
+        /*
+        | Show preview container.
+        */
+        evidencePreviewContainer.classList.remove('hidden');
+
+
+        /*
+        | Update count.
+        */
+        evidenceCount.textContent =
+            evidenceFiles.length +
+            (
+                evidenceFiles.length === 1
+                    ? ' photo'
+                    : ' photos'
+            );
+
+
+        /*
+        | Create preview for every file.
+        */
+        evidenceFiles.forEach(function (file, index) {
+
+            const wrapper = document.createElement('div');
+
+            wrapper.className =
+                'relative rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm';
+
+
+            /*
+            | IMAGE
+            */
+            const image = document.createElement('img');
+
+            const previewUrl = URL.createObjectURL(file);
+
+            image.src = previewUrl;
+
+            image.alt =
+                'Evidence photo ' + (index + 1);
+
+            image.className =
+                'w-full h-40 object-cover';
+
+
+            /*
+            | DELETE BUTTON
+            */
+            const removeButton = document.createElement('button');
+
+            removeButton.type = 'button';
+
+            removeButton.innerHTML = '&times;';
+
+            removeButton.title = 'Remove this photo';
+
+            removeButton.setAttribute(
+                'aria-label',
+                'Remove evidence photo ' + (index + 1)
+            );
+
+            removeButton.className =
+                'absolute top-2 right-2 w-9 h-9 rounded-full bg-black/70 hover:bg-red-600 text-white flex items-center justify-center text-xl font-bold leading-none shadow-md transition';
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | REMOVE PHOTO
+            |--------------------------------------------------------------------------
+            */
+            removeButton.addEventListener('click', function (event) {
+
+                event.preventDefault();
+
+                event.stopPropagation();
+
+
+                /*
+                | Remove the exact file.
+                */
+                evidenceFiles.splice(index, 1);
+
+
+                /*
+                | Update actual input.
+                */
+                syncFileInput();
+
+
+                /*
+                | Re-render.
+                */
+                renderEvidencePreviews();
+
+            });
+
+
+            /*
+            | FILE NAME
+            */
+            const fileName = document.createElement('div');
+
+            fileName.className =
+                'px-3 py-2 bg-white text-xs text-gray-600 truncate';
+
+            fileName.textContent = file.name;
+
+
+            /*
+            | Build card.
+            */
+            wrapper.appendChild(image);
+
+            wrapper.appendChild(removeButton);
+
+            wrapper.appendChild(fileName);
+
+            evidencePreview.appendChild(wrapper);
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | NEW FILE SELECTION
+    |--------------------------------------------------------------------------
+    |
+    | IMPORTANT:
+    |
+    | We DO NOT replace evidenceFiles.
+    | We DO NOT read old files back from the input.
+    |
+    | We ONLY add the newly selected files.
+    |
+    */
+    evidenceInput.addEventListener('change', function () {
+
+        const newlySelectedFiles =
+            Array.from(evidenceInput.files || []);
+
+
+        /*
+        | Add ONLY newly selected files.
+        */
+        newlySelectedFiles.forEach(function (file) {
+
+            /*
+            | Ignore non-image files.
+            */
+            if (
+                !file.type ||
+                !file.type.startsWith('image/')
+            ) {
+                return;
+            }
+
+
+            /*
+            | Ignore duplicates.
+            */
+            if (fileExists(file)) {
+                return;
+            }
+
+
+            /*
+            | Add new image.
+            */
+            evidenceFiles.push(file);
+
+        });
+
+
+        /*
+        | IMPORTANT:
+        |
+        | Clear the browser input after reading
+        | the newly selected files.
+        |
+        | This prevents the browser input from
+        | becoming the source of truth.
+        */
+        evidenceInput.value = '';
+
+
+        /*
+        | Put our master list back into the
+        | actual input.
+        */
+        syncFileInput();
+
+
+        /*
+        | Render.
+        */
+        renderEvidencePreviews();
+
+    });
+
 
 });
 </script>
