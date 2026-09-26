@@ -9,7 +9,6 @@
              Dashboard title is displayed in dashboard.blade.php --}}
     </div>
 
-
     <div class="topbar-right">
 
         {{-- ================= NOTIFICATION BELL ================= --}}
@@ -22,16 +21,16 @@
                 aria-label="Open notifications"
             >
                 <i class="fa-solid fa-bell"></i>
-@if(isset($pendingViolations) && $pendingViolations > 0)
-    <span
-        class="notification-badge"
-        id="notificationBadge"
-    >
-        {{ $pendingViolations > 99 ? '99+' : $pendingViolations }}
-    </span>
-@endif
-            </button>
 
+                @if(isset($pendingViolations) && $pendingViolations > 0)
+                    <span
+                        class="notification-badge"
+                        id="notificationBadge"
+                    >
+                        {{ $pendingViolations > 99 ? '99+' : $pendingViolations }}
+                    </span>
+                @endif
+            </button>
 
             {{-- ================= DROPDOWN ================= --}}
             <div
@@ -40,7 +39,6 @@
             >
 
                 <div class="notification-dropdown-header">
-
                     <h4>Notifications</h4>
 
                     <button
@@ -50,9 +48,7 @@
                     >
                         Mark all as read
                     </button>
-
                 </div>
-
 
                 <div class="notification-list">
 
@@ -64,93 +60,94 @@
                                 ->take(5);
                         @endphp
 
+                        @forelse($notifications as $notification)
 
-                        
-@forelse($notifications as $notification)
+                            @php
+                                $notificationDriver = $notification->driver
+                                    ? trim(
+                                        $notification->driver->first_name . ' ' .
+                                        $notification->driver->last_name
+                                    )
+                                    : 'N/A';
 
-    @php
-        $notificationDriver = $notification->driver
-            ? trim(
-                $notification->driver->first_name . ' ' .
-                $notification->driver->last_name
-            )
-            : 'N/A';
+                                $notificationVehicle = $notification->vehicle
+                                    ? collect([
+                                        $notification->vehicle->plate_number,
+                                        $notification->vehicle->vehicle_type,
+                                    ])->filter()->implode(' - ')
+                                    : 'N/A';
 
-        $notificationVehicle = $notification->vehicle
-            ? collect([
-                $notification->vehicle->plate_number,
-                $notification->vehicle->vehicle_type,
-            ])->filter()->implode(' - ')
-            : 'N/A';
+                                $notificationVehicle =
+                                    $notificationVehicle ?: 'N/A';
 
-        $notificationVehicle = $notificationVehicle ?: 'N/A';
+                                $notificationViolation =
+                                    $notification->violationType->name ?? 'N/A';
 
-        $notificationViolation =
-            $notification->violationType->name ?? 'N/A';
+                                $notificationDate =
+                                    $notification->violation_date
+                                        ? \Carbon\Carbon::parse(
+                                            $notification->violation_date
+                                        )->format('M d, Y')
+                                        : 'N/A';
 
-        $notificationDate = $notification->violation_date
-            ? \Carbon\Carbon::parse(
-                $notification->violation_date
-            )->format('M d, Y')
-            : 'N/A';
+                                $notificationTime =
+                                    $notification->violation_time
+                                        ? \Carbon\Carbon::parse(
+                                            $notification->violation_time
+                                        )->format('h:i A')
+                                        : 'N/A';
+                            @endphp
 
-        $notificationTime = $notification->violation_time
-            ? \Carbon\Carbon::parse(
-                $notification->violation_time
-            )->format('h:i A')
-            : 'N/A';
-    @endphp
+                            <a
+                                href="{{ route('bplo.violations.index', [
+                                    'search' => $notification->ticket_number
+                                ]) }}"
+                                class="notification-item unread"
+                            >
+                                <span class="notification-dot"></span>
 
-    <a
-        href="{{ route('bplo.violations.index', [
-            'search' => $notification->ticket_number
-        ]) }}"
-        class="notification-item unread"
-    >
-        <span class="notification-dot"></span>
+                                <div class="notification-content">
+                                    <strong>
+                                        {{ $notificationViolation }}
+                                    </strong>
 
-        <div class="notification-content">
+                                    <p>
+                                        Ticket:
+                                        {{ $notification->ticket_number }}
+                                    </p>
 
-            <strong>
-                {{ $notificationViolation }}
-            </strong>
+                                    <p>
+                                        Violator:
+                                        {{ $notificationDriver }}
+                                    </p>
 
-            <p>
-                Ticket: {{ $notification->ticket_number }}
-            </p>
+                                    <p>
+                                        Vehicle:
+                                        {{ $notificationVehicle }}
+                                    </p>
 
-            <p>
-                Violator: {{ $notificationDriver }}
-            </p>
+                                    <small>
+                                        {{ $notificationDate }}
+                                        •
+                                        {{ $notificationTime }}
+                                    </small>
+                                </div>
+                            </a>
 
-            <p>
-                Vehicle: {{ $notificationVehicle }}
-            </p>
+                        @empty
 
-            <small>
-                {{ $notificationDate }} • {{ $notificationTime }}
-            </small>
+                            <div class="notification-empty">
+                                <i class="fa-regular fa-bell"></i>
+                                <p>No new notifications</p>
+                            </div>
 
-        </div>
-    </a>
-
-@empty
-
-    <div class="notification-empty">
-        <i class="fa-regular fa-bell"></i>
-        <p>No new notifications</p>
-    </div>
-
-@endforelse
+                        @endforelse
 
                     @else
 
                         <div class="notification-empty">
                             <i class="fa-regular fa-bell"></i>
-
-                            <p>
-                                No new notifications
-                            </p>
+                            <p>No new notifications</p>
                         </div>
 
                     @endif
@@ -161,18 +158,24 @@
 
         </div>
 
+        {{-- ================= EXPORT TO EXCEL ================= --}}
+        <a
+            href="{{ route('bplo.violations.export') }}"
+            class="bplo-export-btn"
+            title="Export violation records to Excel"
+        >
+            <i class="fa-solid fa-file-excel"></i>
+            <span>Export to Excel</span>
+        </a>
 
         {{-- ================= CURRENT DATE ================= --}}
         <div class="topbar-date">
-
             <i class="fa-regular fa-calendar"></i>
 
             <span>
-    {{ now()->format('F d, Y') }}
-</span>
-
+                {{ now()->format('F d, Y') }}
+            </span>
         </div>
-
 
         {{-- ================= CURRENT USER ================= --}}
         <div class="topbar-user">
@@ -180,7 +183,6 @@
             <div class="topbar-avatar">
                 <i class="fa-solid fa-user"></i>
             </div>
-
 
             <div class="topbar-user-info">
 
@@ -230,25 +232,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (bell && dropdown) {
 
         bell.addEventListener('click', function (event) {
-
             event.stopPropagation();
-
             dropdown.classList.toggle('show');
-
         });
-
 
         dropdown.addEventListener('click', function (event) {
-
             event.stopPropagation();
-
         });
 
-
         document.addEventListener('click', function () {
-
             dropdown.classList.remove('show');
-
         });
 
     }
@@ -271,11 +264,8 @@ document.addEventListener('DOMContentLoaded', function () {
             document
                 .querySelectorAll('.notification-item.unread')
                 .forEach(function (item) {
-
                     item.classList.remove('unread');
-
                 });
-
 
             if (badge) {
                 badge.style.display = 'none';
