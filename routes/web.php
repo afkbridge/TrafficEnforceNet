@@ -155,6 +155,17 @@ Route::patch(
     ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
     ->name('bplo.violations.status');
 
+// ==========================================================================
+// BPLO Driver History
+// ==========================================================================
+
+    Route::get(
+    '/bplo/violations/driver-history/{driver}',
+    [BPLOViolationController::class, 'driverHistory']
+)
+    ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
+    ->name('bplo.violations.driver-history');
+
 
 /*
 |--------------------------------------------------------------------------
@@ -203,6 +214,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/reports', [ReportController::class, 'index'])
         ->name('admin.reports.index');
 
+    Route::get('/admin/reports/export/excel', [ReportController::class, 'exportExcel'])
+    ->name('admin.reports.export.excel');
+
 
     /*
     |--------------------------------------------------------------------------
@@ -225,18 +239,30 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::get(
-        '/violations/export',
-        [ViolationController::class, 'export']
-    )->name('admin.violations.export');
+    '/violations/export',
+    [ViolationController::class, 'export']
+)->name('admin.violations.export');
 
-    Route::resource('violations', ViolationController::class);
+Route::resource('violations', ViolationController::class);
 
-    Route::get('/violations/create', [ViolationController::class, 'create'])
-        ->name('admin.violations.create');
+/*
+|--------------------------------------------------------------------------
+| Admin Driver History
+|--------------------------------------------------------------------------
+*/
 
-    Route::post('/violations', [ViolationController::class, 'store'])
-        ->name('admin.violations.store');
+Route::get(
+    '/violations/driver/{driver}',
+    [ViolationController::class, 'driverHistory']
+)
+    ->middleware(['role:Administrator', 'prevent-back'])
+    ->name('violations.driver-history');
 
+Route::get('/violations/create', [ViolationController::class, 'create'])
+    ->name('admin.violations.create');
+
+Route::post('/violations', [ViolationController::class, 'store'])
+    ->name('admin.violations.store');
 
 
     /*

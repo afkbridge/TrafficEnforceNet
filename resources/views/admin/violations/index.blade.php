@@ -230,13 +230,33 @@
                                     {{-- ACTION --}}
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-1">
+
+                                            {{-- VIEW VIOLATION --}}
                                             <a href="{{ route('violations.show', $violation->id) }}"
                                                 class="btn btn-sm btn-primary" title="View violation">
+
                                                 <i class="fa-solid fa-eye"></i>
+
                                                 <span class="d-none d-lg-inline ms-1">
                                                     View
                                                 </span>
+
                                             </a>
+
+                                            {{-- DRIVER HISTORY --}}
+                                            @if ($violation->driver)
+                                                <a href="{{ route('violations.driver-history', $violation->driver->id) }}"
+                                                    class="btn btn-sm btn-outline-secondary" title="View driver history">
+
+                                                    <i class="fa-solid fa-clock-rotate-left"></i>
+
+                                                    <span class="d-none d-lg-inline ms-1">
+                                                        History
+                                                    </span>
+
+                                                </a>
+                                            @endif
+
                                         </div>
                                     </td>
 
