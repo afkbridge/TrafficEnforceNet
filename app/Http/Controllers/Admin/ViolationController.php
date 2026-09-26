@@ -18,7 +18,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class ViolationController extends Controller
 {
     /**
-     * Display violation records.
+     * Display all violation records.
      */
     public function index(Request $request)
     {
@@ -30,18 +30,50 @@ class ViolationController extends Controller
             'user',
         ]);
 
+        /*
+        |--------------------------------------------------------------------------
+        | SEARCH
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('search')) {
-            $search = $request->search;
+            $search = trim($request->search);
 
             $query->where(function ($q) use ($search) {
+
+                /*
+                |--------------------------------------------------------------------------
+                | Ticket Number
+                |--------------------------------------------------------------------------
+                */
                 $q->where(
                     'ticket_number',
                     'like',
                     '%' . $search . '%'
                 )
+
+                /*
+                |--------------------------------------------------------------------------
+                | Driver
+                |--------------------------------------------------------------------------
+                */
                 ->orWhereHas('driver', function ($driverQuery) use ($search) {
-                    $driverQuery
-                        ->where(
+
+                    $driverQuery->where(function ($nameQuery) use ($search) {
+
+                        // Full name including middle name
+                        $nameQuery->whereRaw(
+                            "CONCAT_WS(' ', first_name, middle_name, last_name) LIKE ?",
+                            ['%' . $search . '%']
+                        )
+
+                        // First name + last name
+                        ->orWhereRaw(
+                            "CONCAT(first_name, ' ', last_name) LIKE ?",
+                            ['%' . $search . '%']
+                        )
+
+                        // Individual name fields
+                        ->orWhere(
                             'first_name',
                             'like',
                             '%' . $search . '%'
@@ -56,22 +88,73 @@ class ViolationController extends Controller
                             'like',
                             '%' . $search . '%'
                         )
+
+                        // License number
                         ->orWhere(
                             'license_number',
                             'like',
                             '%' . $search . '%'
                         );
+                    });
                 })
+
+                /*
+                |--------------------------------------------------------------------------
+                | Vehicle Plate
+                |--------------------------------------------------------------------------
+                */
                 ->orWhereHas('vehicle', function ($vehicleQuery) use ($search) {
                     $vehicleQuery->where(
                         'plate_number',
                         'like',
                         '%' . $search . '%'
                     );
-                });
+                })
+
+                /*
+                |--------------------------------------------------------------------------
+                | Primary Violation Type
+                |--------------------------------------------------------------------------
+                */
+                ->orWhereHas('violationType', function ($typeQuery) use ($search) {
+                    $typeQuery->where(
+                        'name',
+                        'like',
+                        '%' . $search . '%'
+                    );
+                })
+
+                /*
+                |--------------------------------------------------------------------------
+                | Additional Violation Types
+                |--------------------------------------------------------------------------
+                */
+                ->orWhereHas('violationTypes', function ($typeQuery) use ($search) {
+                    $typeQuery->where(
+                        'name',
+                        'like',
+                        '%' . $search . '%'
+                    );
+                })
+
+                /*
+                |--------------------------------------------------------------------------
+                | Location
+                |--------------------------------------------------------------------------
+                */
+                ->orWhere(
+                    'location',
+                    'like',
+                    '%' . $search . '%'
+                );
             });
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | STATUS FILTER
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('status')) {
             $query->where(
                 'status',
@@ -79,6 +162,11 @@ class ViolationController extends Controller
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | DATE FROM
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('date_from')) {
             $query->whereDate(
                 'violation_date',
@@ -87,6 +175,11 @@ class ViolationController extends Controller
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | DATE TO
+        |--------------------------------------------------------------------------
+        */
         if ($request->filled('date_to')) {
             $query->whereDate(
                 'violation_date',
@@ -95,8 +188,14 @@ class ViolationController extends Controller
             );
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | GET RECORDS
+        |--------------------------------------------------------------------------
+        */
         $violations = $query
-            ->latest('violation_date')
+            ->orderBy('violation_date', 'desc')
+            ->orderBy('violation_time', 'desc')
             ->paginate(10)
             ->withQueryString();
 
@@ -107,7 +206,73 @@ class ViolationController extends Controller
     }
 
     /**
-     * Show the Add Citation page.
+     * Display a driver's complete violation history.
+     */
+    public function driverHistory(Driver $driver)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | LOAD DRIVER INFORMATION
+        |--------------------------------------------------------------------------
+        */
+        $driver->load([
+            'vehicles',
+            'violations.vehicle',
+            'violations.violationType',
+            'violations.violationTypes',
+            'violations.user',
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | SORT VIOLATIONS
+        |--------------------------------------------------------------------------
+        */
+        $violations = $driver->violations
+            ->sortByDesc(function ($violation) {
+                return ($violation->violation_date ?? '') . ' ' .
+                    ($violation->violation_time ?? '');
+            })
+            ->values();
+
+        /*
+        |--------------------------------------------------------------------------
+        | SUMMARY
+        |--------------------------------------------------------------------------
+        */
+        $totalViolations = $violations->count();
+
+        $pendingViolations = $violations
+            ->filter(function ($violation) {
+                return strtolower($violation->status ?? '') === 'pending';
+            })
+            ->count();
+
+        $settledViolations = $violations
+            ->filter(function ($violation) {
+                return strtolower($violation->status ?? '') === 'settled';
+            })
+            ->count();
+
+        /*
+        |--------------------------------------------------------------------------
+        | DRIVER HISTORY PAGE
+        |--------------------------------------------------------------------------
+        */
+        return view(
+            'admin.violations.driver-history',
+            compact(
+                'driver',
+                'violations',
+                'totalViolations',
+                'pendingViolations',
+                'settledViolations'
+            )
+        );
+    }
+
+    /**
+     * Show the form for creating a new violation.
      */
     public function create()
     {
@@ -120,13 +285,13 @@ class ViolationController extends Controller
     }
 
     /**
-     * Store an admin-encoded citation record.
+     * Store a newly created violation.
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'ticket_number' => [
-                'nullable',
+                'required',
                 'string',
                 'max:255',
                 'unique:violations,ticket_number',
@@ -157,30 +322,15 @@ class ViolationController extends Controller
             ],
 
             'address' => [
-                'required',
-                'string',
-            ],
-
-            'birth_date' => [
                 'nullable',
-                'date',
+                'string',
+                'max:255',
             ],
 
             'contact_number' => [
                 'nullable',
                 'string',
                 'max:255',
-            ],
-
-            'license_type' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'license_expiration' => [
-                'nullable',
-                'date',
             ],
 
             'plate_number' => [
@@ -190,18 +340,6 @@ class ViolationController extends Controller
             ],
 
             'vehicle_type' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'region_number' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'owner_name' => [
                 'nullable',
                 'string',
                 'max:255',
@@ -218,31 +356,7 @@ class ViolationController extends Controller
             ],
 
             'additional_violation_type_ids.*' => [
-                'nullable',
                 'exists:violation_types,id',
-            ],
-
-            'other_violation' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'additional_other_violation_names' => [
-                'nullable',
-                'array',
-            ],
-
-            'additional_other_violation_names.*' => [
-                'nullable',
-                'string',
-                'max:255',
-            ],
-
-            'location' => [
-                'required',
-                'string',
-                'max:255',
             ],
 
             'violation_date' => [
@@ -253,6 +367,22 @@ class ViolationController extends Controller
             'violation_time' => [
                 'required',
                 'date_format:H:i',
+            ],
+
+            'location' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'latitude' => [
+                'nullable',
+                'numeric',
+            ],
+
+            'longitude' => [
+                'nullable',
+                'numeric',
             ],
 
             'remarks' => [
@@ -284,170 +414,64 @@ class ViolationController extends Controller
         | DRIVER
         |--------------------------------------------------------------------------
         */
-
         $driver = Driver::firstOrCreate(
             [
-                'license_number' => $request->license_number,
+                'license_number' => $validated['license_number'],
             ],
             [
-                'first_name' => $request->first_name,
-                'middle_name' => $request->middle_name,
-                'last_name' => $request->last_name,
-                'address' => $request->address,
-                'birth_date' => $request->birth_date,
-                'contact_number' => $request->contact_number,
-                'license_type' => $request->license_type,
-                'license_expiration' => $request->license_expiration,
+                'first_name' => $validated['first_name'],
+                'middle_name' => $validated['middle_name'] ?? null,
+                'last_name' => $validated['last_name'],
+                'address' => $validated['address'] ?? null,
+                'contact_number' => $validated['contact_number'] ?? null,
             ]
         );
 
         /*
         |--------------------------------------------------------------------------
-        | UPDATE DRIVER IF EXISTING
+        | UPDATE DRIVER INFORMATION IF EXISTING
         |--------------------------------------------------------------------------
         */
-
-        if (!$driver->wasRecentlyCreated) {
-            $driver->update([
-                'first_name' => $request->first_name,
-                'middle_name' => $request->middle_name,
-                'last_name' => $request->last_name,
-                'address' => $request->address,
-                'birth_date' => $request->birth_date,
-                'contact_number' => $request->contact_number,
-                'license_type' => $request->license_type,
-                'license_expiration' => $request->license_expiration,
-            ]);
-        }
+        $driver->first_name = $validated['first_name'];
+        $driver->middle_name = $validated['middle_name'] ?? null;
+        $driver->last_name = $validated['last_name'];
+        $driver->address = $validated['address'] ?? $driver->address;
+        $driver->contact_number = $validated['contact_number'] ?? $driver->contact_number;
+        $driver->save();
 
         /*
         |--------------------------------------------------------------------------
         | VEHICLE
         |--------------------------------------------------------------------------
         */
-
-        $plateNumber = strtoupper(trim($request->plate_number));
-
         $vehicle = Vehicle::firstOrCreate(
             [
-                'plate_number' => $plateNumber,
+                'plate_number' => $validated['plate_number'],
             ],
             [
                 'driver_id' => $driver->id,
-                'vehicle_type' => $request->vehicle_type,
-                'region_number' => $request->region_number,
-                'owner_name' => $request->owner_name,
+                'vehicle_type' => $validated['vehicle_type'] ?? null,
             ]
         );
 
         /*
         |--------------------------------------------------------------------------
-        | UPDATE VEHICLE IF EXISTING
+        | UPDATE VEHICLE INFORMATION
         |--------------------------------------------------------------------------
         */
+        $vehicle->driver_id = $driver->id;
 
-        if (!$vehicle->wasRecentlyCreated) {
-            $vehicle->update([
-                'driver_id' => $driver->id,
-                'vehicle_type' => $request->vehicle_type,
-                'region_number' => $request->region_number,
-                'owner_name' => $request->owner_name,
-            ]);
+        if (!empty($validated['vehicle_type'])) {
+            $vehicle->vehicle_type = $validated['vehicle_type'];
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | COLLECT VIOLATION TYPES
-        |--------------------------------------------------------------------------
-        */
-
-        $violationTypeIds = [
-            (int) $request->violation_type_id,
-        ];
-
-        /*
-        |--------------------------------------------------------------------------
-        | ADDITIONAL VIOLATIONS
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('additional_violation_type_ids')) {
-            foreach ($request->additional_violation_type_ids as $additionalId) {
-                $additionalId = (int) $additionalId;
-
-                if (
-                    $additionalId > 0 &&
-                    !in_array($additionalId, $violationTypeIds, true)
-                ) {
-                    $violationTypeIds[] = $additionalId;
-                }
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | OTHER PRIMARY VIOLATION
-        |--------------------------------------------------------------------------
-        */
-
-        if (
-            $request->filled('other_violation') &&
-            strtolower(trim($request->other_violation)) !== 'other'
-        ) {
-            $otherViolation = trim($request->other_violation);
-
-            $otherType = ViolationType::firstOrCreate(
-                [
-                    'name' => $otherViolation,
-                ],
-                [
-                    'description' => 'Added by administrator during citation',
-                ]
-            );
-
-            if (!in_array($otherType->id, $violationTypeIds, true)) {
-                $violationTypeIds[] = $otherType->id;
-            }
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | OTHER ADDITIONAL VIOLATIONS
-        |--------------------------------------------------------------------------
-        */
-
-        if ($request->filled('additional_other_violation_names')) {
-            foreach (
-                $request->additional_other_violation_names
-                as $additionalOtherViolation
-            ) {
-                $additionalOtherViolation = trim($additionalOtherViolation);
-
-                if ($additionalOtherViolation === '') {
-                    continue;
-                }
-
-                $otherType = ViolationType::firstOrCreate(
-                    [
-                        'name' => $additionalOtherViolation,
-                    ],
-                    [
-                        'description' => 'Added by administrator during citation',
-                    ]
-                );
-
-                if (!in_array($otherType->id, $violationTypeIds, true)) {
-                    $violationTypeIds[] = $otherType->id;
-                }
-            }
-        }
+        $vehicle->save();
 
         /*
         |--------------------------------------------------------------------------
         | TICKET IMAGE
         |--------------------------------------------------------------------------
         */
-
         $ticketImagePath = null;
 
         if ($request->hasFile('ticket_image')) {
@@ -458,50 +482,44 @@ class ViolationController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | TICKET NUMBER
-        |--------------------------------------------------------------------------
-        */
-
-        $ticketNumber = $request->filled('ticket_number')
-            ? trim($request->ticket_number)
-            : 'TN-' . now()->format('YmdHis') . '-' . strtoupper(Str::random(4));
-
-        /*
-        |--------------------------------------------------------------------------
         | CREATE VIOLATION
         |--------------------------------------------------------------------------
         */
-
         $violation = Violation::create([
-            'ticket_number' => $ticketNumber,
+            'ticket_number' => $validated['ticket_number'],
             'driver_id' => $driver->id,
             'vehicle_id' => $vehicle->id,
-            'violation_type_id' => $violationTypeIds[0],
+            'violation_type_id' => $validated['violation_type_id'],
             'user_id' => Auth::id(),
-            'violation_date' => $request->violation_date,
-            'violation_time' => $request->violation_time,
-            'location' => $request->location,
-            'remarks' => $request->remarks,
+            'violation_date' => $validated['violation_date'],
+            'violation_time' => $validated['violation_time'],
+            'location' => $validated['location'] ?? null,
+            'latitude' => $validated['latitude'] ?? null,
+            'longitude' => $validated['longitude'] ?? null,
+            'remarks' => $validated['remarks'] ?? null,
             'ticket_image' => $ticketImagePath,
             'status' => 'Pending',
         ]);
 
         /*
         |--------------------------------------------------------------------------
-        | SYNC MULTIPLE VIOLATIONS
+        | ADDITIONAL VIOLATION TYPES
         |--------------------------------------------------------------------------
         */
-
-        $violation->violationTypes()->sync($violationTypeIds);
+        if (!empty($validated['additional_violation_type_ids'])) {
+            $violation->violationTypes()->sync(
+                $validated['additional_violation_type_ids']
+            );
+        }
 
         /*
         |--------------------------------------------------------------------------
         | EVIDENCE IMAGES
         |--------------------------------------------------------------------------
         */
-
         if ($request->hasFile('evidence_images')) {
             foreach ($request->file('evidence_images') as $image) {
+
                 $imagePath = $image->store(
                     'violations/evidence',
                     'public'
@@ -519,24 +537,12 @@ class ViolationController extends Controller
         | AUDIT LOG
         |--------------------------------------------------------------------------
         */
-
-        try {
-            AuditLogger::log(
-                'CREATE',
-                'Violation',
-                $violation->id,
-                'Administrator encoded traffic citation ' . $violation->ticket_number
-            );
-        } catch (\Throwable $e) {
-            // Do not prevent the citation from being saved
-            // if audit logging encounters an error.
-        }
-
-        /*
-        |--------------------------------------------------------------------------
-        | REDIRECT
-        |--------------------------------------------------------------------------
-        */
+        AuditLogger::log(
+            'CREATE_VIOLATION',
+            'Created violation ticket ' .
+                $violation->ticket_number . '.',
+            $violation
+        );
 
         return redirect()
             ->route('violations.show', $violation->id)
@@ -549,7 +555,7 @@ class ViolationController extends Controller
     /**
      * Display a specific violation.
      */
-    public function show(string $id)
+    public function show($id)
     {
         $violation = Violation::with([
             'driver',
@@ -567,7 +573,7 @@ class ViolationController extends Controller
     }
 
     /**
-     * Show the edit violation page.
+     * Show the form for editing a violation.
      */
     public function edit($id)
     {
@@ -576,11 +582,10 @@ class ViolationController extends Controller
             'vehicle',
             'violationType',
             'violationTypes',
-            'user',
             'images',
         ])->findOrFail($id);
 
-        $violationTypes = ViolationType::all();
+        $violationTypes = ViolationType::orderBy('name')->get();
 
         return view(
             'admin.violations.edit',
@@ -592,16 +597,17 @@ class ViolationController extends Controller
     }
 
     /**
-     * Update a violation.
+     * Update an existing violation.
      */
     public function update(Request $request, $id)
     {
         $violation = Violation::with([
             'driver',
             'vehicle',
+            'violationTypes',
         ])->findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'violation_type_id' => [
                 'required',
                 'exists:violation_types,id',
@@ -613,7 +619,6 @@ class ViolationController extends Controller
             ],
 
             'additional_violation_type_ids.*' => [
-                'required',
                 'exists:violation_types,id',
             ],
 
@@ -622,8 +627,19 @@ class ViolationController extends Controller
                 'in:Pending,Settled',
             ],
 
+            'remarks' => [
+                'nullable',
+                'string',
+            ],
+
             'first_name' => [
                 'required',
+                'string',
+                'max:255',
+            ],
+
+            'middle_name' => [
+                'nullable',
                 'string',
                 'max:255',
             ],
@@ -641,11 +657,6 @@ class ViolationController extends Controller
             ],
 
             'address' => [
-                'required',
-                'string',
-            ],
-
-            'middle_name' => [
                 'nullable',
                 'string',
                 'max:255',
@@ -657,81 +668,119 @@ class ViolationController extends Controller
                 'max:255',
             ],
 
-            'license_type' => [
-                'nullable',
+            'plate_number' => [
+                'required',
                 'string',
                 'max:255',
             ],
 
-            'remarks' => [
+            'vehicle_type' => [
                 'nullable',
                 'string',
+                'max:255',
             ],
         ]);
 
         /*
         |--------------------------------------------------------------------------
-        | COLLECT SELECTED VIOLATION TYPES
+        | OLD VALUES FOR AUDIT
         |--------------------------------------------------------------------------
         */
+        $oldStatus = $violation->status;
 
-        $violationTypeIds = [
-            (int) $request->violation_type_id,
-        ];
+        /*
+        |--------------------------------------------------------------------------
+        | UPDATE DRIVER
+        |--------------------------------------------------------------------------
+        */
+        $driver = $violation->driver;
 
-        if ($request->filled('additional_violation_type_ids')) {
-            foreach ($request->additional_violation_type_ids as $additionalId) {
-                $additionalId = (int) $additionalId;
-
-                if (!in_array($additionalId, $violationTypeIds, true)) {
-                    $violationTypeIds[] = $additionalId;
-                }
-            }
+        if ($driver) {
+            $driver->first_name = $validated['first_name'];
+            $driver->middle_name = $validated['middle_name'] ?? null;
+            $driver->last_name = $validated['last_name'];
+            $driver->license_number = $validated['license_number'];
+            $driver->address = $validated['address'] ?? null;
+            $driver->contact_number = $validated['contact_number'] ?? null;
+            $driver->save();
         }
 
         /*
         |--------------------------------------------------------------------------
-        | UPDATE MAIN VIOLATION RECORD
+        | UPDATE VEHICLE
         |--------------------------------------------------------------------------
         */
+        $vehicle = $violation->vehicle;
 
-        $violation->update([
-            'violation_type_id' => $violationTypeIds[0],
-            'status' => $request->status,
-            'remarks' => $request->remarks,
-        ]);
+        if ($vehicle) {
+            $vehicle->plate_number = $validated['plate_number'];
+            $vehicle->vehicle_type = $validated['vehicle_type'] ?? null;
+            $vehicle->save();
+        }
 
         /*
         |--------------------------------------------------------------------------
-        | SYNCHRONIZE MULTIPLE VIOLATION TYPES
+        | UPDATE VIOLATION
         |--------------------------------------------------------------------------
         */
+        $violation->violation_type_id =
+            $validated['violation_type_id'];
 
-        $violation->violationTypes()->sync($violationTypeIds);
+        $violation->status =
+            $validated['status'];
+
+        $violation->remarks =
+            $validated['remarks'] ?? null;
+
+        $violation->save();
 
         /*
         |--------------------------------------------------------------------------
-        | UPDATE DRIVER INFORMATION
+        | UPDATE ADDITIONAL VIOLATIONS
         |--------------------------------------------------------------------------
         */
+        $additionalViolationIds =
+            $validated['additional_violation_type_ids'] ?? [];
 
-        if ($violation->driver) {
-            $violation->driver->update([
-                'first_name' => $request->first_name,
-                'middle_name' => $request->middle_name,
-                'last_name' => $request->last_name,
-                'license_number' => $request->license_number,
-                'address' => $request->address,
-                'contact_number' => $request->contact_number,
-                'license_type' => $request->license_type,
-            ]);
+        $violation->violationTypes()->sync(
+            $additionalViolationIds
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | AUDIT LOG
+        |--------------------------------------------------------------------------
+        */
+        if ($oldStatus !== $violation->status) {
+
+            AuditLogger::log(
+                'STATUS_UPDATE',
+                'Updated violation ticket ' .
+                    $violation->ticket_number .
+                    ' status from ' .
+                    $oldStatus .
+                    ' to ' .
+                    $violation->status .
+                    '.',
+                $violation
+            );
+
+        } else {
+
+            AuditLogger::log(
+                'UPDATE_VIOLATION',
+                'Updated violation ticket ' .
+                    $violation->ticket_number .
+                    '.',
+                $violation
+            );
         }
 
         return redirect()
-            ->route('violations.show', $id)
+            ->route('violations.show', $violation->id)
             ->with(
                 'success',
-                'Violation updated successfully.'
+                'Violation record updated successfully.'
             );
     }
 
@@ -747,7 +796,7 @@ class ViolationController extends Controller
                 $request->date_from,
                 $request->date_to
             ),
-            'traffic_violation_records.xlsx'
+            'traffic-violation-records.xlsx'
         );
     }
 }

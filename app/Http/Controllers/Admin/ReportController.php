@@ -12,6 +12,12 @@ use Carbon\Carbon;
 
 class ReportController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Reports Dashboard
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request)
     {
         /*
@@ -62,16 +68,6 @@ class ReportController extends Controller
                 $request->officer
             );
         }
-
-        /*
-        |--------------------------------------------------------------------------
-        | NOTE ABOUT STATUS
-        |--------------------------------------------------------------------------
-        |
-        | Status is handled by BPLO, so it is intentionally NOT included
-        | in the Admin/POSO Reports analytics or filters.
-        |
-        */
 
         if ($request->filled('location')) {
             $query->where(
@@ -156,9 +152,6 @@ class ReportController extends Controller
         |--------------------------------------------------------------------------
         | Violations By Location
         |--------------------------------------------------------------------------
-        |
-        | Used by the "Violations by Location" chart.
-        |
         */
 
         $locationData = (clone $query)
@@ -176,9 +169,6 @@ class ReportController extends Controller
         |--------------------------------------------------------------------------
         | Violations By Officer
         |--------------------------------------------------------------------------
-        |
-        | Uses the user who encoded/recorded the violation.
-        |
         */
 
         $officerData = (clone $query)
@@ -246,16 +236,216 @@ class ReportController extends Controller
             'todayViolations',
             'monthlyViolations',
             'mostCommonViolation',
-
             'monthlyTrend',
             'violationTypes',
-
             'locationData',
             'officerData',
-
             'filterViolationTypes',
             'filterOfficers',
             'filterLocations'
         ));
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export Filtered Reports to Excel
+    |--------------------------------------------------------------------------
+    */
+
+    public function exportExcel(Request $request)
+    {
+        /*
+        |--------------------------------------------------------------------------
+        | Base Query
+        |--------------------------------------------------------------------------
+        */
+
+        $query = Violation::with([
+            'driver',
+            'vehicle',
+            'violationType',
+            'user'
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Apply The Same Filters Used By The Reports Page
+        |--------------------------------------------------------------------------
+        */
+
+        if ($request->filled('date_from')) {
+            $query->whereDate(
+                'violation_date',
+                '>=',
+                $request->date_from
+            );
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate(
+                'violation_date',
+                '<=',
+                $request->date_to
+            );
+        }
+
+        if ($request->filled('violation_type')) {
+            $query->where(
+                'violation_type_id',
+                $request->violation_type
+            );
+        }
+
+        if ($request->filled('officer')) {
+            $query->where(
+                'user_id',
+                $request->officer
+            );
+        }
+
+        if ($request->filled('location')) {
+            $query->where(
+                'location',
+                $request->location
+            );
+        }
+
+        $violations = $query
+            ->orderByDesc('violation_date')
+            ->orderByDesc('violation_time')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Excel-Compatible CSV
+        |--------------------------------------------------------------------------
+        |
+        | CSV opens directly in Microsoft Excel.
+        | This avoids requiring an additional Excel package.
+        |
+        */
+
+        $filename = 'traffic-enforcenet-report-' . now()->format('Y-m-d-H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $columns = [
+            'Ticket Number',
+            'Driver Name',
+            'License Code',
+            'Plate Number',
+            'Vehicle Type',
+            'Violation Type',
+            'Recorded By',
+            'Violation Date',
+            'Violation Time',
+            'Location',
+            'Latitude',
+            'Longitude',
+            'Remarks',
+            'Status',
+        ];
+
+        return response()->stream(function () use ($violations, $columns) {
+
+            $handle = fopen('php://output', 'w');
+
+            /*
+            |--------------------------------------------------------------------------
+            | UTF-8 BOM
+            |--------------------------------------------------------------------------
+            |
+            | Helps Microsoft Excel correctly display names and locations.
+            |
+            */
+
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            fputcsv($handle, $columns);
+
+            foreach ($violations as $violation) {
+
+                $driverName = '';
+
+                if ($violation->driver) {
+                    $driverName = trim(
+                        ($violation->driver->first_name ?? '') . ' ' .
+                        ($violation->driver->middle_name ?? '') . ' ' .
+                        ($violation->driver->last_name ?? '')
+                    );
+
+                    if ($driverName === '') {
+                        $driverName = $violation->driver->name ?? '';
+                    }
+                }
+
+                $licenseCode = '';
+
+                if ($violation->driver) {
+                    $licenseCode =
+                        $violation->driver->license_code ??
+                        $violation->driver->license_number ??
+                        '';
+                }
+
+                $plateNumber = '';
+
+                if ($violation->vehicle) {
+                    $plateNumber =
+                        $violation->vehicle->plate_number ??
+                        '';
+                }
+
+                $vehicleType = '';
+
+                if ($violation->vehicle) {
+                    $vehicleType =
+                        $violation->vehicle->vehicle_type ??
+                        '';
+                }
+
+                $violationType = '';
+
+                if ($violation->violationType) {
+                    $violationType =
+                        $violation->violationType->name ??
+                        '';
+                }
+
+                $recordedBy = '';
+
+                if ($violation->user) {
+                    $recordedBy =
+                        $violation->user->name ??
+                        '';
+                }
+
+                fputcsv($handle, [
+                    $violation->ticket_number ?? '',
+                    $driverName,
+                    $licenseCode,
+                    $plateNumber,
+                    $vehicleType,
+                    $violationType,
+                    $recordedBy,
+                    $violation->violation_date ?? '',
+                    $violation->violation_time ?? '',
+                    $violation->location ?? '',
+                    $violation->latitude ?? '',
+                    $violation->longitude ?? '',
+                    $violation->remarks ?? '',
+                    $violation->status ?? '',
+                ]);
+            }
+
+            fclose($handle);
+
+        }, 200, $headers);
     }
 }

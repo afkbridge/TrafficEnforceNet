@@ -22,13 +22,7 @@
 
     <div class="topbar-right">
 
-        <!-- Notifications -->
-
-        <button class="top-icon">
-
-            <i class="fas fa-bell"></i>
-
-        </button>
+       
 
         <!-- Current Date -->
 

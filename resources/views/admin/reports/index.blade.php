@@ -4,580 +4,559 @@
 
 @section('content')
 
-    <div class="container-fluid px-4 pt-3">
+<div class="container-fluid px-4 pt-3">
 
-        {{-- ========================================================= --}}
-        {{-- PAGE HEADER --}}
-        {{-- ========================================================= --}}
+    {{-- ========================================================= --}}
+    {{-- PAGE HEADER --}}
+    {{-- ========================================================= --}}
 
-        <div class="mb-4">
-            <h2 class="fw-bold mb-1">
-                <i class="fas fa-chart-line text-primary me-2"></i>
-                Reports Dashboard
-            </h2>
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1">
+            <i class="fas fa-chart-line text-primary me-2"></i>
+            Reports Dashboard
+        </h2>
 
-            <p class="text-muted mb-0">
-                Analyze traffic violations, identify trends, and support enforcement decision-making.
-            </p>
+        <p class="text-muted mb-0">
+            Analyze traffic violations, identify trends, and support enforcement decision-making.
+        </p>
+    </div>
+
+
+    {{-- ========================================================= --}}
+    {{-- SUMMARY CARDS --}}
+    {{-- ========================================================= --}}
+
+    <div class="row g-3 mb-4">
+
+        {{-- Total Violations --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="card summary-card h-100">
+                <div class="card-body">
+                    <div class="summary-content">
+
+                        <div>
+                            <div class="summary-label">
+                                Total Violations
+                            </div>
+
+                            <div class="summary-value">
+                                {{ $totalViolations }}
+                            </div>
+
+                            <div class="summary-description">
+                                Based on selected filters
+                            </div>
+                        </div>
+
+                        <div class="summary-icon danger">
+                            <i class="fas fa-file-lines"></i>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
 
 
-        {{-- ========================================================= --}}
-        {{-- SUMMARY CARDS --}}
-        {{-- ========================================================= --}}
+        {{-- Today's Violations --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="card summary-card h-100">
+                <div class="card-body">
+                    <div class="summary-content">
 
-        <div class="row g-3 mb-4">
-
-            {{-- Total Violations --}}
-            <div class="col-xl-3 col-md-6">
-                <div class="card summary-card h-100">
-                    <div class="card-body">
-                        <div class="summary-content">
-                            <div>
-                                <div class="summary-label">
-                                    Total Violations
-                                </div>
-
-                                <div class="summary-value">
-                                    {{ $totalViolations }}
-                                </div>
-
-                                <div class="summary-description">
-                                    Based on selected filters
-                                </div>
+                        <div>
+                            <div class="summary-label">
+                                Today's Violations
                             </div>
 
-                            <div class="summary-icon danger">
-                                <i class="fas fa-file-lines"></i>
+                            <div class="summary-value">
+                                {{ $todayViolations }}
+                            </div>
+
+                            <div class="summary-description">
+                                Recorded today
                             </div>
                         </div>
+
+                        <div class="summary-icon primary">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+
                     </div>
                 </div>
             </div>
+        </div>
 
 
-            {{-- Today's Violations --}}
-            <div class="col-xl-3 col-md-6">
-                <div class="card summary-card h-100">
-                    <div class="card-body">
-                        <div class="summary-content">
-                            <div>
-                                <div class="summary-label">
-                                    Today's Violations
-                                </div>
+        {{-- This Month --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="card summary-card h-100">
+                <div class="card-body">
+                    <div class="summary-content">
 
-                                <div class="summary-value">
-                                    {{ $todayViolations }}
-                                </div>
-
-                                <div class="summary-description">
-                                    Recorded today
-                                </div>
+                        <div>
+                            <div class="summary-label">
+                                This Month
                             </div>
 
-                            <div class="summary-icon primary">
-                                <i class="fas fa-calendar-day"></i>
+                            <div class="summary-value">
+                                {{ $monthlyViolations }}
+                            </div>
+
+                            <div class="summary-description">
+                                Current month
                             </div>
                         </div>
+
+                        <div class="summary-icon success">
+                            <i class="fas fa-chart-column"></i>
+                        </div>
+
                     </div>
                 </div>
             </div>
+        </div>
 
 
-            {{-- This Month --}}
-            <div class="col-xl-3 col-md-6">
-                <div class="card summary-card h-100">
-                    <div class="card-body">
-                        <div class="summary-content">
-                            <div>
-                                <div class="summary-label">
-                                    This Month
-                                </div>
+        {{-- Most Common Violation --}}
+        <div class="col-xl-3 col-md-6">
+            <div class="card summary-card h-100">
+                <div class="card-body">
+                    <div class="summary-content">
 
-                                <div class="summary-value">
-                                    {{ $monthlyViolations }}
-                                </div>
+                        <div class="summary-text">
 
-                                <div class="summary-description">
-                                    Current month
-                                </div>
+                            <div class="summary-label">
+                                Most Common
                             </div>
 
-                            <div class="summary-icon success">
-                                <i class="fas fa-chart-column"></i>
+                            <div
+                                class="summary-value summary-value-text"
+                                title="{{ $mostCommonViolation && $mostCommonViolation->violationType
+                                    ? $mostCommonViolation->violationType->name
+                                    : 'No Data' }}"
+                            >
+
+                                @if ($mostCommonViolation && $mostCommonViolation->violationType)
+
+                                    {{ $mostCommonViolation->violationType->name }}
+
+                                @else
+
+                                    No Data
+
+                                @endif
+
                             </div>
+
+                            <div class="summary-description">
+                                Most recorded violation
+                            </div>
+
                         </div>
+
+                        <div class="summary-icon warning">
+                            <i class="fas fa-triangle-exclamation"></i>
+                        </div>
+
                     </div>
                 </div>
             </div>
+        </div>
+
+    </div>
 
 
-            {{-- Most Common Violation --}}
-            <div class="col-xl-3 col-md-6">
-                <div class="card summary-card h-100">
-                    <div class="card-body">
-                        <div class="summary-content">
+    {{-- ========================================================= --}}
+    {{-- FILTERS --}}
+    {{-- ========================================================= --}}
 
-                            <div class="summary-text">
-                                <div class="summary-label">
-                                    Most Common
-                                </div>
+    <div class="card report-card mb-4">
 
-                                <div
-                                    class="summary-value summary-value-text"
-                                    title="{{ $mostCommonViolation && $mostCommonViolation->violationType
-                                        ? $mostCommonViolation->violationType->name
-                                        : 'No Data' }}"
+        <div class="card-header report-card-header">
+
+            <div class="section-icon">
+                <i class="fas fa-filter"></i>
+            </div>
+
+            <div>
+                <h5 class="fw-bold mb-1">
+                    Report Filters
+                </h5>
+
+                <small class="text-muted">
+                    Filter the analytics by period, violation type, officer, or location.
+                </small>
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            <form
+                method="GET"
+                action="{{ route('admin.reports.index') }}"
+            >
+
+                <div class="row g-3">
+
+                    {{-- Date From --}}
+                    <div class="col-lg-3 col-md-6">
+
+                        <label class="form-label">
+                            <i class="fas fa-calendar-alt text-primary me-2"></i>
+                            Date From
+                        </label>
+
+                        <input
+                            type="date"
+                            name="date_from"
+                            value="{{ request('date_from') }}"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    {{-- Date To --}}
+                    <div class="col-lg-3 col-md-6">
+
+                        <label class="form-label">
+                            <i class="fas fa-calendar-check text-primary me-2"></i>
+                            Date To
+                        </label>
+
+                        <input
+                            type="date"
+                            name="date_to"
+                            value="{{ request('date_to') }}"
+                            class="form-control"
+                        >
+
+                    </div>
+
+
+                    {{-- Violation Type --}}
+                    <div class="col-lg-3 col-md-6">
+
+                        <label class="form-label">
+                            <i class="fas fa-ban text-danger me-2"></i>
+                            Violation Type
+                        </label>
+
+                        <select
+                            name="violation_type"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All Violation Types
+                            </option>
+
+                            @foreach ($filterViolationTypes as $type)
+
+                                <option
+                                    value="{{ $type->id }}"
+                                    {{ request('violation_type') == $type->id ? 'selected' : '' }}
                                 >
-                                    @if ($mostCommonViolation && $mostCommonViolation->violationType)
-                                        {{ $mostCommonViolation->violationType->name }}
-                                    @else
-                                        No Data
-                                    @endif
-                                </div>
-
-                                <div class="summary-description">
-                                    Most recorded violation
-                                </div>
-                            </div>
-
-                            <div class="summary-icon warning">
-                                <i class="fas fa-triangle-exclamation"></i>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
-
-        {{-- ========================================================= --}}
-        {{-- FILTERS --}}
-        {{-- ========================================================= --}}
-
-        <div class="card report-card mb-4">
-
-            <div class="card-header report-card-header">
-
-                <div class="section-icon">
-                    <i class="fas fa-filter"></i>
-                </div>
-
-                <div>
-                    <h5 class="fw-bold mb-1">
-                        Report Filters
-                    </h5>
-
-                    <small class="text-muted">
-                        Filter the analytics by period, violation type, officer, or location.
-                    </small>
-                </div>
-
-            </div>
-
-
-            <div class="card-body">
-
-                <form method="GET" action="{{ route('admin.reports.index') }}">
-
-                    <div class="row g-3">
-
-                        {{-- Date From --}}
-                        <div class="col-lg-3 col-md-6">
-
-                            <label class="form-label">
-                                <i class="fas fa-calendar-alt text-primary me-2"></i>
-                                Date From
-                            </label>
-
-                            <input
-                                type="date"
-                                name="date_from"
-                                value="{{ request('date_from') }}"
-                                class="form-control"
-                            >
-
-                        </div>
-
-
-                        {{-- Date To --}}
-                        <div class="col-lg-3 col-md-6">
-
-                            <label class="form-label">
-                                <i class="fas fa-calendar-check text-primary me-2"></i>
-                                Date To
-                            </label>
-
-                            <input
-                                type="date"
-                                name="date_to"
-                                value="{{ request('date_to') }}"
-                                class="form-control"
-                            >
-
-                        </div>
-
-
-                        {{-- Violation Type --}}
-                        <div class="col-lg-3 col-md-6">
-
-                            <label class="form-label">
-                                <i class="fas fa-ban text-danger me-2"></i>
-                                Violation Type
-                            </label>
-
-                            <select name="violation_type" class="form-select">
-
-                                <option value="">
-                                    All Violation Types
+                                    {{ $type->name }}
                                 </option>
 
-                                @foreach ($filterViolationTypes as $type)
+                            @endforeach
 
-                                    <option
-                                        value="{{ $type->id }}"
-                                        {{ request('violation_type') == $type->id ? 'selected' : '' }}
-                                    >
-                                        {{ $type->name }}
-                                    </option>
+                        </select>
 
-                                @endforeach
-
-                            </select>
-
-                        </div>
+                    </div>
 
 
-                        {{-- Officer --}}
-                        <div class="col-lg-3 col-md-6">
+                    {{-- Officer --}}
+                    <div class="col-lg-3 col-md-6">
 
-                            <label class="form-label">
-                                <i class="fas fa-user-shield text-success me-2"></i>
-                                Officer
-                            </label>
+                        <label class="form-label">
+                            <i class="fas fa-user-shield text-success me-2"></i>
+                            Officer
+                        </label>
 
-                            <select name="officer" class="form-select">
+                        <select
+                            name="officer"
+                            class="form-select"
+                        >
 
-                                <option value="">
-                                    All Officers
+                            <option value="">
+                                All Officers
+                            </option>
+
+                            @foreach ($filterOfficers as $officer)
+
+                                <option
+                                    value="{{ $officer->id }}"
+                                    {{ request('officer') == $officer->id ? 'selected' : '' }}
+                                >
+                                    {{ $officer->name }}
                                 </option>
 
-                                @foreach ($filterOfficers as $officer)
+                            @endforeach
 
-                                    <option
-                                        value="{{ $officer->id }}"
-                                        {{ request('officer') == $officer->id ? 'selected' : '' }}
-                                    >
-                                        {{ $officer->name }}
-                                    </option>
+                        </select>
 
-                                @endforeach
-
-                            </select>
-
-                        </div>
+                    </div>
 
 
-                        {{-- Location --}}
-                        <div class="col-lg-6">
+                    {{-- Location --}}
+                    <div class="col-lg-6">
 
-                            <label class="form-label">
-                                <i class="fas fa-location-dot text-danger me-2"></i>
-                                Location
-                            </label>
+                        <label class="form-label">
+                            <i class="fas fa-location-dot text-danger me-2"></i>
+                            Location
+                        </label>
 
-                            <select name="location" class="form-select">
+                        <select
+                            name="location"
+                            class="form-select"
+                        >
 
-                                <option value="">
-                                    All Locations
+                            <option value="">
+                                All Locations
+                            </option>
+
+                            @foreach ($filterLocations as $location)
+
+                                <option
+                                    value="{{ $location }}"
+                                    {{ request('location') == $location ? 'selected' : '' }}
+                                >
+                                    {{ $location }}
                                 </option>
 
-                                @foreach ($filterLocations as $location)
+                            @endforeach
 
-                                    <option
-                                        value="{{ $location }}"
-                                        {{ request('location') == $location ? 'selected' : '' }}
-                                    >
-                                        {{ $location }}
-                                    </option>
-
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="filter-footer mt-4 pt-3">
-
-                        <div class="text-muted small">
-                            <i class="fas fa-circle-info text-primary me-1"></i>
-                            Filters apply to the report analytics and summary cards.
-                        </div>
-
-                        <div class="d-flex gap-2">
-
-                            <a
-                                href="{{ route('admin.reports.index') }}"
-                                class="btn btn-outline-secondary"
-                            >
-                                <i class="fas fa-rotate-left me-2"></i>
-                                Reset
-                            </a>
-
-                            <button
-                                type="submit"
-                                class="btn btn-primary px-4"
-                            >
-                                <i class="fas fa-filter me-2"></i>
-                                Apply Filters
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                </form>
-
-            </div>
-
-        </div>
-
-
-        {{-- ========================================================= --}}
-        {{-- ANALYTICS --}}
-        {{-- ========================================================= --}}
-
-        <div class="row g-4 analytics-grid">
-
-
-            {{-- ===================================================== --}}
-            {{-- MONTHLY TREND --}}
-            {{-- ===================================================== --}}
-
-            <div class="col-xl-7 col-lg-7">
-
-                <div class="card analytics-card">
-
-                    <div class="card-header analytics-header">
-
-                        <div class="analytics-title">
-
-                            <div class="analytics-icon primary">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-
-                            <div>
-                                <h5>
-                                    Monthly Violation Trends
-                                </h5>
-
-                                <small>
-                                    Number of recorded violations by month
-                                </small>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="card-body">
-
-                        <div class="chart-container chart-line">
-                            <canvas id="monthlyTrendChart"></canvas>
-                        </div>
+                        </select>
 
                     </div>
 
                 </div>
 
-            </div>
 
+                <div class="filter-footer mt-4 pt-3">
 
-            {{-- ===================================================== --}}
-            {{-- VIOLATION DISTRIBUTION --}}
-            {{-- ===================================================== --}}
-
-            <div class="col-xl-5 col-lg-5">
-
-                <div class="card analytics-card">
-
-                    <div class="card-header analytics-header">
-
-                        <div class="analytics-title">
-
-                            <div class="analytics-icon primary">
-                                <i class="fas fa-chart-pie"></i>
-                            </div>
-
-                            <div>
-                                <h5>
-                                    Violation Distribution
-                                </h5>
-
-                                <small>
-                                    Breakdown by violation type
-                                </small>
-                            </div>
-
-                        </div>
-
+                    <div class="text-muted small">
+                        <i class="fas fa-circle-info text-primary me-1"></i>
+                        Filters apply to the report analytics and summary cards.
                     </div>
 
 
-                    <div class="card-body">
+                    <div class="d-flex gap-2">
 
-                        <div class="chart-container chart-doughnut">
-                            <canvas id="violationPieChart"></canvas>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- ===================================================== --}}
-            {{-- LOCATION --}}
-            {{-- ===================================================== --}}
-
-            <div class="col-xl-6 col-lg-6">
-
-                <div class="card analytics-card">
-
-                    <div class="card-header analytics-header">
-
-                        <div class="analytics-title">
-
-                            <div class="analytics-icon danger">
-                                <i class="fas fa-location-dot"></i>
-                            </div>
-
-                            <div>
-                                <h5>
-                                    Violations by Location
-                                </h5>
-
-                                <small>
-                                    Areas with the highest recorded violations
-                                </small>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="card-body">
-
-                        <div class="chart-container chart-location">
-                            <canvas id="locationChart"></canvas>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            {{-- ===================================================== --}}
-            {{-- OFFICER --}}
-            {{-- ===================================================== --}}
-
-            <div class="col-xl-6 col-lg-6">
-
-                <div class="card analytics-card">
-
-                    <div class="card-header analytics-header">
-
-                        <div class="analytics-title">
-
-                            <div class="analytics-icon success">
-                                <i class="fas fa-user-shield"></i>
-                            </div>
-
-                            <div>
-                                <h5>
-                                    Violations by Officer
-                                </h5>
-
-                                <small>
-                                    Number of violations recorded by each officer
-                                </small>
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="card-body">
-
-                        <div class="chart-container chart-officer">
-                            <canvas id="officerChart"></canvas>
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        {{-- ========================================================= --}}
-        {{-- GENERATE REPORT --}}
-        {{-- ========================================================= --}}
-
-        <div class="card report-card generate-card mt-4 mb-4">
-
-            <div class="card-body">
-
-                <div class="generate-content">
-
-                    <div>
-
-                        <h5 class="fw-semibold mb-1">
-                            <i class="fas fa-file-export text-primary me-2"></i>
-                            Generate Report
-                        </h5>
-
-                        <p class="text-muted mb-0">
-                            Export traffic violation data based on the selected filters.
-                        </p>
-
-                    </div>
-
-
-                    <div class="d-flex gap-2 flex-wrap">
+                        <a
+                            href="{{ route('admin.reports.index') }}"
+                            class="btn btn-outline-secondary"
+                        >
+                            <i class="fas fa-rotate-left me-2"></i>
+                            Reset
+                        </a>
 
                         <button
-                            type="button"
-                            class="btn btn-danger px-4"
-                            onclick="alert('PDF export will be connected next.')"
+                            type="submit"
+                            class="btn btn-primary px-4"
                         >
-                            <i class="fas fa-file-pdf me-2"></i>
-                            Export PDF
+                            <i class="fas fa-filter me-2"></i>
+                            Apply Filters
                         </button>
 
+                    </div>
 
-                        <button
-                            type="button"
-                            class="btn btn-success px-4"
-                            onclick="alert('Excel export will be connected next.')"
-                        >
-                            <i class="fas fa-file-excel me-2"></i>
-                            Export Excel
-                        </button>
+                </div>
 
+            </form>
+
+        </div>
+
+    </div>
+
+
+    {{-- ========================================================= --}}
+    {{-- ANALYTICS --}}
+    {{-- ========================================================= --}}
+
+    <div class="row g-4 analytics-grid">
+
+
+        {{-- ===================================================== --}}
+        {{-- MONTHLY TREND --}}
+        {{-- ===================================================== --}}
+
+        <div class="col-xl-7 col-lg-7">
+
+            <div class="card analytics-card">
+
+                <div class="card-header analytics-header">
+
+                    <div class="analytics-title">
+
+                        <div class="analytics-icon primary">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Monthly Violation Trends
+                            </h5>
+
+                            <small>
+                                Number of recorded violations by month
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="chart-container chart-line">
+                        <canvas id="monthlyTrendChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ===================================================== --}}
+        {{-- VIOLATION DISTRIBUTION --}}
+        {{-- ===================================================== --}}
+
+        <div class="col-xl-5 col-lg-5">
+
+            <div class="card analytics-card">
+
+                <div class="card-header analytics-header">
+
+                    <div class="analytics-title">
+
+                        <div class="analytics-icon primary">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Violation Distribution
+                            </h5>
+
+                            <small>
+                                Breakdown by violation type
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="chart-container chart-doughnut">
+                        <canvas id="violationPieChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ===================================================== --}}
+        {{-- LOCATION --}}
+        {{-- ===================================================== --}}
+
+        <div class="col-xl-6 col-lg-6">
+
+            <div class="card analytics-card">
+
+                <div class="card-header analytics-header">
+
+                    <div class="analytics-title">
+
+                        <div class="analytics-icon danger">
+                            <i class="fas fa-location-dot"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Violations by Location
+                            </h5>
+
+                            <small>
+                                Areas with the highest recorded violations
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="chart-container chart-location">
+                        <canvas id="locationChart"></canvas>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        {{-- ===================================================== --}}
+        {{-- OFFICER --}}
+        {{-- ===================================================== --}}
+
+        <div class="col-xl-6 col-lg-6">
+
+            <div class="card analytics-card">
+
+                <div class="card-header analytics-header">
+
+                    <div class="analytics-title">
+
+                        <div class="analytics-icon success">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+
+                        <div>
+
+                            <h5>
+                                Violations by Officer
+                            </h5>
+
+                            <small>
+                                Number of violations recorded by each officer
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div class="chart-container chart-officer">
+                        <canvas id="officerChart"></canvas>
                     </div>
 
                 </div>
@@ -587,6 +566,55 @@
         </div>
 
     </div>
+
+
+    {{-- ========================================================= --}}
+    {{-- GENERATE REPORT --}}
+    {{-- ========================================================= --}}
+
+    <div class="card report-card generate-card mt-4 mb-4">
+
+        <div class="card-body">
+
+            <div class="generate-content">
+
+                <div>
+
+                    <h5 class="fw-semibold mb-1">
+                        <i class="fas fa-file-export text-primary me-2"></i>
+                        Generate Report
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Export traffic violation data based on the selected filters.
+                    </p>
+
+                </div>
+
+
+                <div class="d-flex gap-2 flex-wrap">
+
+                    {{-- ================================================= --}}
+                    {{-- EXPORT EXCEL --}}
+                    {{-- ================================================= --}}
+
+                    <a
+                        href="{{ route('admin.reports.export.excel', request()->query()) }}"
+                        class="btn btn-success px-4"
+                    >
+                        <i class="fas fa-file-excel me-2"></i>
+                        Export Excel
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
 
 @endsection
 
@@ -607,7 +635,9 @@
         })
     );
 
-    const monthlyTotals = @json($monthlyTrend->pluck('total'));
+    const monthlyTotals = @json(
+        $monthlyTrend->pluck('total')
+    );
 
 
     const violationLabels = @json(
@@ -711,8 +741,11 @@
                 plugins: {
 
                     legend: {
+
                         display: false
+
                     },
+
 
                     tooltip: {
 
@@ -1441,16 +1474,12 @@
     ========================================================= */
 
     .analytics-grid {
-
         align-items: stretch;
-
     }
 
 
     .analytics-grid > [class*="col-"] {
-
         display: flex;
-
     }
 
 
