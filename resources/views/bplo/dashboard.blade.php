@@ -597,10 +597,7 @@
         </p>
     </div>
 
-    <div class="bplo-header-date">
-        <i class="fa-regular fa-calendar me-1"></i>
-        {{ now()->format('F d, Y') }}
-    </div>
+
 </div>
 
 

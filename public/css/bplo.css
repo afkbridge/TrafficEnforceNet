@@ -26,7 +26,40 @@
     gap: 18px;
 }
 
+/* =========================================================
+   EXPORT TO EXCEL
+   ========================================================= */
 
+.bplo-export-btn {
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 6px;
+    background: #16a34a;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.bplo-export-btn:hover {
+    background: #15803d;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.bplo-export-btn i {
+    font-size: 15px;
+}
 /* =========================================================
    CURRENT DATE
    ========================================================= */
