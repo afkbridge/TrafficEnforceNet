@@ -21,15 +21,21 @@ document.addEventListener("DOMContentLoaded", function () {
     function setFieldValue(id, value) {
         const field = getElement(id);
 
-        if (
-            field &&
-            value !== null &&
-            value !== undefined &&
-            String(value).trim() !== ""
-        ) {
-            field.value = String(value).trim();
-        }
+       if (!field) {
+        return;
     }
+
+    if (
+        value === null ||
+        value === undefined ||
+        String(value).trim() === ""
+    ) {
+        field.value = "";
+        return;
+    }
+
+    field.value = String(value).trim();
+        }
 
     // ===================================================
     // CONNECTION STATUS
@@ -72,10 +78,420 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = getElement("issueTicketForm");
 
     // ===================================================
+    // EVIDENCE PHOTO - MULTIPLE PHOTO ATTACHMENT
+    // ===================================================
+
+    const evidenceInput = getElement("evidence_images");
+
+    const evidencePreviewContainer = getElement(
+        "evidencePreviewContainer"
+    );
+
+    const evidencePreview = getElement(
+        "evidencePreview"
+    );
+
+    // Keep all selected evidence files here.
+    // This prevents the browser from replacing the
+    // previous photo when another photo is selected.
+    let selectedEvidenceFiles = [];
+
+    let evidencePreviewUrls = [];
+
+    // ===================================================
+    // CLEAR PREVIEW URLS
+    // ===================================================
+
+    function clearEvidencePreviewUrls() {
+        evidencePreviewUrls.forEach(function (url) {
+            try {
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.warn(
+                    "Unable to revoke evidence preview URL:",
+                    error
+                );
+            }
+        });
+
+        evidencePreviewUrls = [];
+    }
+
+    // ===================================================
+    // UPDATE ACTUAL FILE INPUT
+    // ===================================================
+
+    function updateEvidenceInput() {
+        if (!evidenceInput) {
+            return;
+        }
+
+        try {
+            const dataTransfer = new DataTransfer();
+
+            selectedEvidenceFiles.forEach(function (file) {
+                dataTransfer.items.add(file);
+            });
+
+            evidenceInput.files = dataTransfer.files;
+
+            console.log(
+                "Updated evidence input:",
+                Array.from(evidenceInput.files)
+            );
+        } catch (error) {
+            console.error(
+                "Unable to update evidence file input:",
+                error
+            );
+        }
+    }
+
+    // ===================================================
+    // DISPLAY EVIDENCE PREVIEW
+    // ===================================================
+
+    function displayEvidencePreview() {
+        if (
+            !evidencePreview ||
+            !evidencePreviewContainer
+        ) {
+            return;
+        }
+
+        clearEvidencePreviewUrls();
+
+        evidencePreview.innerHTML = "";
+
+        if (selectedEvidenceFiles.length === 0) {
+            evidencePreviewContainer.classList.add(
+                "hidden"
+            );
+
+            return;
+        }
+
+        evidencePreviewContainer.classList.remove(
+            "hidden"
+        );
+
+        selectedEvidenceFiles.forEach(
+            function (file, index) {
+                if (
+                    !file ||
+                    !file.type ||
+                    !file.type.startsWith("image/")
+                ) {
+                    return;
+                }
+
+                const previewUrl =
+                    URL.createObjectURL(file);
+
+                evidencePreviewUrls.push(
+                    previewUrl
+                );
+
+                // -------------------------------------------
+                // PHOTO WRAPPER
+                // -------------------------------------------
+
+                const wrapper =
+                    document.createElement("div");
+
+                wrapper.className =
+                    "relative rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm";
+
+                // -------------------------------------------
+                // IMAGE
+                // -------------------------------------------
+
+                const image =
+                    document.createElement("img");
+
+                image.src =
+                    previewUrl;
+
+                image.alt =
+                    `Evidence photo ${index + 1}`;
+
+                image.className =
+                    "w-full h-36 sm:h-40 object-cover";
+
+                // -------------------------------------------
+                // REMOVE BUTTON
+                // -------------------------------------------
+
+                const removeButton =
+                    document.createElement("button");
+
+                removeButton.type =
+                    "button";
+
+                removeButton.className =
+                    "absolute top-2 right-2 bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow hover:bg-red-700";
+
+                removeButton.innerHTML =
+                    "&times;";
+
+                removeButton.title =
+                    "Remove this photo";
+
+                removeButton.addEventListener(
+                    "click",
+                    function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+
+                        // Remove only this photo
+                        selectedEvidenceFiles.splice(
+                            index,
+                            1
+                        );
+
+                        // Update actual input
+                        updateEvidenceInput();
+
+                        // Rebuild preview
+                        displayEvidencePreview();
+
+                        console.log(
+                            "Evidence photo removed."
+                        );
+
+                        console.log(
+                            "Remaining evidence photos:",
+                            selectedEvidenceFiles.length
+                        );
+                    }
+                );
+
+                // -------------------------------------------
+                // INFORMATION OVERLAY
+                // -------------------------------------------
+
+                const overlay =
+                    document.createElement("div");
+
+                overlay.className =
+                    "absolute bottom-0 left-0 right-0 bg-black/60 text-white px-2 py-1.5";
+
+                const fileName =
+                    document.createElement("p");
+
+                fileName.className =
+                    "text-[10px] leading-tight truncate";
+
+                fileName.textContent =
+                    file.name ||
+                    `Evidence photo ${index + 1}`;
+
+                const fileSize =
+                    document.createElement("p");
+
+                fileSize.className =
+                    "text-[9px] text-gray-200 mt-0.5";
+
+                const sizeInKb =
+                    Math.max(
+                        1,
+                        Math.round(
+                            file.size / 1024
+                        )
+                    );
+
+                fileSize.textContent =
+                    `${sizeInKb} KB`;
+
+                overlay.appendChild(
+                    fileName
+                );
+
+                overlay.appendChild(
+                    fileSize
+                );
+
+                // -------------------------------------------
+                // PHOTO NUMBER
+                // -------------------------------------------
+
+                const photoNumber =
+                    document.createElement("div");
+
+                photoNumber.className =
+                    "absolute top-2 left-2 bg-black/60 text-white rounded-full px-2 py-1 text-[10px] font-semibold";
+
+                photoNumber.textContent =
+                    `Photo ${index + 1}`;
+
+                // -------------------------------------------
+                // BUILD PHOTO CARD
+                // -------------------------------------------
+
+                wrapper.appendChild(
+                    image
+                );
+
+                wrapper.appendChild(
+                    overlay
+                );
+
+                wrapper.appendChild(
+                    photoNumber
+                );
+
+                wrapper.appendChild(
+                    removeButton
+                );
+
+                evidencePreview.appendChild(
+                    wrapper
+                );
+            }
+        );
+
+        // -----------------------------------------------
+        // PHOTO COUNT
+        // -----------------------------------------------
+
+        const countMessage =
+            document.createElement("p");
+
+        countMessage.className =
+            "col-span-full text-xs text-gray-500 mt-1";
+
+        countMessage.textContent =
+            `${selectedEvidenceFiles.length} evidence photo${
+                selectedEvidenceFiles.length === 1
+                    ? ""
+                    : "s"
+            } attached`;
+
+        evidencePreview.appendChild(
+            countMessage
+        );
+    }
+
+    // ===================================================
+    // EVIDENCE PHOTO INPUT
+    // ===================================================
+
+    if (evidenceInput) {
+        evidenceInput.addEventListener(
+            "change",
+            function () {
+                const newFiles =
+                    this.files
+                        ? Array.from(this.files)
+                        : [];
+
+                console.log(
+                    "New evidence files selected:",
+                    newFiles
+                );
+
+                if (newFiles.length === 0) {
+                    return;
+                }
+
+                // -------------------------------------------
+                // ADD NEW FILES TO EXISTING FILES
+                // -------------------------------------------
+
+                newFiles.forEach(
+                    function (file) {
+                        if (
+                            !file ||
+                            !file.type ||
+                            !file.type.startsWith(
+                                "image/"
+                            )
+                        ) {
+                            console.warn(
+                                "Skipped non-image evidence file:",
+                                file?.name
+                            );
+
+                            return;
+                        }
+
+                        // ---------------------------------------
+                        // PREVENT DUPLICATES
+                        // ---------------------------------------
+
+                        const alreadyExists =
+                            selectedEvidenceFiles.some(
+                                function (
+                                    existingFile
+                                ) {
+                                    return (
+                                        existingFile.name ===
+                                            file.name &&
+                                        existingFile.size ===
+                                            file.size &&
+                                        existingFile.lastModified ===
+                                            file.lastModified
+                                    );
+                                }
+                            );
+
+                        if (
+                            alreadyExists
+                        ) {
+                            console.log(
+                                "Duplicate evidence photo skipped:",
+                                file.name
+                            );
+
+                            return;
+                        }
+
+                        selectedEvidenceFiles.push(
+                            file
+                        );
+                    }
+                );
+
+                // -------------------------------------------
+                // PUT ALL FILES BACK INTO INPUT
+                // -------------------------------------------
+
+                updateEvidenceInput();
+
+                // -------------------------------------------
+                // DISPLAY ALL PHOTOS
+                // -------------------------------------------
+
+                displayEvidencePreview();
+
+                console.log(
+                    "Total evidence photos:",
+                    selectedEvidenceFiles.length
+                );
+
+                console.log(
+                    "Evidence files currently attached:",
+                    Array.from(
+                        evidenceInput.files
+                    )
+                );
+            }
+        );
+    } else {
+        console.warn(
+            "Evidence image input #evidence_images was not found."
+        );
+    }
+
+    // ===================================================
     // DRIVER'S LICENSE OCR STATUS
     // ===================================================
 
-    function setDriverOcrStatus(type, title, message) {
+    function setDriverOcrStatus(
+        type,
+        title,
+        message
+    ) {
         const badge = getElement("ocrBadge");
         const status = getElement("ocrStatus");
         const icon = getElement("ocrIcon");
@@ -126,25 +542,33 @@ document.addEventListener("DOMContentLoaded", function () {
                     "bg-green-100",
                     "text-green-700"
                 );
-                badge.innerText = "Completed";
+
+                badge.innerText =
+                    "Completed";
             } else if (type === "error") {
                 badge.classList.add(
                     "bg-red-100",
                     "text-red-700"
                 );
-                badge.innerText = "Error";
+
+                badge.innerText =
+                    "Error";
             } else if (type === "loading") {
                 badge.classList.add(
                     "bg-yellow-100",
                     "text-yellow-700"
                 );
-                badge.innerText = "Processing";
+
+                badge.innerText =
+                    "Processing";
             } else {
                 badge.classList.add(
                     "bg-blue-100",
                     "text-blue-700"
                 );
-                badge.innerText = "Ready";
+
+                badge.innerText =
+                    "Ready";
             }
         }
 
@@ -165,19 +589,44 @@ document.addEventListener("DOMContentLoaded", function () {
     // CITATION TICKET OCR STATUS
     // ===================================================
 
-    function setTicketOcrStatus(type, title, message) {
-        const badge = getElement("ticketOcrBadge");
-        const status = getElement("ticketOcrStatus");
-        const icon = getElement("ticketOcrIcon");
-        const ocrTitle = getElement("ticketOcrTitle");
-        const ocrMessage = getElement("ticketOcrMessage");
+    function setTicketOcrStatus(
+        type,
+        title,
+        message
+    ) {
+        const badge =
+            getElement(
+                "ticketOcrBadge"
+            );
+
+        const status =
+            getElement(
+                "ticketOcrStatus"
+            );
+
+        const icon =
+            getElement(
+                "ticketOcrIcon"
+            );
+
+        const ocrTitle =
+            getElement(
+                "ticketOcrTitle"
+            );
+
+        const ocrMessage =
+            getElement(
+                "ticketOcrMessage"
+            );
 
         if (ocrTitle) {
-            ocrTitle.innerText = title;
+            ocrTitle.innerText =
+                title;
         }
 
         if (ocrMessage) {
-            ocrMessage.innerText = message;
+            ocrMessage.innerText =
+                message;
         }
 
         if (status) {
@@ -189,13 +638,21 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             if (type === "success") {
-                status.classList.add("bg-green-50");
+                status.classList.add(
+                    "bg-green-50"
+                );
             } else if (type === "error") {
-                status.classList.add("bg-red-50");
+                status.classList.add(
+                    "bg-red-50"
+                );
             } else if (type === "loading") {
-                status.classList.add("bg-yellow-50");
+                status.classList.add(
+                    "bg-yellow-50"
+                );
             } else {
-                status.classList.add("bg-blue-50");
+                status.classList.add(
+                    "bg-blue-50"
+                );
             }
         }
 
@@ -216,25 +673,33 @@ document.addEventListener("DOMContentLoaded", function () {
                     "bg-green-100",
                     "text-green-700"
                 );
-                badge.innerText = "Completed";
+
+                badge.innerText =
+                    "Completed";
             } else if (type === "error") {
                 badge.classList.add(
                     "bg-red-100",
                     "text-red-700"
                 );
-                badge.innerText = "Error";
+
+                badge.innerText =
+                    "Error";
             } else if (type === "loading") {
                 badge.classList.add(
                     "bg-yellow-100",
                     "text-yellow-700"
                 );
-                badge.innerText = "Processing";
+
+                badge.innerText =
+                    "Processing";
             } else {
                 badge.classList.add(
                     "bg-blue-100",
                     "text-blue-700"
                 );
-                badge.innerText = "Ready";
+
+                badge.innerText =
+                    "Ready";
             }
         }
 
@@ -255,244 +720,341 @@ document.addEventListener("DOMContentLoaded", function () {
     // DRIVER'S LICENSE CAMERA
     // ===================================================
 
-    window.openLicenseCamera = function () {
-        const input = getElement("driver_license");
+    window.openLicenseCamera =
+        function () {
+            const input =
+                getElement(
+                    "driver_license"
+                );
 
-        if (!input) {
-            console.error("Driver license input not found.");
-            return;
-        }
+            if (!input) {
+                console.error(
+                    "Driver license input not found."
+                );
 
-        input.setAttribute("capture", "environment");
-        input.click();
-    };
+                return;
+            }
+
+            input.setAttribute(
+                "capture",
+                "environment"
+            );
+
+            input.click();
+        };
 
     // ===================================================
     // DRIVER'S LICENSE FILE
     // ===================================================
 
-    window.openLicenseFile = function () {
-        const input = getElement("driver_license");
+    window.openLicenseFile =
+        function () {
+            const input =
+                getElement(
+                    "driver_license"
+                );
 
-        if (!input) {
-            console.error("Driver license input not found.");
-            return;
-        }
+            if (!input) {
+                console.error(
+                    "Driver license input not found."
+                );
 
-        input.removeAttribute("capture");
-        input.click();
-    };
+                return;
+            }
+
+            input.removeAttribute(
+                "capture"
+            );
+
+            input.click();
+        };
 
     // ===================================================
     // DRIVER'S LICENSE OCR
     // ===================================================
 
-    window.processDriverLicense = async function (event) {
-        const input = event.target;
-        const file = input?.files?.[0];
+    window.processDriverLicense =
+        async function (event) {
+            const input =
+                event.target;
 
-        if (!file) {
-            return;
-        }
+            const file =
+                input?.files?.[0];
 
-        const preview = getElement("licensePreview");
-        const container = getElement(
-            "licensePreviewContainer"
-        );
-
-        if (preview && container) {
-            if (
-                preview.src &&
-                preview.src.startsWith("blob:")
-            ) {
-                URL.revokeObjectURL(preview.src);
+            if (!file) {
+                return;
             }
 
-            preview.src = URL.createObjectURL(file);
-            container.classList.remove("hidden");
-        }
+            const preview =
+                getElement(
+                    "licensePreview"
+                );
 
-        setDriverOcrStatus(
-            "loading",
-            "Reading driver's license...",
-            "Please wait while the system extracts the driver information."
-        );
+            const container =
+                getElement(
+                    "licensePreviewContainer"
+                );
 
-        const formData = new FormData();
-        formData.append("driver_license", file);
-
-        try {
-            const response = await fetch(
-                "/enforcer/ocr/driver-license",
-                {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        "X-CSRF-TOKEN":
-                            document
-                                .querySelector(
-                                    'meta[name="csrf-token"]'
-                                )
-                                ?.getAttribute("content") || "",
-                        Accept: "application/json",
-                    },
-                    credentials: "same-origin",
+            if (
+                preview &&
+                container
+            ) {
+                if (
+                    preview.src &&
+                    preview.src.startsWith(
+                        "blob:"
+                    )
+                ) {
+                    URL.revokeObjectURL(
+                        preview.src
+                    );
                 }
-            );
 
-            const data = await response.json();
+                preview.src =
+                    URL.createObjectURL(
+                        file
+                    );
 
-            if (!response.ok || !data.success) {
-                throw new Error(
-                    data.message ||
-                        "Driver's license OCR failed."
+                container.classList.remove(
+                    "hidden"
                 );
             }
 
-            const result = data.data || {};
-
-            setFieldValue(
-                "first_name",
-                result.first_name
-            );
-
-            setFieldValue(
-                "middle_name",
-                result.middle_name
-            );
-
-            setFieldValue(
-                "last_name",
-                result.last_name
-            );
-
-            setFieldValue(
-                "license_number",
-                result.license_number
-            );
-
-            setFieldValue(
-                "address",
-                result.address
-            );
-
-            setFieldValue(
-                "birth_date",
-                result.birth_date
-            );
-
             setDriverOcrStatus(
-                "success",
-                "Driver's license scanned",
-                data.message ||
-                    "Driver information was extracted successfully."
+                "loading",
+                "Reading driver's license...",
+                "Please wait while the system extracts the driver information."
             );
 
-            console.log(
-                "Driver License OCR:",
-                result
+            const formData =
+                new FormData();
+
+            formData.append(
+                "driver_license",
+                file
             );
-        } catch (error) {
-            console.error(
-                "Driver License OCR Error:",
+
+            try {
+                const response =
+                    await fetch(
+                        "/enforcer/ocr/driver-license",
+                        {
+                            method: "POST",
+
+                            body:
+                                formData,
+
+                            headers: {
+                                "X-CSRF-TOKEN":
+                                    document
+                                        .querySelector(
+                                            'meta[name="csrf-token"]'
+                                        )
+                                        ?.getAttribute(
+                                            "content"
+                                        ) ||
+                                    "",
+
+                                Accept:
+                                    "application/json",
+                            },
+
+                            credentials:
+                                "same-origin",
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (
+                    !response.ok ||
+                    !data.success
+                ) {
+                    throw new Error(
+                        data.message ||
+                            "Driver's license OCR failed."
+                    );
+                }
+
+                const result =
+                    data.data ||
+                    {};
+
+                setFieldValue(
+                    "first_name",
+                    result.first_name
+                );
+
+                setFieldValue(
+                    "middle_name",
+                    result.middle_name
+                );
+
+                setFieldValue(
+                    "last_name",
+                    result.last_name
+                );
+
+                setFieldValue(
+                    "license_number",
+                    result.license_number
+                );
+
+                setFieldValue(
+                    "address",
+                    result.address
+                );
+
+                setFieldValue(
+                    "birth_date",
+                    result.birth_date
+                );
+
+                setDriverOcrStatus(
+                    "success",
+                    "Driver's license scanned",
+                    data.message ||
+                        "Driver information was extracted successfully."
+                );
+
+                console.log(
+                    "Driver License OCR:",
+                    result
+                );
+            } catch (
                 error
-            );
+            ) {
+                console.error(
+                    "Driver License OCR Error:",
+                    error
+                );
 
-            setDriverOcrStatus(
-                "error",
-                "OCR failed",
-                error.message ||
-                    "Unable to read the driver's license."
-            );
-        }
-    };
+                setDriverOcrStatus(
+                    "error",
+                    "OCR failed",
+                    error.message ||
+                        "Unable to read the driver's license."
+                );
+            }
+        };
 
     // ===================================================
     // CITATION TICKET CAMERA
     // ===================================================
 
-    window.openTicketCamera = function () {
-        const input = getElement("ticket_image");
+    window.openTicketCamera =
+        function () {
+            const input =
+                getElement(
+                    "ticket_image"
+                );
 
-        if (!input) {
-            console.error(
-                "Ticket image input not found."
+            if (!input) {
+                console.error(
+                    "Ticket image input not found."
+                );
+
+                return;
+            }
+
+            input.setAttribute(
+                "capture",
+                "environment"
             );
-            return;
-        }
 
-        input.setAttribute(
-            "capture",
-            "environment"
-        );
-
-        input.click();
-    };
+            input.click();
+        };
 
     // ===================================================
     // CITATION TICKET FILE
     // ===================================================
 
-    window.openTicketFile = function () {
-        const input = getElement("ticket_image");
+    window.openTicketFile =
+        function () {
+            const input =
+                getElement(
+                    "ticket_image"
+                );
 
-        if (!input) {
-            console.error(
-                "Ticket image input not found."
+            if (!input) {
+                console.error(
+                    "Ticket image input not found."
+                );
+
+                return;
+            }
+
+            input.removeAttribute(
+                "capture"
             );
-            return;
-        }
 
-        input.removeAttribute("capture");
-        input.click();
-    };
+            input.click();
+        };
 
     // ===================================================
     // CITATION TICKET PREVIEW + OCR
     // ===================================================
 
-    window.previewTicket = function (event) {
-        const input = event.target;
-        const file = input?.files?.[0];
+    window.previewTicket =
+        function (event) {
+            const input =
+                event.target;
 
-        if (!file) {
-            return;
-        }
+            const file =
+                input?.files?.[0];
 
-        const preview = getElement(
-            "ticketPreview"
-        );
+            if (!file) {
+                return;
+            }
 
-        const container = getElement(
-            "ticketPreviewContainer"
-        );
+            const preview =
+                getElement(
+                    "ticketPreview"
+                );
 
-        if (preview && container) {
+            const container =
+                getElement(
+                    "ticketPreviewContainer"
+                );
+
             if (
-                preview.src &&
-                preview.src.startsWith("blob:")
+                preview &&
+                container
             ) {
-                URL.revokeObjectURL(
-                    preview.src
+                if (
+                    preview.src &&
+                    preview.src.startsWith(
+                        "blob:"
+                    )
+                ) {
+                    URL.revokeObjectURL(
+                        preview.src
+                    );
+                }
+
+                preview.src =
+                    URL.createObjectURL(
+                        file
+                    );
+
+                container.classList.remove(
+                    "hidden"
                 );
             }
 
-            preview.src =
-                URL.createObjectURL(file);
-
-            container.classList.remove(
-                "hidden"
+            processCitationTicket(
+                file
             );
-        }
-
-        processCitationTicket(file);
-    };
+        };
 
     // ===================================================
     // CITATION TICKET OCR
     // ===================================================
 
-    async function processCitationTicket(file) {
+    async function processCitationTicket(
+        file
+    ) {
         if (!file) {
             return;
         }
@@ -503,7 +1065,8 @@ document.addEventListener("DOMContentLoaded", function () {
             "Please wait while the system extracts the ticket information."
         );
 
-        const formData = new FormData();
+        const formData =
+            new FormData();
 
         formData.append(
             "ticket_image",
@@ -511,25 +1074,34 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         try {
-            const response = await fetch(
-                "/enforcer/ocr/citation-ticket",
-                {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        "X-CSRF-TOKEN":
-                            document
-                                .querySelector(
-                                    'meta[name="csrf-token"]'
-                                )
-                                ?.getAttribute(
-                                    "content"
-                                ) || "",
-                        Accept: "application/json",
-                    },
-                    credentials: "same-origin",
-                }
-            );
+            const response =
+                await fetch(
+                    "/enforcer/ocr/citation-ticket",
+                    {
+                        method: "POST",
+
+                        body:
+                            formData,
+
+                        headers: {
+                            "X-CSRF-TOKEN":
+                                document
+                                    .querySelector(
+                                        'meta[name="csrf-token"]'
+                                    )
+                                    ?.getAttribute(
+                                        "content"
+                                    ) ||
+                                "",
+
+                            Accept:
+                                "application/json",
+                        },
+
+                        credentials:
+                            "same-origin",
+                    }
+                );
 
             const data =
                 await response.json();
@@ -545,7 +1117,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             const result =
-                data.data || {};
+                data.data ||
+                {};
 
             setFieldValue(
                 "ticket_number",
@@ -606,14 +1179,15 @@ document.addEventListener("DOMContentLoaded", function () {
             // by OCR. Location is controlled by GPS.
 
             handleDetectedViolations(
-                result.violations || []
+                result.violations ||
+                    []
             );
 
             setTicketOcrStatus(
                 "success",
                 "Citation ticket scanned",
                 data.message ||
-                    "Ticket information was extracted successfully."
+        "Readable information was extracted. Fields that could not be read clearly were left blank for manual entry."
             );
 
             console.log(
@@ -621,13 +1195,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 result
             );
 
-            if (data.raw_text) {
+            if (
+                data.raw_text
+            ) {
                 console.log(
                     "Citation Ticket OCR Raw Text:",
                     data.raw_text
                 );
             }
-        } catch (error) {
+        } catch (
+            error
+        ) {
             console.error(
                 "Citation Ticket OCR Error:",
                 error
@@ -650,7 +1228,9 @@ document.addEventListener("DOMContentLoaded", function () {
         violations
     ) {
         if (
-            !Array.isArray(violations) ||
+            !Array.isArray(
+                violations
+            ) ||
             violations.length === 0
         ) {
             return;
@@ -672,7 +1252,9 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
         const remarks =
-            getElement("remarks");
+            getElement(
+                "remarks"
+            );
 
         if (!select) {
             return;
@@ -680,14 +1262,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const detected =
             violations
-                .map(function (violation) {
-                    return String(violation)
-                        .replace(
-                            /\s+/g,
-                            " "
+                .map(
+                    function (
+                        violation
+                    ) {
+                        return String(
+                            violation
                         )
-                        .trim();
-                })
+                            .replace(
+                                /\s+/g,
+                                " "
+                            )
+                            .trim();
+                    }
+                )
                 .filter(Boolean);
 
         if (
@@ -817,7 +1405,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (remarks) {
             const detectedText =
-                detected.join("; ");
+                detected.join(
+                    "; "
+                );
 
             const existingRemarks =
                 remarks.value.trim();
@@ -1007,11 +1597,8 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         );
 
-        // Primary "Other" violation.
         updatePrimaryOtherViolation();
 
-        // Every dynamically added additional
-        // violation select is required.
         const additionalViolationSelects =
             form.querySelectorAll(
                 'select[name="additional_violation_type_ids[]"]'
@@ -1087,8 +1674,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         );
 
-        // Ensure newly-created dynamic rows
-        // receive the required attribute.
         if (
             window.MutationObserver
         ) {
@@ -1155,6 +1740,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                 {
                                     keyPath:
                                         "id",
+
                                     autoIncrement:
                                         true,
                                 }
@@ -1226,7 +1812,8 @@ document.addEventListener("DOMContentLoaded", function () {
                         value.lastModified ||
                         Date.now(),
 
-                    blob: value,
+                    blob:
+                        value,
                 };
 
                 if (
@@ -1445,8 +2032,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 'input[name="_token"]'
             );
 
-        return tokenInput?.value ||
-            "";
+        return (
+            tokenInput?.value ||
+            ""
+        );
     }
 
     // ===================================================
@@ -1475,7 +2064,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 if (
-                    Array.isArray(value)
+                    Array.isArray(
+                        value
+                    )
                 ) {
                     value.forEach(
                         function (
@@ -1531,6 +2122,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     {
                                         type:
                                             item.type,
+
                                         lastModified:
                                             item.lastModified,
                                     }
@@ -1550,6 +2142,7 @@ document.addEventListener("DOMContentLoaded", function () {
                             {
                                 type:
                                     fileData.type,
+
                                 lastModified:
                                     fileData.lastModified,
                             }
@@ -1755,7 +2348,9 @@ document.addEventListener("DOMContentLoaded", function () {
             showPendingTickets(
                 count
             );
-        } catch (error) {
+        } catch (
+            error
+        ) {
             console.error(
                 "Offline storage error:",
                 error
@@ -1917,9 +2512,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         ticket
                     );
 
-                    // IMPORTANT:
-                    // Delete only after Laravel
-                    // successfully accepts the ticket.
                     await deletePendingTicket(
                         ticket.id
                     );
@@ -1937,8 +2529,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         error.message ||
                         "Unable to synchronize ticket.";
 
-                    // Keep failed ticket in IndexedDB.
-                    // Stop here and retry later.
                     break;
                 }
             }
@@ -2042,13 +2632,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return false;
         }
 
-        // Reapply all required rules.
         setupRequiredFields();
-
-        // -------------------------------------------------
-        // Validate required text fields.
-        // This also catches whitespace-only values.
-        // -------------------------------------------------
 
         const requiredTextFieldIds = [
             "first_name",
@@ -2066,7 +2650,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (
                 field &&
-                field.value.trim() === ""
+                field.value.trim() ===
+                    ""
             ) {
                 field.setCustomValidity(
                     "Please fill out this field."
@@ -2088,20 +2673,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // -------------------------------------------------
-        // Browser native validation.
-        // -------------------------------------------------
-
         if (
             !form.checkValidity()
         ) {
             form.reportValidity();
+
             return false;
         }
-
-        // -------------------------------------------------
-        // Primary "Other" violation.
-        // -------------------------------------------------
 
         const primaryViolation =
             getElement(
@@ -2144,10 +2722,6 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
-        // -------------------------------------------------
-        // Additional violations.
-        // -------------------------------------------------
-
         const additionalViolationSelects =
             form.querySelectorAll(
                 'select[name="additional_violation_type_ids[]"]'
@@ -2164,6 +2738,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 !select.value
             ) {
                 select.reportValidity();
+
                 return false;
             }
 
@@ -2222,14 +2797,11 @@ document.addEventListener("DOMContentLoaded", function () {
             async function (
                 event
             ) {
-                // -------------------------------------------------
-                // ALWAYS VALIDATE FIRST
-                // -------------------------------------------------
-
                 if (
                     !validateTicketForm()
                 ) {
                     event.preventDefault();
+
                     return;
                 }
 
@@ -2237,12 +2809,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 // ONLINE
                 // -------------------------------------------------
                 //
-                // Let Laravel handle normal online submission.
+                // Let Laravel handle normal multipart submission.
+                // ALL selected evidence_images[] files remain
+                // attached to the form.
                 // -------------------------------------------------
 
                 if (
                     navigator.onLine
                 ) {
+                    console.log(
+                        "Submitting online with evidence photos:",
+                        selectedEvidenceFiles.length
+                    );
+
+                    console.log(
+                        "Evidence files:",
+                        Array.from(
+                            evidenceInput?.files || []
+                        )
+                    );
+
                     return;
                 }
 
@@ -2289,6 +2875,25 @@ document.addEventListener("DOMContentLoaded", function () {
                     // -------------------------------------------------
 
                     form.reset();
+
+                    selectedEvidenceFiles = [];
+
+                    clearEvidencePreviewUrls();
+
+                    if (
+                        evidencePreview
+                    ) {
+                        evidencePreview.innerHTML =
+                            "";
+                    }
+
+                    if (
+                        evidencePreviewContainer
+                    ) {
+                        evidencePreviewContainer.classList.add(
+                            "hidden"
+                        );
+                    }
 
                     setupRequiredFields();
 
@@ -2370,31 +2975,35 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     openOfflineDatabase()
-        .then(function (db) {
-            console.log(
-                "TrafficEnforceNet IndexedDB is ready."
-            );
+        .then(
+            function (db) {
+                console.log(
+                    "TrafficEnforceNet IndexedDB is ready."
+                );
 
-            console.log(
-                "Database:",
-                db.name
-            );
+                console.log(
+                    "Database:",
+                    db.name
+                );
 
-            console.log(
-                "Object stores:",
-                Array.from(
-                    db.objectStoreNames
-                )
-            );
+                console.log(
+                    "Object stores:",
+                    Array.from(
+                        db.objectStoreNames
+                    )
+                );
 
-            db.close();
-        })
-        .catch(function (error) {
-            console.error(
-                "Unable to initialize IndexedDB:",
-                error
-            );
-        });
+                db.close();
+            }
+        )
+        .catch(
+            function (error) {
+                console.error(
+                    "Unable to initialize IndexedDB:",
+                    error
+                );
+            }
+        );
 
     // ===================================================
     // INITIALIZE PENDING COUNT
@@ -2580,10 +3189,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 null;
         }
 
-        // -------------------------------------------------
-        // NO GPS POSITION
-        // -------------------------------------------------
-
         if (!position) {
             if (gpsBadge) {
                 gpsBadge.innerText =
@@ -2624,10 +3229,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // -------------------------------------------------
-        // FINAL GPS VALUES
-        // -------------------------------------------------
-
         const latitude =
             position.coords.latitude;
 
@@ -2665,19 +3266,11 @@ document.addEventListener("DOMContentLoaded", function () {
             "================================="
         );
 
-        // -------------------------------------------------
-        // SAVE COORDINATES TO FORM
-        // -------------------------------------------------
-
         latitudeInput.value =
             latitude;
 
         longitudeInput.value =
             longitude;
-
-        // -------------------------------------------------
-        // GPS SUCCESS STATUS
-        // -------------------------------------------------
 
         if (gpsBadge) {
             gpsBadge.innerText =
@@ -2714,10 +3307,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 </p>
             `;
         }
-
-        // -------------------------------------------------
-        // START REVERSE GEOCODING
-        // -------------------------------------------------
 
         if (locationInput) {
             locationInput.value =
@@ -2905,10 +3494,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // -------------------------------------------------
-        // IF WE ALREADY HAVE A READING, KEEP IT
-        // -------------------------------------------------
-
         if (bestPosition) {
             finishGPS(
                 bestPosition
@@ -2916,10 +3501,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             return;
         }
-
-        // -------------------------------------------------
-        // PERMISSION DENIED
-        // -------------------------------------------------
 
         if (error.code === 1) {
             finishGPS(null);
@@ -2943,10 +3524,6 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        // -------------------------------------------------
-        // POSITION UNAVAILABLE
-        // -------------------------------------------------
-
         if (error.code === 2) {
             finishGPS(null);
 
@@ -2968,10 +3545,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             return;
         }
-
-        // -------------------------------------------------
-        // TIMEOUT
-        // -------------------------------------------------
 
         if (error.code === 3) {
             console.log(
@@ -3000,10 +3573,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
             return;
         }
-
-        // -------------------------------------------------
-        // UNKNOWN ERROR
-        // -------------------------------------------------
 
         finishGPS(null);
     }
@@ -3035,10 +3604,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     accuracy,
                     "meters"
                 );
-
-                // -------------------------------------------------
-                // KEEP THE MOST ACCURATE READING
-                // -------------------------------------------------
 
                 if (
                     !bestPosition ||
@@ -3095,10 +3660,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         `;
                     }
                 }
-
-                // -------------------------------------------------
-                // STOP ONCE TARGET ACCURACY IS REACHED
-                // -------------------------------------------------
 
                 if (
                     accuracy <=

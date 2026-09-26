@@ -445,6 +445,78 @@ class ViolationController extends Controller
         ];
 
         // ===================================================
+        // OCR TEXT VALIDATION HELPERS
+        // ===================================================
+
+        $isReadableName = function (?string $value): bool {
+            if (!$value) {
+                return false;
+            }
+
+            $value = trim($value);
+
+            if (strlen($value) < 2) {
+                return false;
+            }
+
+            /*
+             * Names should contain alphabetic characters,
+             * spaces, apostrophes, hyphens or periods only.
+             */
+            if (
+                preg_match(
+                    '/[^a-zA-ZÀ-ÿ\s\'\-\.]/u',
+                    $value
+                )
+            ) {
+                return false;
+            }
+
+            /*
+             * Reject obvious repeated-character OCR garbage.
+             */
+            $withoutSpaces =
+                str_replace(
+                    ' ',
+                    '',
+                    $value
+                );
+
+            if (
+                preg_match(
+                    '/^(.)\1{3,}$/iu',
+                    $withoutSpaces
+                )
+            ) {
+                return false;
+            }
+
+            return true;
+        };
+
+        $cleanOcrValue = function (
+            ?string $value,
+            callable $validator
+        ): string {
+            if (!$value) {
+                return '';
+            }
+
+            $value =
+                trim(
+                    preg_replace(
+                        '/\s+/',
+                        ' ',
+                        $value
+                    )
+                );
+
+            return $validator($value)
+                ? $value
+                : '';
+        };
+
+        // ===================================================
         // TICKET NUMBER
         // ===================================================
 
@@ -530,20 +602,23 @@ class ViolationController extends Controller
             $middleName =
                 $lines[$nameValueStart + 2] ?? '';
 
-            if (
-                $lastName !== '' &&
-                $firstName !== '' &&
-                $middleName !== ''
-            ) {
-                $result['last_name'] =
-                    trim($lastName);
+            $result['last_name'] =
+                $cleanOcrValue(
+                    $lastName,
+                    $isReadableName
+                );
 
-                $result['first_name'] =
-                    trim($firstName);
+            $result['first_name'] =
+                $cleanOcrValue(
+                    $firstName,
+                    $isReadableName
+                );
 
-                $result['middle_name'] =
-                    trim($middleName);
-            }
+            $result['middle_name'] =
+                $cleanOcrValue(
+                    $middleName,
+                    $isReadableName
+                );
         }
 
         // ===================================================
@@ -559,7 +634,10 @@ class ViolationController extends Controller
                 )
             ) {
                 $result['last_name'] =
-                    trim($match[1]);
+                    $cleanOcrValue(
+                        $match[1],
+                        $isReadableName
+                    );
             }
         }
 
@@ -572,7 +650,10 @@ class ViolationController extends Controller
                 )
             ) {
                 $result['first_name'] =
-                    trim($match[1]);
+                    $cleanOcrValue(
+                        $match[1],
+                        $isReadableName
+                    );
             }
         }
 
@@ -585,7 +666,10 @@ class ViolationController extends Controller
                 )
             ) {
                 $result['middle_name'] =
-                    trim($match[1]);
+                    $cleanOcrValue(
+                        $match[1],
+                        $isReadableName
+                    );
             }
         }
 
@@ -611,10 +695,20 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-            $result['license_number'] =
+            $candidate =
                 strtoupper(
                     trim($match[1])
                 );
+
+            if (
+                preg_match(
+                    '/^[A-Z0-9]{1,4}(?:-[A-Z0-9]{1,10}){1,3}$/',
+                    $candidate
+                )
+            ) {
+                $result['license_number'] =
+                    $candidate;
+            }
         }
 
         // ===================================================
@@ -632,6 +726,7 @@ class ViolationController extends Controller
             ) {
                 $addressStart =
                     $index + 1;
+
                 break;
             }
         }
@@ -683,6 +778,19 @@ class ViolationController extends Controller
                     continue;
                 }
 
+                /*
+                 * Ignore lines containing no readable
+                 * letters or numbers.
+                 */
+                if (
+                    preg_match(
+                        '/^[^a-zA-Z0-9]+$/',
+                        $line
+                    )
+                ) {
+                    continue;
+                }
+
                 $addressParts[] =
                     $line;
 
@@ -694,7 +802,7 @@ class ViolationController extends Controller
             }
 
             if (!empty($addressParts)) {
-                $result['address'] =
+                $address =
                     trim(
                         preg_replace(
                             '/\s+/',
@@ -705,6 +813,16 @@ class ViolationController extends Controller
                             )
                         )
                     );
+
+                if (
+                    preg_match(
+                        '/[a-zA-Z]{2,}/',
+                        $address
+                    )
+                ) {
+                    $result['address'] =
+                        $address;
+                }
             }
         }
 
@@ -721,8 +839,18 @@ class ViolationController extends Controller
                         $match
                     )
                 ) {
-                    $result['address'] =
+                    $address =
                         trim($match[1]);
+
+                    if (
+                        preg_match(
+                            '/[a-zA-Z]{2,}/',
+                            $address
+                        )
+                    ) {
+                        $result['address'] =
+                            $address;
+                    }
 
                     break;
                 }
@@ -845,10 +973,20 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-            $result['region_number'] =
+            $candidate =
                 strtoupper(
                     trim($match[1])
                 );
+
+            if (
+                preg_match(
+                    '/^[A-Z0-9-]{1,20}$/',
+                    $candidate
+                )
+            ) {
+                $result['region_number'] =
+                    $candidate;
+            }
         }
 
         // ===================================================
@@ -887,7 +1025,8 @@ class ViolationController extends Controller
                     !preg_match(
                         '/^(You|Notice|Apprehending|Officer|Driver)/i',
                         $ownerName
-                    )
+                    ) &&
+                    $isReadableName($ownerName)
                 ) {
                     $result['owner_name'] =
                         $ownerName;
@@ -908,7 +1047,10 @@ class ViolationController extends Controller
             )
         ) {
             $result['owner_name'] =
-                trim($match[1]);
+                $cleanOcrValue(
+                    $match[1],
+                    $isReadableName
+                );
         }
 
         // ===================================================
@@ -952,7 +1094,13 @@ class ViolationController extends Controller
                     break;
                 }
 
-                if ($line !== '') {
+                if (
+                    $line !== '' &&
+                    preg_match(
+                        '/[a-zA-Z]{2,}/',
+                        $line
+                    )
+                ) {
                     $result['location'] =
                         $line;
 
@@ -973,8 +1121,18 @@ class ViolationController extends Controller
                 $match
             )
         ) {
-            $result['location'] =
+            $location =
                 trim($match[1]);
+
+            if (
+                preg_match(
+                    '/[a-zA-Z]{2,}/',
+                    $location
+                )
+            ) {
+                $result['location'] =
+                    $location;
+            }
         }
 
         // ===================================================
@@ -1029,8 +1187,12 @@ class ViolationController extends Controller
                         $knownViolation
                     ) !== false
                 ) {
+                    /*
+                     * Store the known violation name
+                     * rather than potentially garbled OCR text.
+                     */
                     $result['violations'][] =
-                        $cleanLine;
+                        $knownViolation;
 
                     break;
                 }
