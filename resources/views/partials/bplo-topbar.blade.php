@@ -158,15 +158,7 @@
 
         </div>
 
-        {{-- ================= EXPORT TO EXCEL ================= --}}
-        <a
-            href="{{ route('bplo.violations.export') }}"
-            class="bplo-export-btn"
-            title="Export violation records to Excel"
-        >
-            <i class="fa-solid fa-file-excel"></i>
-            <span>Export to Excel</span>
-        </a>
+    
 
         {{-- ================= CURRENT DATE ================= --}}
         <div class="topbar-date">

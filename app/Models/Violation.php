@@ -18,6 +18,7 @@ class Violation extends Model
         'latitude',
         'longitude',
         'remarks',
+        'other_violation',
         'ticket_image',
         'status',
     ];
@@ -32,22 +33,19 @@ class Violation extends Model
         return $this->belongsTo(Vehicle::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Existing single violation relationship
-    |--------------------------------------------------------------------------
-    | Keep this for compatibility with the current system.
-    */
+    /**
+     * Existing single violation relationship.
+     *
+     * Keep this for compatibility with the current system.
+     */
     public function violationType()
     {
         return $this->belongsTo(ViolationType::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Multiple violation types
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Multiple official violation types.
+     */
     public function violationTypes()
     {
         return $this->belongsToMany(
@@ -56,6 +54,14 @@ class Violation extends Model
             'violation_id',
             'violation_type_id'
         )->withTimestamps();
+    }
+
+    /**
+     * Custom "Others" violation types.
+     */
+    public function violationOtherTypes()
+    {
+        return $this->hasMany(ViolationOtherType::class);
     }
 
     public function user()

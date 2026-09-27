@@ -40,7 +40,9 @@ class EnforcerController extends Controller
             $enforcers->where(function ($query) use ($search) {
                 $query->where('badge_number', 'like', "%{$search}%")
                     ->orWhere('first_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%");
+                    ->orWhere('middle_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%")
+                    ->orWhere('contact_number', 'like', "%{$search}%");
             });
         }
 

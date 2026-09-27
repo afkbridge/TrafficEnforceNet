@@ -21,21 +21,40 @@ document.addEventListener("DOMContentLoaded", function () {
     function setFieldValue(id, value) {
         const field = getElement(id);
 
-       if (!field) {
-        return;
-    }
-
-    if (
-        value === null ||
-        value === undefined ||
-        String(value).trim() === ""
-    ) {
-        field.value = "";
-        return;
-    }
-
-    field.value = String(value).trim();
+        if (!field) {
+            return;
         }
+
+        // -------------------------------------------------
+        // DO NOT LET OCR WRITE INTO A FIELD MARKED AS
+        // "NO LICENSE" OR "NO PLATE NUMBER"
+        // -------------------------------------------------
+
+        if (
+            id === "license_number" &&
+            getElement("no_license")?.checked
+        ) {
+            return;
+        }
+
+        if (
+            id === "plate_number" &&
+            getElement("no_plate")?.checked
+        ) {
+            return;
+        }
+
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ""
+        ) {
+            field.value = "";
+            return;
+        }
+
+        field.value = String(value).trim();
+    }
 
     // ===================================================
     // CONNECTION STATUS
@@ -78,6 +97,137 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = getElement("issueTicketForm");
 
     // ===================================================
+    // NO LICENSE / NO PLATE NUMBER
+    // ===================================================
+
+    const noLicenseCheckbox = getElement("no_license");
+    const licenseNumberInput = getElement("license_number");
+    const licenseRequiredMark = getElement("licenseRequiredMark");
+
+    const noPlateCheckbox = getElement("no_plate");
+    const plateNumberInput = getElement("plate_number");
+    const plateRequiredMark = getElement("plateRequiredMark");
+
+    // ===================================================
+    // UPDATE LICENSE FIELD STATE
+    // ===================================================
+
+    function updateLicenseFieldState() {
+        if (!licenseNumberInput || !noLicenseCheckbox) {
+            return;
+        }
+
+        if (noLicenseCheckbox.checked) {
+            // ---------------------------------------------
+            // NO LICENSE
+            // ---------------------------------------------
+
+            licenseNumberInput.value = "";
+            licenseNumberInput.disabled = true;
+            licenseNumberInput.required = false;
+
+            if (licenseRequiredMark) {
+                licenseRequiredMark.classList.add("hidden");
+            }
+        } else {
+            // ---------------------------------------------
+            // HAS LICENSE
+            // ---------------------------------------------
+
+            licenseNumberInput.disabled = false;
+            licenseNumberInput.required = true;
+
+            if (licenseRequiredMark) {
+                licenseRequiredMark.classList.remove("hidden");
+            }
+        }
+
+        // Clear browser validation state
+        licenseNumberInput.setCustomValidity("");
+    }
+
+    // ===================================================
+    // UPDATE PLATE FIELD STATE
+    // ===================================================
+
+    function updatePlateFieldState() {
+        if (!plateNumberInput || !noPlateCheckbox) {
+            return;
+        }
+
+        if (noPlateCheckbox.checked) {
+            // ---------------------------------------------
+            // NO PLATE NUMBER
+            // ---------------------------------------------
+
+            plateNumberInput.value = "";
+            plateNumberInput.disabled = true;
+            plateNumberInput.required = false;
+
+            if (plateRequiredMark) {
+                plateRequiredMark.classList.add("hidden");
+            }
+        } else {
+            // ---------------------------------------------
+            // HAS PLATE NUMBER
+            // ---------------------------------------------
+
+            plateNumberInput.disabled = false;
+            plateNumberInput.required = true;
+
+            if (plateRequiredMark) {
+                plateRequiredMark.classList.remove("hidden");
+            }
+        }
+
+        // Clear browser validation state
+        plateNumberInput.setCustomValidity("");
+    }
+
+    // ===================================================
+    // LICENSE CHECKBOX
+    // ===================================================
+
+    if (noLicenseCheckbox) {
+        noLicenseCheckbox.addEventListener(
+            "change",
+            function () {
+                updateLicenseFieldState();
+
+                console.log(
+                    "No License:",
+                    this.checked
+                );
+            }
+        );
+    }
+
+    // ===================================================
+    // PLATE CHECKBOX
+    // ===================================================
+
+    if (noPlateCheckbox) {
+        noPlateCheckbox.addEventListener(
+            "change",
+            function () {
+                updatePlateFieldState();
+
+                console.log(
+                    "No Plate Number:",
+                    this.checked
+                );
+            }
+        );
+    }
+
+    // ===================================================
+    // INITIALIZE LICENSE / PLATE STATES
+    // ===================================================
+
+    updateLicenseFieldState();
+    updatePlateFieldState();
+
+    // ===================================================
     // EVIDENCE PHOTO - MULTIPLE PHOTO ATTACHMENT
     // ===================================================
 
@@ -91,9 +241,6 @@ document.addEventListener("DOMContentLoaded", function () {
         "evidencePreview"
     );
 
-    // Keep all selected evidence files here.
-    // This prevents the browser from replacing the
-    // previous photo when another photo is selected.
     let selectedEvidenceFiles = [];
 
     let evidencePreviewUrls = [];
@@ -192,19 +339,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     previewUrl
                 );
 
-                // -------------------------------------------
-                // PHOTO WRAPPER
-                // -------------------------------------------
-
                 const wrapper =
                     document.createElement("div");
 
                 wrapper.className =
                     "relative rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm";
-
-                // -------------------------------------------
-                // IMAGE
-                // -------------------------------------------
 
                 const image =
                     document.createElement("img");
@@ -217,10 +356,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 image.className =
                     "w-full h-36 sm:h-40 object-cover";
-
-                // -------------------------------------------
-                // REMOVE BUTTON
-                // -------------------------------------------
 
                 const removeButton =
                     document.createElement("button");
@@ -243,16 +378,13 @@ document.addEventListener("DOMContentLoaded", function () {
                         event.preventDefault();
                         event.stopPropagation();
 
-                        // Remove only this photo
                         selectedEvidenceFiles.splice(
                             index,
                             1
                         );
 
-                        // Update actual input
                         updateEvidenceInput();
 
-                        // Rebuild preview
                         displayEvidencePreview();
 
                         console.log(
@@ -265,10 +397,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         );
                     }
                 );
-
-                // -------------------------------------------
-                // INFORMATION OVERLAY
-                // -------------------------------------------
 
                 const overlay =
                     document.createElement("div");
@@ -311,10 +439,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     fileSize
                 );
 
-                // -------------------------------------------
-                // PHOTO NUMBER
-                // -------------------------------------------
-
                 const photoNumber =
                     document.createElement("div");
 
@@ -323,10 +447,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 photoNumber.textContent =
                     `Photo ${index + 1}`;
-
-                // -------------------------------------------
-                // BUILD PHOTO CARD
-                // -------------------------------------------
 
                 wrapper.appendChild(
                     image
@@ -349,10 +469,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
         );
-
-        // -----------------------------------------------
-        // PHOTO COUNT
-        // -----------------------------------------------
 
         const countMessage =
             document.createElement("p");
@@ -394,10 +510,6 @@ document.addEventListener("DOMContentLoaded", function () {
                     return;
                 }
 
-                // -------------------------------------------
-                // ADD NEW FILES TO EXISTING FILES
-                // -------------------------------------------
-
                 newFiles.forEach(
                     function (file) {
                         if (
@@ -414,10 +526,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
                             return;
                         }
-
-                        // ---------------------------------------
-                        // PREVENT DUPLICATES
-                        // ---------------------------------------
 
                         const alreadyExists =
                             selectedEvidenceFiles.some(
@@ -452,15 +560,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                 );
 
-                // -------------------------------------------
-                // PUT ALL FILES BACK INTO INPUT
-                // -------------------------------------------
-
                 updateEvidenceInput();
-
-                // -------------------------------------------
-                // DISPLAY ALL PHOTOS
-                // -------------------------------------------
 
                 displayEvidencePreview();
 
@@ -1187,7 +1287,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 "success",
                 "Citation ticket scanned",
                 data.message ||
-        "Readable information was extracted. Fields that could not be read clearly were left blank for manual entry."
+                    "Readable information was extracted. Fields that could not be read clearly were left blank for manual entry."
             );
 
             console.log(
@@ -1580,8 +1680,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const requiredFieldIds = [
             "first_name",
             "last_name",
-            "license_number",
-            "plate_number",
             "violation_type_id",
         ];
 
@@ -1596,6 +1694,18 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
             }
         );
+
+        // -----------------------------------------------
+        // LICENSE
+        // -----------------------------------------------
+
+        updateLicenseFieldState();
+
+        // -----------------------------------------------
+        // PLATE
+        // -----------------------------------------------
+
+        updatePlateFieldState();
 
         updatePrimaryOtherViolation();
 
@@ -2634,11 +2744,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         setupRequiredFields();
 
+        // -----------------------------------------------
+        // ALWAYS REQUIRED
+        // -----------------------------------------------
+
         const requiredTextFieldIds = [
             "first_name",
             "last_name",
-            "license_number",
-            "plate_number",
         ];
 
         for (
@@ -2673,6 +2785,80 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         }
 
+        // -----------------------------------------------
+        // LICENSE VALIDATION
+        // -----------------------------------------------
+
+        if (
+            noLicenseCheckbox &&
+            !noLicenseCheckbox.checked
+        ) {
+            if (
+                !licenseNumberInput ||
+                licenseNumberInput.value.trim() ===
+                    ""
+            ) {
+                if (licenseNumberInput) {
+                    licenseNumberInput.disabled =
+                        false;
+
+                    licenseNumberInput.required =
+                        true;
+
+                    licenseNumberInput.setCustomValidity(
+                        "Please enter the license number or select No License."
+                    );
+
+                    licenseNumberInput.reportValidity();
+
+                    licenseNumberInput.setCustomValidity(
+                        ""
+                    );
+                }
+
+                return false;
+            }
+        }
+
+        // -----------------------------------------------
+        // PLATE VALIDATION
+        // -----------------------------------------------
+
+        if (
+            noPlateCheckbox &&
+            !noPlateCheckbox.checked
+        ) {
+            if (
+                !plateNumberInput ||
+                plateNumberInput.value.trim() ===
+                    ""
+            ) {
+                if (plateNumberInput) {
+                    plateNumberInput.disabled =
+                        false;
+
+                    plateNumberInput.required =
+                        true;
+
+                    plateNumberInput.setCustomValidity(
+                        "Please enter the plate number or select No Plate Number."
+                    );
+
+                    plateNumberInput.reportValidity();
+
+                    plateNumberInput.setCustomValidity(
+                        ""
+                    );
+                }
+
+                return false;
+            }
+        }
+
+        // -----------------------------------------------
+        // GENERAL FORM VALIDATION
+        // -----------------------------------------------
+
         if (
             !form.checkValidity()
         ) {
@@ -2680,6 +2866,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
             return false;
         }
+
+        // -----------------------------------------------
+        // PRIMARY VIOLATION
+        // -----------------------------------------------
 
         const primaryViolation =
             getElement(
@@ -2721,6 +2911,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 return false;
             }
         }
+
+        // -----------------------------------------------
+        // ADDITIONAL VIOLATIONS
+        // -----------------------------------------------
 
         const additionalViolationSelects =
             form.querySelectorAll(
@@ -2808,11 +3002,6 @@ document.addEventListener("DOMContentLoaded", function () {
                 // -------------------------------------------------
                 // ONLINE
                 // -------------------------------------------------
-                //
-                // Let Laravel handle normal multipart submission.
-                // ALL selected evidence_images[] files remain
-                // attached to the form.
-                // -------------------------------------------------
 
                 if (
                     navigator.onLine
@@ -2820,6 +3009,16 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.log(
                         "Submitting online with evidence photos:",
                         selectedEvidenceFiles.length
+                    );
+
+                    console.log(
+                        "No License:",
+                        noLicenseCheckbox?.checked
+                    );
+
+                    console.log(
+                        "No Plate Number:",
+                        noPlateCheckbox?.checked
                     );
 
                     console.log(
@@ -2870,10 +3069,6 @@ document.addEventListener("DOMContentLoaded", function () {
                         "Ticket saved successfully for offline synchronization."
                     );
 
-                    // -------------------------------------------------
-                    // Clear only AFTER successful IndexedDB save.
-                    // -------------------------------------------------
-
                     form.reset();
 
                     selectedEvidenceFiles = [];
@@ -2894,6 +3089,9 @@ document.addEventListener("DOMContentLoaded", function () {
                             "hidden"
                         );
                     }
+
+                    updateLicenseFieldState();
+                    updatePlateFieldState();
 
                     setupRequiredFields();
 

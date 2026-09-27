@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\AuditTrailController;
 
 use App\Http\Controllers\Enforcer\DashboardController as EnforcerDashboardController;
 use App\Http\Controllers\Enforcer\ViolationController as EnforcerViolationController;
+use App\Http\Controllers\Enforcer\ProfileController as EnforcerProfileController;
 
 use App\Http\Controllers\BPLO\DashboardController as BPLODashboardController;
 use App\Http\Controllers\BPLO\ViolationController as BPLOViolationController;
@@ -49,6 +50,7 @@ Route::get('/', function (Request $request) {
     }
 
     return view('landing', compact('violation'));
+
 })->name('landing');
 
 
@@ -63,7 +65,9 @@ Route::get('/check-ticket', [SearchController::class, 'check'])
 */
 
 Route::get('/office', function () {
+
     return view('office.index');
+
 })->name('office.portal');
 
 
@@ -106,6 +110,7 @@ Route::middleware(['auth', 'role:Super Administrator', 'prevent-back'])->group(f
 
     Route::delete('/super-admin/users/{user}', [UserManagementController::class, 'destroy'])
         ->name('super-admin.users.destroy');
+
 });
 
 
@@ -141,9 +146,12 @@ Route::get('/bplo/violations', [BPLOViolationController::class, 'index'])
     ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
     ->name('bplo.violations.index');
 
+
 Route::get('/bplo/violations/export', [BPLOViolationController::class, 'export'])
     ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
     ->name('bplo.violations.export');
+
+
 /*
 |--------------------------------------------------------------------------
 | BPLO Update Violation Status
@@ -157,11 +165,14 @@ Route::patch(
     ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
     ->name('bplo.violations.status');
 
-// ==========================================================================
-// BPLO Driver History
-// ==========================================================================
 
-    Route::get(
+/*
+|--------------------------------------------------------------------------
+| BPLO Driver History
+|--------------------------------------------------------------------------
+*/
+
+Route::get(
     '/bplo/violations/driver-history/{driver}',
     [BPLOViolationController::class, 'driverHistory']
 )
@@ -196,6 +207,7 @@ Route::get('/dashboard', function () {
     }
 
     return redirect('/');
+
 })->middleware('auth')->name('dashboard');
 
 
@@ -217,7 +229,7 @@ Route::middleware('auth')->group(function () {
         ->name('admin.reports.index');
 
     Route::get('/admin/reports/export/excel', [ReportController::class, 'exportExcel'])
-    ->name('admin.reports.export.excel');
+        ->name('admin.reports.export.excel');
 
 
     /*
@@ -241,30 +253,32 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::get(
-    '/violations/export',
-    [ViolationController::class, 'export']
-)->name('admin.violations.export');
+        '/violations/export',
+        [ViolationController::class, 'export']
+    )->name('admin.violations.export');
 
-Route::resource('violations', ViolationController::class);
+    Route::resource('violations', ViolationController::class);
 
-/*
-|--------------------------------------------------------------------------
-| Admin Driver History
-|--------------------------------------------------------------------------
-*/
 
-Route::get(
-    '/violations/driver/{driver}',
-    [ViolationController::class, 'driverHistory']
-)
-    ->middleware(['role:Administrator', 'prevent-back'])
-    ->name('violations.driver-history');
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Driver History
+    |--------------------------------------------------------------------------
+    */
 
-Route::get('/violations/create', [ViolationController::class, 'create'])
-    ->name('admin.violations.create');
+    Route::get(
+        '/violations/driver/{driver}',
+        [ViolationController::class, 'driverHistory']
+    )
+        ->middleware(['role:Administrator', 'prevent-back'])
+        ->name('violations.driver-history');
 
-Route::post('/violations', [ViolationController::class, 'store'])
-    ->name('admin.violations.store');
+
+    Route::get('/violations/create', [ViolationController::class, 'create'])
+        ->name('admin.violations.create');
+
+    Route::post('/violations', [ViolationController::class, 'store'])
+        ->name('admin.violations.store');
 
 
     /*
@@ -274,7 +288,9 @@ Route::post('/violations', [ViolationController::class, 'store'])
     */
 
     Route::get('/admin/settings', function () {
+
         return view('admin.settings.index');
+
     })->name('admin.settings');
 
 
@@ -491,26 +507,32 @@ Route::post('/violations', [ViolationController::class, 'store'])
             return response()->json([
                 'success' => true,
             ]);
+
         })->name('enforcer.heartbeat');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Enforcer Profile
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('/enforcer/profile', [EnforcerProfileController::class, 'show'])
+            ->name('enforcer.profile');
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | Enforcer Change Password
+        |--------------------------------------------------------------------------
+        */
+
+        Route::put(
+            '/enforcer/profile/password',
+            [EnforcerProfileController::class, 'updatePassword']
+        )->name('enforcer.password.update');
+
     });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Enforcer Profile
-    |--------------------------------------------------------------------------
-    */
-
-    Route::get('/enforcer/profile', function () {
-
-        return view('enforcer.profile', [
-            'user' => auth()->user()
-        ]);
-    })->middleware([
-        'auth',
-        'role:POSO Enforcer',
-        'prevent-back'
-    ])->name('enforcer.profile');
 
 
     /*
@@ -529,6 +551,7 @@ Route::post('/violations', [ViolationController::class, 'store'])
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+
 });
 
 

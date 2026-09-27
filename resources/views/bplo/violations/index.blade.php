@@ -86,11 +86,36 @@
         white-space: nowrap;
     }
 
+    /* ==========================================================
+       FILTERS
+       ========================================================== */
+
     .review-filter-form {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 170px auto auto;
+        grid-template-columns:
+            minmax(0, 1fr)
+            150px
+            145px
+            145px
+            auto
+            auto
+            auto;
         gap: 10px;
-        align-items: center;
+        align-items: end;
+    }
+
+    .review-filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    .review-filter-label {
+        color: #374151;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1;
     }
 
     .review-search-wrapper {
@@ -116,6 +141,7 @@
         color: #1f2937;
         background: #ffffff;
         font-size: 13px;
+        box-sizing: border-box;
     }
 
     .review-search:focus {
@@ -124,6 +150,7 @@
     }
 
     .review-status {
+        width: 100%;
         height: 42px;
         border: 1px solid #d9dee7;
         border-radius: 9px;
@@ -132,10 +159,29 @@
         color: #374151;
         font-size: 13px;
         outline: none;
+        box-sizing: border-box;
     }
 
     .review-status:focus {
         border-color: #2563eb;
+    }
+
+    .review-date {
+        width: 100%;
+        height: 42px;
+        border: 1px solid #d9dee7;
+        border-radius: 9px;
+        padding: 0 12px;
+        background: #ffffff;
+        color: #374151;
+        font-size: 13px;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .review-date:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
     }
 
     .review-btn {
@@ -151,6 +197,7 @@
         gap: 7px;
         text-decoration: none;
         white-space: nowrap;
+        box-sizing: border-box;
     }
 
     .review-btn-primary {
@@ -174,6 +221,18 @@
         background: #f8fafc;
         border-color: #bfdbfe;
         color: #2563eb;
+    }
+
+    .review-btn-export {
+        border: 1px solid #16a34a;
+        background: #16a34a;
+        color: #ffffff;
+    }
+
+    .review-btn-export:hover {
+        background: #15803d;
+        border-color: #15803d;
+        color: #ffffff;
     }
 
     .review-table-container {
@@ -414,6 +473,85 @@
     }
 
     /* ==========================================================
+       PAGINATION
+       ========================================================== */
+
+    .review-pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        padding: 14px 18px;
+        background: #ffffff;
+        border-top: 1px solid #eef1f5;
+    }
+
+    .review-pagination-info {
+        color: #64748b;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .review-pagination-info strong {
+        color: #374151;
+        font-weight: 700;
+    }
+
+    .review-pagination-nav {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .review-page-link {
+        min-width: 34px;
+        height: 34px;
+        padding: 0 9px;
+        border: 1px solid #dbe2ea;
+        border-radius: 7px;
+        background: #ffffff;
+        color: #64748b;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        transition: 0.2s ease;
+        box-sizing: border-box;
+    }
+
+    .review-page-link:hover {
+        background: #f8fafc;
+        border-color: #bfdbfe;
+        color: #2563eb;
+    }
+
+    .review-page-link.active {
+        border-color: #2563eb;
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    .review-page-link.disabled {
+        color: #cbd5e1;
+        background: #f8fafc;
+        border-color: #e5e7eb;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    .review-page-ellipsis {
+        min-width: 25px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #9ca3af;
+        font-size: 12px;
+    }
+
+    /* ==========================================================
        DRIVER HISTORY MODAL
        ========================================================== */
 
@@ -540,7 +678,7 @@
 
     .driver-history-details {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: 1fr;
         gap: 12px;
     }
 
@@ -798,21 +936,60 @@
         color: #1d4ed8;
     }
 
+    @media (max-width: 1200px) {
+
+        .review-filter-form {
+            grid-template-columns:
+                minmax(0, 1fr)
+                150px
+                145px
+                145px;
+        }
+
+        .review-filter-actions {
+            grid-column: 1 / -1;
+            display: flex;
+            gap: 10px;
+        }
+
+    }
+
     @media (max-width: 900px) {
+
         .review-filter-form {
             grid-template-columns: 1fr 1fr;
+        }
+
+        .review-filter-group:first-child {
+            grid-column: 1 / -1;
+        }
+
+        .review-filter-actions {
+            grid-column: 1 / -1;
         }
 
         .review-btn {
             width: 100%;
         }
 
-        .driver-history-details {
-            grid-template-columns: 1fr 1fr;
+        .review-pagination {
+            flex-direction: column;
+            align-items: stretch;
         }
+
+        .review-pagination-info {
+            text-align: center;
+        }
+
+        .review-pagination-nav {
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
     }
 
     @media (max-width: 650px) {
+
         .bplo-review {
             padding: 15px;
         }
@@ -828,6 +1005,17 @@
 
         .review-filter-form {
             grid-template-columns: 1fr;
+        }
+
+        .review-filter-group:first-child {
+            grid-column: auto;
+        }
+
+        .review-filter-actions {
+            grid-column: auto;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 8px;
         }
 
         .review-title-row {
@@ -848,6 +1036,15 @@
             min-width: 52px;
         }
 
+        .review-pagination {
+            padding: 12px 14px;
+        }
+
+        .review-page-link {
+            min-width: 32px;
+            height: 32px;
+        }
+
         .driver-history-modal {
             padding: 10px;
         }
@@ -861,10 +1058,6 @@
         .driver-history-footer {
             padding-left: 15px;
             padding-right: 15px;
-        }
-
-        .driver-history-details {
-            grid-template-columns: 1fr;
         }
 
         .driver-history-summary {
@@ -913,8 +1106,8 @@
                 </div>
 
                 <div class="review-count">
-                    {{ $violations->count() }}
-                    {{ $violations->count() === 1 ? 'record' : 'records' }}
+                    {{ $violations->total() }}
+                    {{ $violations->total() === 1 ? 'record' : 'records' }}
                 </div>
 
             </div>
@@ -925,45 +1118,114 @@
                 class="review-filter-form"
             >
 
-                <div class="review-search-wrapper">
+                {{-- SEARCH --}}
 
-                    <i class="fa-solid fa-magnifying-glass"></i>
+                <div class="review-filter-group">
+
+                    <label class="review-filter-label" for="search">
+                        Search
+                    </label>
+
+                    <div class="review-search-wrapper">
+
+                        <i class="fa-solid fa-magnifying-glass"></i>
+
+                        <input
+                            type="text"
+                            id="search"
+                            name="search"
+                            value="{{ $search }}"
+                            class="review-search"
+                            placeholder="Ticket number, driver, license, plate..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+                </div>
+
+                {{-- STATUS --}}
+
+                <div class="review-filter-group">
+
+                    <label class="review-filter-label" for="status">
+                        Status
+                    </label>
+
+                    <select
+                        id="status"
+                        name="status"
+                        class="review-status"
+                    >
+
+                        <option
+                            value="all"
+                            {{ $status === 'all' ? 'selected' : '' }}
+                        >
+                            All Status
+                        </option>
+
+                        <option
+                            value="Pending"
+                            {{ $status === 'Pending' ? 'selected' : '' }}
+                        >
+                            Pending
+                        </option>
+
+                        <option
+                            value="Settled"
+                            {{ $status === 'Settled' ? 'selected' : '' }}
+                        >
+                            Settled
+                        </option>
+
+                    </select>
+
+                </div>
+
+                {{-- DATE FROM --}}
+
+                <div class="review-filter-group">
+
+                    <label
+                        class="review-filter-label"
+                        for="date_from"
+                    >
+                        Date From
+                    </label>
 
                     <input
-                        type="text"
-                        name="search"
-                        value="{{ $search }}"
-                        class="review-search"
-                        placeholder="Search ticket, driver, license, plate, violation, officer, location..."
-                        autocomplete="off"
+                        type="date"
+                        id="date_from"
+                        name="date_from"
+                        value="{{ $dateFrom ?? '' }}"
+                        class="review-date"
                     >
 
                 </div>
 
-                <select name="status" class="review-status">
+                {{-- DATE TO --}}
 
-                    <option
-                        value="all"
-                        {{ $status === 'all' ? 'selected' : '' }}
+                <div class="review-filter-group">
+
+                    <label
+                        class="review-filter-label"
+                        for="date_to"
                     >
-                        All Status
-                    </option>
+                        Date To
+                    </label>
 
-                    <option
-                        value="Pending"
-                        {{ $status === 'Pending' ? 'selected' : '' }}
+                    <input
+                        type="date"
+                        id="date_to"
+                        name="date_to"
+                        value="{{ $dateTo ?? '' }}"
+                        class="review-date"
                     >
-                        Pending
-                    </option>
 
-                    <option
-                        value="Settled"
-                        {{ $status === 'Settled' ? 'selected' : '' }}
-                    >
-                        Settled
-                    </option>
+                </div>
 
-                </select>
+                {{-- SEARCH BUTTON --}}
 
                 <button
                     type="submit"
@@ -973,7 +1235,29 @@
                     Search
                 </button>
 
-                @if (!empty($search) || $status !== 'all')
+                {{-- EXPORT BUTTON --}}
+
+                <a
+                    href="{{ route('bplo.violations.export', [
+                        'search' => $search,
+                        'status' => $status,
+                        'date_from' => $dateFrom ?? '',
+                        'date_to' => $dateTo ?? '',
+                    ]) }}"
+                    class="review-btn review-btn-export"
+                >
+                    <i class="fa-solid fa-file-export"></i>
+                    Export
+                </a>
+
+                {{-- CLEAR / RESET --}}
+
+                @if (
+                    !empty($search) ||
+                    $status !== 'all' ||
+                    !empty($dateFrom ?? '') ||
+                    !empty($dateTo ?? '')
+                )
 
                     <a
                         href="{{ route('bplo.violations.index') }}"
@@ -988,7 +1272,12 @@
                     <button
                         type="reset"
                         class="review-btn review-btn-secondary"
-                        onclick="this.form.querySelector('[name=search]').value=''; this.form.querySelector('[name=status]').value='all';"
+                        onclick="
+                            this.form.querySelector('[name=search]').value='';
+                            this.form.querySelector('[name=status]').value='all';
+                            this.form.querySelector('[name=date_from]').value='';
+                            this.form.querySelector('[name=date_to]').value='';
+                        "
                     >
                         <i class="fa-solid fa-rotate-left"></i>
                         Reset
@@ -1034,21 +1323,121 @@
 
                             $driverName = $driverName ?: 'N/A';
 
-                            $violationNames = $violation->violationTypes
-                                ->pluck('name')
-                                ->filter()
+                            /*
+                             * Build the complete violation list:
+                             *
+                             * 1. Primary official violation
+                             * 2. Primary custom "Other" violation
+                             * 3. Additional official violations
+                             * 4. Additional custom "Other" violations
+                             */
+
+                            $violationNames = collect();
+
+                            if ($violation->violationType) {
+
+                                $name = trim(
+                                    (string) $violation->violationType->name
+                                );
+
+                                if (
+                                    $name !== '' &&
+                                    !$violationNames->contains($name)
+                                ) {
+                                    $violationNames->push($name);
+                                }
+
+                            }
+
+                            if (!empty($violation->other_violation)) {
+
+                                $name = trim(
+                                    (string) $violation->other_violation
+                                );
+
+                                if (
+                                    $name !== '' &&
+                                    !$violationNames->contains($name)
+                                ) {
+                                    $violationNames->push($name);
+                                }
+
+                            }
+
+                            if (
+                                $violation->violationTypes &&
+                                $violation->violationTypes->count()
+                            ) {
+
+                                foreach (
+                                    $violation->violationTypes as $type
+                                ) {
+
+                                    if (empty($type->name)) {
+                                        continue;
+                                    }
+
+                                    $name = trim(
+                                        (string) $type->name
+                                    );
+
+                                    if (
+                                        $name !== '' &&
+                                        !$violationNames->contains($name)
+                                    ) {
+                                        $violationNames->push($name);
+                                    }
+
+                                }
+
+                            }
+
+                            if (
+                                $violation->violationOtherTypes &&
+                                $violation->violationOtherTypes->count()
+                            ) {
+
+                                foreach (
+                                    $violation->violationOtherTypes as $otherType
+                                ) {
+
+                                    if (empty($otherType->name)) {
+                                        continue;
+                                    }
+
+                                    $name = trim(
+                                        (string) $otherType->name
+                                    );
+
+                                    if (
+                                        $name !== '' &&
+                                        !$violationNames->contains($name)
+                                    ) {
+                                        $violationNames->push($name);
+                                    }
+
+                                }
+
+                            }
+
+                            $violationNames = $violationNames
+                                ->unique()
                                 ->values();
 
                             $violationName = $violationNames->isNotEmpty()
                                 ? $violationNames->implode(', ')
-                                : ($violation->violationType?->name ?? 'N/A');
+                                : 'N/A';
 
                             $formattedDate = $violation->violation_date
-                                ? \Carbon\Carbon::parse($violation->violation_date)->format('M d, Y')
+                                ? \Carbon\Carbon::parse(
+                                    $violation->violation_date
+                                )->format('M d, Y')
                                 : 'N/A';
 
                             $formattedTime = $violation->violation_time
-                                ? \Carbon\Carbon::parse($violation->violation_time)->format('h:i A')
+                                ? \Carbon\Carbon::parse(
+                                    $violation->violation_time
+                                )->format('h:i A')
                                 : 'N/A';
 
                             $vehicleInfo = trim(
@@ -1084,7 +1473,8 @@
                                 @if ($violation->driver?->license_number)
 
                                     <span class="license-number">
-                                        License: {{ $violation->driver->license_number }}
+                                        License:
+                                        {{ $violation->driver->license_number }}
                                     </span>
 
                                 @endif
@@ -1111,21 +1501,19 @@
 
                                 <div class="violation-badges">
 
-                                    @foreach ($violationNames as $name)
+                                    @forelse ($violationNames as $name)
 
                                         <span class="violation-badge">
                                             {{ $name }}
                                         </span>
 
-                                    @endforeach
-
-                                    @if ($violationNames->isEmpty())
+                                    @empty
 
                                         <span class="violation-badge">
-                                            {{ $violationName }}
+                                            N/A
                                         </span>
 
-                                    @endif
+                                    @endforelse
 
                                 </div>
 
@@ -1273,29 +1661,207 @@
 
         </div>
 
-        <div class="results-footer">
+        {{-- ==========================================================
+        RESULTS FOOTER
+        ========================================================== --}}
 
-            Showing {{ $violations->count() }}
+        @if ($violations->total() > 0)
 
-            {{ $violations->count() === 1 ? 'violation record' : 'violation records' }}
+            <div class="results-footer">
 
-        </div>
+                Showing
+                <strong>{{ $violations->firstItem() }}</strong>
+                to
+                <strong>{{ $violations->lastItem() }}</strong>
+                of
+                <strong>{{ $violations->total() }}</strong>
+                {{ $violations->total() === 1 ? 'violation record' : 'violation records' }}
+
+            </div>
+
+        @else
+
+            <div class="results-footer">
+
+                Showing 0 violation records
+
+            </div>
+
+        @endif
+
+        {{-- ==========================================================
+        PAGINATION
+        ========================================================== --}}
+
+        @if ($violations->hasPages())
+
+            <div class="review-pagination">
+
+                <div class="review-pagination-info">
+
+                    Page
+                    <strong>{{ $violations->currentPage() }}</strong>
+                    of
+                    <strong>{{ $violations->lastPage() }}</strong>
+
+                </div>
+
+                <nav
+                    class="review-pagination-nav"
+                    aria-label="Violation records pagination"
+                >
+
+                    {{-- PREVIOUS --}}
+
+                    @if ($violations->onFirstPage())
+
+                        <span
+                            class="review-page-link disabled"
+                            aria-disabled="true"
+                        >
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </span>
+
+                    @else
+
+                        <a
+                            href="{{ $violations->previousPageUrl() }}"
+                            class="review-page-link"
+                            aria-label="Previous page"
+                        >
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+
+                    @endif
+
+
+                    {{-- FIRST PAGE --}}
+
+                    @if ($violations->currentPage() > 3)
+
+                        <a
+                            href="{{ $violations->url(1) }}"
+                            class="review-page-link"
+                        >
+                            1
+                        </a>
+
+                        @if ($violations->currentPage() > 4)
+
+                            <span class="review-page-ellipsis">
+                                ...
+                            </span>
+
+                        @endif
+
+                    @endif
+
+
+                    {{-- PAGE NUMBERS --}}
+
+                    @foreach (
+                        $violations->getUrlRange(
+                            max(1, $violations->currentPage() - 2),
+                            min(
+                                $violations->lastPage(),
+                                $violations->currentPage() + 2
+                            )
+                        ) as $page => $url
+                    )
+
+                        @if ($page == $violations->currentPage())
+
+                            <span
+                                class="review-page-link active"
+                                aria-current="page"
+                            >
+                                {{ $page }}
+                            </span>
+
+                        @else
+
+                            <a
+                                href="{{ $url }}"
+                                class="review-page-link"
+                            >
+                                {{ $page }}
+                            </a>
+
+                        @endif
+
+                    @endforeach
+
+
+                    {{-- LAST PAGE --}}
+
+                    @if (
+                        $violations->currentPage() <
+                        $violations->lastPage() - 2
+                    )
+
+                        @if (
+                            $violations->currentPage() <
+                            $violations->lastPage() - 3
+                        )
+
+                            <span class="review-page-ellipsis">
+                                ...
+                            </span>
+
+                        @endif
+
+                        <a
+                            href="{{ $violations->url($violations->lastPage()) }}"
+                            class="review-page-link"
+                        >
+                            {{ $violations->lastPage() }}
+                        </a>
+
+                    @endif
+
+
+                    {{-- NEXT --}}
+
+                    @if ($violations->hasMorePages())
+
+                        <a
+                            href="{{ $violations->nextPageUrl() }}"
+                            class="review-page-link"
+                            aria-label="Next page"
+                        >
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+
+                    @else
+
+                        <span
+                            class="review-page-link disabled"
+                            aria-disabled="true"
+                        >
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </span>
+
+                    @endif
+
+                </nav>
+
+            </div>
+
+        @endif
 
     </div>
 
 </div>
 
-
 {{-- ==========================================================
-     EXISTING VIOLATION DETAILS MODAL
-     ========================================================== --}}
+EXISTING VIOLATION DETAILS MODAL
+========================================================== --}}
 
 @include('partials.bplo-violation-modal')
 
-
 {{-- ==========================================================
-     DRIVER HISTORY MODAL
-     ========================================================== --}}
+DRIVER HISTORY MODAL
+========================================================== --}}
 
 <div
     id="driverHistoryModal"
@@ -1343,7 +1909,6 @@
 
         </div>
 
-
         <div class="driver-history-body">
 
             {{-- Loading --}}
@@ -1358,7 +1923,6 @@
                 Loading driver history...
 
             </div>
-
 
             {{-- Error --}}
 
@@ -1378,7 +1942,6 @@
                 </div>
 
             </div>
-
 
             {{-- Actual Content --}}
 
@@ -1410,7 +1973,6 @@
 
                     </div>
 
-
                     <div class="driver-history-details">
 
                         <div class="driver-history-detail">
@@ -1428,40 +1990,9 @@
 
                         </div>
 
-                        <div class="driver-history-detail">
-
-                            <span class="driver-history-detail-label">
-                                Contact Number
-                            </span>
-
-                            <span
-                                id="historyDriverContact"
-                                class="driver-history-detail-value"
-                            >
-                                N/A
-                            </span>
-
-                        </div>
-
-                        <div class="driver-history-detail">
-
-                            <span class="driver-history-detail-label">
-                                License Type
-                            </span>
-
-                            <span
-                                id="historyDriverLicenseType"
-                                class="driver-history-detail-value"
-                            >
-                                N/A
-                            </span>
-
-                        </div>
-
                     </div>
 
                 </div>
-
 
                 {{-- Summary --}}
 
@@ -1486,7 +2017,6 @@
 
                     </div>
 
-
                     <div class="history-summary-card pending">
 
                         <div class="history-summary-label">
@@ -1505,7 +2035,6 @@
                         </span>
 
                     </div>
-
 
                     <div class="history-summary-card settled">
 
@@ -1527,7 +2056,6 @@
                     </div>
 
                 </div>
-
 
                 {{-- Associated Vehicles --}}
 
@@ -1552,7 +2080,6 @@
                     </div>
 
                 </div>
-
 
                 {{-- Violation History --}}
 
@@ -1600,7 +2127,6 @@
 
         </div>
 
-
         <div class="driver-history-footer">
 
             <button
@@ -1616,7 +2142,6 @@
 
 </div>
 
-
 <script>
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -1630,7 +2155,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const modalX = document.getElementById('violationModalX');
     const modalCopy = document.getElementById('violationModalCopy');
 
-
     function setDetail(id, value) {
 
         const element = document.getElementById(id);
@@ -1640,7 +2164,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
     }
-
 
     // ==========================================================
     // DRIVER HISTORY MODAL ELEMENTS
@@ -1667,7 +2190,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const driverHistoryContent =
         document.getElementById('driverHistoryContent');
 
-
     // ==========================================================
     // DRIVER HISTORY DATA ELEMENTS
     // ==========================================================
@@ -1680,12 +2202,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const historyDriverAddress =
         document.getElementById('historyDriverAddress');
-
-    const historyDriverContact =
-        document.getElementById('historyDriverContact');
-
-    const historyDriverLicenseType =
-        document.getElementById('historyDriverLicenseType');
 
     const historyTotal =
         document.getElementById('historyTotal');
@@ -1701,7 +2217,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const historyViolationsBody =
         document.getElementById('historyViolationsBody');
-
 
     // ==========================================================
     // SAFE TEXT HELPER
@@ -1720,7 +2235,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return String(value);
 
     }
-
 
     // ==========================================================
     // FORMAT DATE
@@ -1745,7 +2259,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
     }
-
 
     // ==========================================================
     // FORMAT TIME
@@ -1778,7 +2291,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
     // ==========================================================
     // RESET DRIVER HISTORY
     // ==========================================================
@@ -1809,14 +2321,6 @@ document.addEventListener('DOMContentLoaded', function () {
             historyDriverAddress.textContent = 'N/A';
         }
 
-        if (historyDriverContact) {
-            historyDriverContact.textContent = 'N/A';
-        }
-
-        if (historyDriverLicenseType) {
-            historyDriverLicenseType.textContent = 'N/A';
-        }
-
         if (historyTotal) {
             historyTotal.textContent = '0';
         }
@@ -1839,7 +2343,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
     // ==========================================================
     // CLOSE DRIVER HISTORY
     // ==========================================================
@@ -1859,7 +2362,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
     if (driverHistoryClose) {
         driverHistoryClose.addEventListener(
             'click',
@@ -1867,14 +2369,12 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-
     if (driverHistoryDone) {
         driverHistoryDone.addEventListener(
             'click',
             closeDriverHistory
         );
     }
-
 
     if (driverHistoryModal) {
 
@@ -1890,7 +2390,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
     }
-
 
     // ==========================================================
     // LOAD DRIVER HISTORY
@@ -1917,16 +2416,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
 
-
         resetDriverHistory();
-
 
         try {
 
             const url =
                 "{{ url('/bplo/violations/driver-history') }}/" +
                 encodeURIComponent(driverId);
-
 
             const response = await fetch(url, {
 
@@ -1938,7 +2434,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
             });
-
 
             if (!response.ok) {
 
@@ -1962,9 +2457,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
 
-
             const data = await response.json();
-
 
             // ==================================================
             // DRIVER INFORMATION
@@ -1986,17 +2479,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     safeText(data.driver?.address);
             }
 
-            if (historyDriverContact) {
-                historyDriverContact.textContent =
-                    safeText(data.driver?.contact_number);
-            }
-
-            if (historyDriverLicenseType) {
-                historyDriverLicenseType.textContent =
-                    safeText(data.driver?.license_type);
-            }
-
-
             // ==================================================
             // SUMMARY
             // ==================================================
@@ -2016,7 +2498,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     safeText(data.summary?.settled, '0');
             }
 
-
             // ==================================================
             // ASSOCIATED VEHICLES
             // ==================================================
@@ -2029,7 +2510,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     Array.isArray(data.vehicles)
                         ? data.vehicles
                         : [];
-
 
                 if (vehicles.length === 0) {
 
@@ -2048,13 +2528,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         item.className =
                             'history-vehicle';
 
-
                         const icon =
                             document.createElement('i');
 
                         icon.className =
                             'fa-solid fa-car';
-
 
                         const text =
                             document.createElement('span');
@@ -2071,12 +2549,10 @@ document.addEventListener('DOMContentLoaded', function () {
                                 ''
                             );
 
-
                         text.textContent =
                             type
                                 ? `${plate} (${type})`
                                 : plate;
-
 
                         item.appendChild(icon);
                         item.appendChild(text);
@@ -2088,7 +2564,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
             }
-
 
             // ==================================================
             // VIOLATION HISTORY
@@ -2102,7 +2577,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     Array.isArray(data.violations)
                         ? data.violations
                         : [];
-
 
                 if (violations.length === 0) {
 
@@ -2124,8 +2598,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         const row =
                             document.createElement('tr');
 
-
                         // Ticket
+
                         const ticketCell =
                             document.createElement('td');
 
@@ -2143,8 +2617,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         ticketCell.appendChild(ticket);
 
-
                         // Date & Time
+
                         const dateCell =
                             document.createElement('td');
 
@@ -2172,8 +2646,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         dateCell.appendChild(date);
                         dateCell.appendChild(time);
 
-
                         // Violation
+
                         const violationCell =
                             document.createElement('td');
 
@@ -2182,8 +2656,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 violation.violation
                             );
 
-
                         // Vehicle
+
                         const vehicleCell =
                             document.createElement('td');
 
@@ -2192,8 +2666,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 violation.vehicle
                             );
 
-
                         // Location
+
                         const locationCell =
                             document.createElement('td');
 
@@ -2205,8 +2679,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 violation.location
                             );
 
-
                         // Status
+
                         const statusCell =
                             document.createElement('td');
 
@@ -2217,7 +2691,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             String(
                                 violation.status || ''
                             ).toLowerCase();
-
 
                         if (normalizedStatus === 'settled') {
 
@@ -2237,9 +2710,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         }
 
-
                         statusCell.appendChild(status);
-
 
                         row.appendChild(ticketCell);
                         row.appendChild(dateCell);
@@ -2255,7 +2726,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
             }
-
 
             // ==================================================
             // SHOW CONTENT
@@ -2276,7 +2746,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 error
             );
 
-
             if (driverHistoryLoading) {
                 driverHistoryLoading.style.display = 'none';
             }
@@ -2293,13 +2762,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 driverHistoryErrorMessage.textContent =
                     error.message ||
                     'Unable to load the driver history.';
-
             }
 
         }
 
     }
-
 
     // ==========================================================
     // VIEW DETAILS
@@ -2363,7 +2830,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         button.dataset.status
                     );
 
-
                     // ==================================================
                     // DRIVER HISTORY BUTTON
                     // ==================================================
@@ -2373,11 +2839,9 @@ document.addEventListener('DOMContentLoaded', function () {
                             'dynamicDriverHistoryButton'
                         );
 
-
                     if (existingDriverHistoryButton) {
                         existingDriverHistoryButton.remove();
                     }
-
 
                     const modalBody =
                         modal
@@ -2385,7 +2849,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 '.violation-modal-body'
                             )
                             : null;
-
 
                     if (
                         modalBody &&
@@ -2428,7 +2891,6 @@ document.addEventListener('DOMContentLoaded', function () {
                             '<i class="fa-solid fa-user-clock me-1"></i>' +
                             'View Driver History';
 
-
                         historyButton.addEventListener(
                             'click',
                             function () {
@@ -2436,7 +2898,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                 if (modal) {
                                     modal.classList.remove('show');
                                 }
-
 
                                 if (driverHistoryModal) {
 
@@ -2453,7 +2914,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
                                 }
 
-
                                 loadDriverHistory(
                                     button.dataset.driverId
                                 );
@@ -2461,13 +2921,11 @@ document.addEventListener('DOMContentLoaded', function () {
                             }
                         );
 
-
                         modalBody.appendChild(
                             historyButton
                         );
 
                     }
-
 
                     if (modal) {
                         modal.classList.add('show');
@@ -2477,7 +2935,6 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
         });
-
 
     // ==========================================================
     // CLOSE EXISTING VIOLATION MODAL
@@ -2491,7 +2948,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     }
 
-
     if (modalClose) {
         modalClose.addEventListener(
             'click',
@@ -2499,14 +2955,12 @@ document.addEventListener('DOMContentLoaded', function () {
         );
     }
 
-
     if (modalX) {
         modalX.addEventListener(
             'click',
             closeModal
         );
     }
-
 
     if (modal) {
 
@@ -2522,7 +2976,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
     }
-
 
     // ==========================================================
     // ESCAPE KEY
@@ -2551,7 +3004,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         }
     );
-
 
     // ==========================================================
     // COPY DIRECTLY FROM TABLE
@@ -2599,21 +3051,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     ].join('\n');
 
-
                     try {
 
                         await navigator.clipboard.writeText(
                             text
                         );
 
-
                         const originalHTML =
                             button.innerHTML;
 
-
                         button.innerHTML =
                             '<i class="fa-solid fa-check"></i>';
-
 
                         setTimeout(
                             function () {
@@ -2638,7 +3086,6 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
         });
-
 
     // ==========================================================
     // COPY FROM EXISTING MODAL
@@ -2724,21 +3171,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 ].join('\n');
 
-
                 try {
 
                     await navigator.clipboard.writeText(
                         text
                     );
 
-
                     const originalHTML =
                         modalCopy.innerHTML;
 
-
                     modalCopy.innerHTML =
                         '<i class="fa-solid fa-check me-1"></i> Copied';
-
 
                     setTimeout(
                         function () {
@@ -2763,7 +3206,6 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
     }
-
 
     // ==========================================================
     // STATUS DROPDOWN COLOR
@@ -2801,9 +3243,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             }
 
-
             updateStatusColor();
-
 
             select.addEventListener(
                 'change',
