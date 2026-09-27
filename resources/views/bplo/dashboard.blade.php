@@ -5,6 +5,7 @@
 @section('content')
 
 <style>
+
     .bplo-dashboard {
         padding: 24px;
         background: #f5f7fb;
@@ -143,7 +144,7 @@
     }
 
     .card-header {
-        padding: 18px 20px;
+        padding: 14px 18px;
         border-bottom: 1px solid #e5e7eb;
     }
 
@@ -161,7 +162,7 @@
     }
 
     .card-body {
-        padding: 20px;
+        padding: 15px 18px;
     }
 
     /* =========================================================
@@ -291,7 +292,7 @@
         display: inline-flex;
         align-items: center;
         gap: 7px;
-        padding: 9px 13px;
+        padding: 8px 12px;
         border-radius: 8px;
         background: #2563eb;
         color: #ffffff;
@@ -315,8 +316,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 15px;
-        padding: 14px 0;
+        gap: 12px;
+        padding: 9px 0;
         border-bottom: 1px solid #eef1f5;
     }
 
@@ -330,35 +331,35 @@
 
     .pending-ticket {
         color: #2563eb;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
     }
 
     .pending-name {
-        margin-top: 3px;
+        margin-top: 2px;
         color: #374151;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
     }
 
     .pending-meta {
-        margin-top: 3px;
+        margin-top: 2px;
         color: #9ca3af;
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .pending-status {
         flex-shrink: 0;
-        padding: 5px 9px;
+        padding: 4px 8px;
         border-radius: 20px;
         background: #fff4df;
         color: #b45309;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
     }
 
     .empty-small {
-        padding: 25px 10px;
+        padding: 20px 10px;
         text-align: center;
         color: #9ca3af;
         font-size: 12px;
@@ -405,26 +406,26 @@
     .bplo-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 850px;
+        min-width: 760px;
     }
 
     .bplo-table th {
         background: #f8fafc;
         color: #64748b;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
-        padding: 12px 15px;
+        letter-spacing: 0.03em;
+        padding: 9px 12px;
         border-bottom: 1px solid #e5e7eb;
         white-space: nowrap;
     }
 
     .bplo-table td {
-        padding: 14px 15px;
+        padding: 9px 12px;
         border-bottom: 1px solid #eef1f5;
         color: #374151;
-        font-size: 12px;
+        font-size: 11px;
         vertical-align: middle;
     }
 
@@ -445,18 +446,18 @@
     .violation-badges {
         display: flex;
         flex-wrap: wrap;
-        gap: 4px;
-        max-width: 250px;
+        gap: 3px;
+        max-width: 220px;
     }
 
     .violation-badge {
         display: inline-flex;
-        padding: 4px 7px;
+        padding: 3px 6px;
         border-radius: 5px;
         background: #eff6ff;
         color: #1d4ed8;
         border: 1px solid #dbeafe;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 600;
     }
 
@@ -469,16 +470,16 @@
         display: block;
         margin-top: 2px;
         color: #9ca3af;
-        font-size: 10px;
+        font-size: 9px;
     }
 
     .status-badge {
         display: inline-flex;
         align-items: center;
-        gap: 5px;
-        padding: 5px 9px;
+        gap: 4px;
+        padding: 4px 8px;
         border-radius: 20px;
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
     }
 
@@ -493,8 +494,8 @@
     }
 
     .view-button {
-        width: 32px;
-        height: 32px;
+        width: 29px;
+        height: 29px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -516,7 +517,7 @@
        ========================================================= */
 
     .empty-table {
-        padding: 45px 20px !important;
+        padding: 35px 20px !important;
         text-align: center;
         color: #9ca3af;
     }
@@ -533,6 +534,7 @@
        ========================================================= */
 
     @media (max-width: 1100px) {
+
         .summary-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
         }
@@ -544,6 +546,7 @@
     }
 
     @media (max-width: 700px) {
+
         .bplo-dashboard {
             padding: 15px;
         }
@@ -577,229 +580,505 @@
 
         .card-header,
         .card-body {
-            padding: 16px;
+            padding: 14px;
         }
     }
+
 </style>
 
 <div class="bplo-dashboard">
 
+    {{-- =====================================================
+         PAGE HEADER
+         ====================================================== --}}
 
-{{-- =====================================================
-     PAGE HEADER
-     ====================================================== --}}
+    <div class="bplo-page-header">
 
-<div class="bplo-page-header">
-    <div>
-        <h1>BPLO Dashboard</h1>
-        <p>
-            Monitor traffic violation records and transaction status.
-        </p>
-    </div>
+        <div>
 
+            <h1>BPLO Dashboard</h1>
 
-</div>
-
-
-{{-- =====================================================
-     SUMMARY CARDS
-     ====================================================== --}}
-
-<div class="summary-grid">
-
-    <div class="summary-card">
-        <div class="summary-top">
-            <div>
-                <div class="summary-label">Total Records</div>
-
-                <div class="summary-value">
-                    {{ number_format($totalViolations) }}
-                </div>
-
-                <div class="summary-description">
-                    All recorded violations
-                </div>
-            </div>
-
-            <div class="summary-icon total-icon">
-                <i class="fa-solid fa-file-lines"></i>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="summary-card">
-        <div class="summary-top">
-            <div>
-                <div class="summary-label">Pending Transactions</div>
-
-                <div class="summary-value">
-                    {{ number_format($pendingViolations) }}
-                </div>
-
-                <div class="summary-description">
-                    Records awaiting settlement update
-                </div>
-            </div>
-
-            <div class="summary-icon pending-icon">
-                <i class="fa-solid fa-clock"></i>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="summary-card">
-        <div class="summary-top">
-            <div>
-                <div class="summary-label">Settled Transactions</div>
-
-                <div class="summary-value">
-                    {{ number_format($settledViolations) }}
-                </div>
-
-                <div class="summary-description">
-                    Records marked as settled
-                </div>
-            </div>
-
-            <div class="summary-icon settled-icon">
-                <i class="fa-solid fa-circle-check"></i>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="summary-card">
-        <div class="summary-top">
-            <div>
-                <div class="summary-label">Records This Month</div>
-
-                <div class="summary-value">
-                    {{ number_format($thisMonthViolations) }}
-                </div>
-
-                <div class="summary-description">
-                    {{ now()->format('F Y') }}
-                </div>
-            </div>
-
-            <div class="summary-icon month-icon">
-                <i class="fa-solid fa-calendar-days"></i>
-            </div>
-        </div>
-    </div>
-
-</div>
-
-
-{{-- =====================================================
-     CHARTS
-     ====================================================== --}}
-
-<div class="charts-grid">
-
-    {{-- Monthly Records --}}
-
-    <div class="dashboard-card">
-
-        <div class="card-header">
-            <h2 class="card-title">Monthly Violation Records</h2>
-
-            <p class="card-subtitle">
-                Number of violation records recorded each month
-                for {{ now()->year }}.
+            <p>
+                Monitor traffic violation records and transaction status.
             </p>
-        </div>
 
-        <div class="card-body">
-            <div class="chart-container">
-                <canvas id="monthlyViolationsChart"></canvas>
-            </div>
         </div>
 
     </div>
 
+    {{-- =====================================================
+         SUMMARY CARDS
+         ====================================================== --}}
 
-    {{-- Pending vs Settled --}}
+    <div class="summary-grid">
 
-    <div class="dashboard-card">
+        <div class="summary-card">
 
-        <div class="card-header">
-            <h2 class="card-title">Transaction Status</h2>
+            <div class="summary-top">
 
-            <p class="card-subtitle">
-                Current status of recorded violation transactions.
-            </p>
+                <div>
+
+                    <div class="summary-label">
+                        Total Records
+                    </div>
+
+                    <div class="summary-value">
+                        {{ number_format($totalViolations) }}
+                    </div>
+
+                    <div class="summary-description">
+                        All recorded violations
+                    </div>
+
+                </div>
+
+                <div class="summary-icon total-icon">
+                    <i class="fa-solid fa-file-lines"></i>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="card-body">
-            <div class="status-chart-container">
-                <canvas id="statusChart"></canvas>
+
+        <div class="summary-card">
+
+            <div class="summary-top">
+
+                <div>
+
+                    <div class="summary-label">
+                        Pending Transactions
+                    </div>
+
+                    <div class="summary-value">
+                        {{ number_format($pendingViolations) }}
+                    </div>
+
+                    <div class="summary-description">
+                        Records awaiting settlement update
+                    </div>
+
+                </div>
+
+                <div class="summary-icon pending-icon">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+
             </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-top">
+
+                <div>
+
+                    <div class="summary-label">
+                        Settled Transactions
+                    </div>
+
+                    <div class="summary-value">
+                        {{ number_format($settledViolations) }}
+                    </div>
+
+                    <div class="summary-description">
+                        Records marked as settled
+                    </div>
+
+                </div>
+
+                <div class="summary-icon settled-icon">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-top">
+
+                <div>
+
+                    <div class="summary-label">
+                        Records This Month
+                    </div>
+
+                    <div class="summary-value">
+                        {{ number_format($thisMonthViolations) }}
+                    </div>
+
+                    <div class="summary-description">
+                        {{ now()->format('F Y') }}
+                    </div>
+
+                </div>
+
+                <div class="summary-icon month-icon">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+
+            </div>
+
         </div>
 
     </div>
 
-</div>
+    {{-- =====================================================
+         CHARTS
+         ====================================================== --}}
 
+    <div class="charts-grid">
 
-{{-- =====================================================
-     VIOLATION TYPE + TODAY'S ACTIVITY
-     ====================================================== --}}
+        {{-- Monthly Records --}}
 
-<div class="statistics-grid">
+        <div class="dashboard-card">
 
-    {{-- Violation Type Statistics --}}
+            <div class="card-header">
 
-    <div class="dashboard-card">
+                <h2 class="card-title">
+                    Monthly Violation Records
+                </h2>
 
-        <div class="card-header">
-            <h2 class="card-title">Violation Type Statistics</h2>
+                <p class="card-subtitle">
+                    Number of violation records recorded each month
+                    for {{ now()->year }}.
+                </p>
 
-            <p class="card-subtitle">
-                Recorded violation types, including multiple violations
-                attached to one ticket.
-            </p>
+            </div>
+
+            <div class="card-body">
+
+                <div class="chart-container">
+                    <canvas id="monthlyViolationsChart"></canvas>
+                </div>
+
+            </div>
+
         </div>
 
-        <div class="card-body">
 
-            @if ($violationTypeStatistics->isNotEmpty())
+        {{-- Pending vs Settled --}}
 
-                @php
-                    $maxViolationType = $violationTypeStatistics->max('total');
-                @endphp
+        <div class="dashboard-card">
 
-                <div class="type-stat-list">
+            <div class="card-header">
 
-                    @foreach ($violationTypeStatistics->take(8) as $type)
+                <h2 class="card-title">
+                    Transaction Status
+                </h2>
 
-                        @php
-                            $percentage = $maxViolationType > 0
-                                ? ($type->total / $maxViolationType) * 100
-                                : 0;
-                        @endphp
+                <p class="card-subtitle">
+                    Current status of recorded violation transactions.
+                </p>
 
-                        <div class="type-stat-item">
+            </div>
 
-                            <div class="type-stat-info">
+            <div class="card-body">
 
-                                <span class="type-stat-name">
-                                    {{ $type->name }}
-                                </span>
+                <div class="status-chart-container">
+                    <canvas id="statusChart"></canvas>
+                </div>
 
-                                <div class="type-stat-bar">
-                                    <div
-                                        class="type-stat-fill"
-                                        style="width: {{ $percentage }}%;">
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- =====================================================
+         VIOLATION TYPE + TODAY'S ACTIVITY
+         ====================================================== --}}
+
+    <div class="statistics-grid">
+
+        {{-- Violation Type Statistics --}}
+
+        <div class="dashboard-card">
+
+            <div class="card-header">
+
+                <h2 class="card-title">
+                    Violation Type Statistics
+                </h2>
+
+                <p class="card-subtitle">
+                    Recorded violation types, including multiple violations
+                    attached to one ticket.
+                </p>
+
+            </div>
+
+            <div class="card-body">
+
+                @if ($violationTypeStatistics->isNotEmpty())
+
+                    @php
+                        $maxViolationType = $violationTypeStatistics->max('total');
+                    @endphp
+
+                    <div class="type-stat-list">
+
+                        @foreach ($violationTypeStatistics->take(8) as $type)
+
+                            @php
+                                $percentage = $maxViolationType > 0
+                                    ? ($type->total / $maxViolationType) * 100
+                                    : 0;
+                            @endphp
+
+                            <div class="type-stat-item">
+
+                                <div class="type-stat-info">
+
+                                    <span class="type-stat-name">
+                                        {{ $type->name }}
+                                    </span>
+
+                                    <div class="type-stat-bar">
+
+                                        <div
+                                            class="type-stat-fill"
+                                            style="width: {{ $percentage }}%;"
+                                        ></div>
+
                                     </div>
+
+                                </div>
+
+                                <div class="type-stat-number">
+                                    {{ number_format($type->total) }}
                                 </div>
 
                             </div>
 
-                            <div class="type-stat-number">
-                                {{ number_format($type->total) }}
+                        @endforeach
+
+                    </div>
+
+                @else
+
+                    <div class="empty-small">
+
+                        <i class="fa-regular fa-chart-bar"></i>
+
+                        No violation type statistics available.
+
+                    </div>
+
+                @endif
+
+            </div>
+
+        </div>
+
+
+        {{-- Today's Activity --}}
+
+        <div class="dashboard-card">
+
+            <div class="card-header">
+
+                <h2 class="card-title">
+                    Today's Activity
+                </h2>
+
+                <p class="card-subtitle">
+                    Traffic violation records recorded today.
+                </p>
+
+            </div>
+
+            <div class="card-body">
+
+                <div class="today-grid">
+
+                    <div class="today-stat">
+
+                        <div class="today-stat-label">
+                            Today's Records
+                        </div>
+
+                        <div class="today-stat-value">
+                            {{ number_format($todayViolations) }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="today-stat">
+
+                        <div class="today-stat-label">
+                            Pending
+                        </div>
+
+                        <div class="today-stat-value">
+                            {{ number_format($todayPending) }}
+                        </div>
+
+                    </div>
+
+
+                    <div class="today-stat">
+
+                        <div class="today-stat-label">
+                            Settled
+                        </div>
+
+                        <div class="today-stat-value">
+                            {{ number_format($todaySettled) }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div style="margin-top: 18px; padding-top: 15px; border-top: 1px solid #eef1f5;">
+
+                    <div style="color:#6b7280; font-size:11px; margin-bottom:7px;">
+                        Monthly Transaction Overview
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; gap:15px;">
+
+                        <div>
+
+                            <div style="font-size:10px; color:#9ca3af;">
+                                Pending This Month
+                            </div>
+
+                            <div style="margin-top:4px; font-size:19px; font-weight:700; color:#d97706;">
+                                {{ number_format($thisMonthPending) }}
+                            </div>
+
+                        </div>
+
+
+                        <div style="text-align:right;">
+
+                            <div style="font-size:10px; color:#9ca3af;">
+                                Settled This Month
+                            </div>
+
+                            <div style="margin-top:4px; font-size:19px; font-weight:700; color:#15803d;">
+                                {{ number_format($thisMonthSettled) }}
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {{-- =====================================================
+         PENDING TRANSACTIONS
+         ====================================================== --}}
+
+    <div class="dashboard-card pending-card">
+
+        <div class="card-header">
+
+            <div class="pending-header">
+
+                <div>
+
+                    <h2 class="card-title">
+                        Pending Transactions
+                    </h2>
+
+                    <p class="card-subtitle">
+                        Records that may require transaction status updating.
+                    </p>
+
+                </div>
+
+                <a
+                    href="{{ route('bplo.violations.index', ['status' => 'Pending']) }}"
+                    class="review-link"
+                >
+                    <i class="fa-solid fa-list-check"></i>
+                    Review Pending Records
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="card-body">
+
+            @if ($pendingRecords->isNotEmpty())
+
+                <div class="pending-list">
+
+                    {{-- Show only the latest 3 pending records on dashboard --}}
+
+                    @foreach ($pendingRecords->take(3) as $violation)
+
+                        @php
+
+                            $driverName = trim(
+                                ($violation->driver->first_name ?? '') .
+                                ' ' .
+                                ($violation->driver->middle_name ?? '') .
+                                ' ' .
+                                ($violation->driver->last_name ?? '')
+                            );
+
+                            $driverName = $driverName ?: 'N/A';
+
+                            $violationNames = $violation->violationTypes
+                                ->pluck('name')
+                                ->filter()
+                                ->values();
+
+                            $violationName = $violationNames->isNotEmpty()
+                                ? $violationNames->implode(', ')
+                                : ($violation->violationType?->name ?? 'N/A');
+
+                        @endphp
+
+                        <div class="pending-item">
+
+                            <div class="pending-main">
+
+                                <div class="pending-ticket">
+                                    #{{ $violation->ticket_number }}
+                                </div>
+
+                                <div class="pending-name">
+                                    {{ $driverName }}
+                                </div>
+
+                                <div class="pending-meta">
+
+                                    {{ $violationName }}
+
+                                    @if ($violation->vehicle?->plate_number)
+
+                                        · {{ $violation->vehicle->plate_number }}
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+                            <div class="pending-status">
+                                Pending
                             </div>
 
                         </div>
@@ -811,8 +1090,11 @@
             @else
 
                 <div class="empty-small">
-                    <i class="fa-regular fa-chart-bar"></i>
-                    No violation type statistics available.
+
+                    <i class="fa-solid fa-circle-check"></i>
+
+                    No pending transactions at this time.
+
                 </div>
 
             @endif
@@ -822,441 +1104,294 @@
     </div>
 
 
-    {{-- Today's Activity --}}
+    {{-- =====================================================
+         RECENT RECORDS
+         ====================================================== --}}
 
-    <div class="dashboard-card">
+    <div class="dashboard-card recent-card">
 
         <div class="card-header">
-            <h2 class="card-title">Today's Activity</h2>
 
-            <p class="card-subtitle">
-                Traffic violation records recorded today.
-            </p>
-        </div>
+            <div class="recent-header">
 
-        <div class="card-body">
+                <div>
 
-            <div class="today-grid">
+                    <h2 class="card-title">
+                        Recent Violation Records
+                    </h2>
 
-                <div class="today-stat">
-                    <div class="today-stat-label">
-                        Today's Records
-                    </div>
-
-                    <div class="today-stat-value">
-                        {{ number_format($todayViolations) }}
-                    </div>
-                </div>
-
-
-                <div class="today-stat">
-                    <div class="today-stat-label">
-                        Pending
-                    </div>
-
-                    <div class="today-stat-value">
-                        {{ number_format($todayPending) }}
-                    </div>
-                </div>
-
-
-                <div class="today-stat">
-                    <div class="today-stat-label">
-                        Settled
-                    </div>
-
-                    <div class="today-stat-value">
-                        {{ number_format($todaySettled) }}
-                    </div>
-                </div>
-
-            </div>
-
-
-            <div style="margin-top: 20px; padding-top: 18px; border-top: 1px solid #eef1f5;">
-
-                <div style="color:#6b7280; font-size:12px; margin-bottom:8px;">
-                    Monthly Transaction Overview
-                </div>
-
-                <div style="display:flex; justify-content:space-between; gap:15px;">
-
-                    <div>
-                        <div style="font-size:11px; color:#9ca3af;">
-                            Pending This Month
-                        </div>
-
-                        <div style="margin-top:4px; font-size:20px; font-weight:700; color:#d97706;">
-                            {{ number_format($thisMonthPending) }}
-                        </div>
-                    </div>
-
-
-                    <div style="text-align:right;">
-                        <div style="font-size:11px; color:#9ca3af;">
-                            Settled This Month
-                        </div>
-
-                        <div style="margin-top:4px; font-size:20px; font-weight:700; color:#15803d;">
-                            {{ number_format($thisMonthSettled) }}
-                        </div>
-                    </div>
+                    <p class="card-subtitle">
+                        Latest traffic violation records received by BPLO.
+                    </p>
 
                 </div>
+
+                <a
+                    href="{{ route('bplo.violations.index') }}"
+                    class="view-all-link"
+                >
+                    View All Records
+                    <i class="fa-solid fa-arrow-right ms-1"></i>
+                </a>
 
             </div>
 
         </div>
 
-    </div>
 
-</div>
+        <div class="table-container">
 
+            <table class="bplo-table">
 
-{{-- =====================================================
-     PENDING TRANSACTIONS
-     ====================================================== --}}
-
-<div class="dashboard-card pending-card">
-
-    <div class="card-header">
-
-        <div class="pending-header">
-
-            <div>
-                <h2 class="card-title">Pending Transactions</h2>
-
-                <p class="card-subtitle">
-                    Records that may require transaction status updating.
-                </p>
-            </div>
-
-            <a
-                href="{{ route('bplo.violations.index', ['status' => 'Pending']) }}"
-                class="review-link"
-            >
-                <i class="fa-solid fa-list-check"></i>
-                Review Pending Records
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <div class="card-body">
-
-        @if ($pendingRecords->isNotEmpty())
-
-            <div class="pending-list">
-
-                @foreach ($pendingRecords as $violation)
-
-                    @php
-                        $driverName = trim(
-                            ($violation->driver->first_name ?? '') .
-                            ' ' .
-                            ($violation->driver->middle_name ?? '') .
-                            ' ' .
-                            ($violation->driver->last_name ?? '')
-                        );
-
-                        $driverName = $driverName ?: 'N/A';
-
-                        $violationNames = $violation->violationTypes
-                            ->pluck('name')
-                            ->filter()
-                            ->values();
-
-                        $violationName = $violationNames->isNotEmpty()
-                            ? $violationNames->implode(', ')
-                            : ($violation->violationType?->name ?? 'N/A');
-                    @endphp
-
-                    <div class="pending-item">
-
-                        <div class="pending-main">
-
-                            <div class="pending-ticket">
-                                #{{ $violation->ticket_number }}
-                            </div>
-
-                            <div class="pending-name">
-                                {{ $driverName }}
-                            </div>
-
-                            <div class="pending-meta">
-                                {{ $violationName }}
-                                @if ($violation->vehicle?->plate_number)
-                                    · {{ $violation->vehicle->plate_number }}
-                                @endif
-                            </div>
-
-                        </div>
-
-                        <div class="pending-status">
-                            Pending
-                        </div>
-
-                    </div>
-
-                @endforeach
-
-            </div>
-
-        @else
-
-            <div class="empty-small">
-                <i class="fa-solid fa-circle-check"></i>
-                No pending transactions at this time.
-            </div>
-
-        @endif
-
-    </div>
-
-</div>
-
-
-{{-- =====================================================
-     RECENT RECORDS
-     ====================================================== --}}
-
-<div class="dashboard-card recent-card">
-
-    <div class="card-header">
-
-        <div class="recent-header">
-
-            <div>
-                <h2 class="card-title">Recent Violation Records</h2>
-
-                <p class="card-subtitle">
-                    Latest traffic violation records received by BPLO.
-                </p>
-            </div>
-
-            <a
-                href="{{ route('bplo.violations.index') }}"
-                class="view-all-link"
-            >
-                View All Records
-                <i class="fa-solid fa-arrow-right ms-1"></i>
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <div class="table-container">
-
-        <table class="bplo-table">
-
-            <thead>
-                <tr>
-                    <th>Ticket</th>
-                    <th>Violator</th>
-                    <th>Violation</th>
-                    <th>Date & Time</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-
-            <tbody>
-
-                @forelse ($recentViolations as $violation)
-
-                    @php
-                        $driverName = trim(
-                            ($violation->driver->first_name ?? '') .
-                            ' ' .
-                            ($violation->driver->middle_name ?? '') .
-                            ' ' .
-                            ($violation->driver->last_name ?? '')
-                        );
-
-                        $driverName = $driverName ?: 'N/A';
-
-                        $violationNames = $violation->violationTypes
-                            ->pluck('name')
-                            ->filter()
-                            ->values();
-
-                        $violationName = $violationNames->isNotEmpty()
-                            ? $violationNames->implode(', ')
-                            : ($violation->violationType?->name ?? 'N/A');
-
-                        $officerName = $violation->user->name ?? 'N/A';
-
-                        $formattedDate = $violation->violation_date
-                            ? \Carbon\Carbon::parse($violation->violation_date)->format('M d, Y')
-                            : 'N/A';
-
-                        $formattedTime = $violation->violation_time
-                            ? \Carbon\Carbon::parse($violation->violation_time)->format('h:i A')
-                            : 'N/A';
-
-                        $vehicleInfo = trim(
-                            ($violation->vehicle->plate_number ?? 'N/A') .
-                            ' ' .
-                            ($violation->vehicle->vehicle_type ?? '')
-                        );
-
-                        $location = $violation->location ?? 'N/A';
-                        $remarks = $violation->remarks ?? 'N/A';
-                    @endphp
+                <thead>
 
                     <tr>
 
-                        <td>
-                            <span class="ticket-number">
-                                #{{ $violation->ticket_number }}
-                            </span>
-                        </td>
+                        <th>Ticket</th>
 
-                        <td>
-                            <span class="driver-name">
-                                {{ $driverName }}
-                            </span>
-                        </td>
+                        <th>Violator</th>
 
-                        <td>
+                        <th>Violation</th>
 
-                            <div class="violation-badges">
+                        <th>Date & Time</th>
 
-                                @foreach ($violationNames as $name)
+                        <th>Status</th>
 
-                                    <span class="violation-badge">
-                                        {{ $name }}
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {{-- Show only the latest 5 records on dashboard --}}
+
+                    @forelse ($recentViolations->take(5) as $violation)
+
+                        @php
+
+                            $driverName = trim(
+                                ($violation->driver->first_name ?? '') .
+                                ' ' .
+                                ($violation->driver->middle_name ?? '') .
+                                ' ' .
+                                ($violation->driver->last_name ?? '')
+                            );
+
+                            $driverName = $driverName ?: 'N/A';
+
+                            $violationNames = $violation->violationTypes
+                                ->pluck('name')
+                                ->filter()
+                                ->values();
+
+                            $violationName = $violationNames->isNotEmpty()
+                                ? $violationNames->implode(', ')
+                                : ($violation->violationType?->name ?? 'N/A');
+
+                            $officerName = $violation->user->name ?? 'N/A';
+
+                            $formattedDate = $violation->violation_date
+                                ? \Carbon\Carbon::parse(
+                                    $violation->violation_date
+                                )->format('M d, Y')
+                                : 'N/A';
+
+                            $formattedTime = $violation->violation_time
+                                ? \Carbon\Carbon::parse(
+                                    $violation->violation_time
+                                )->format('h:i A')
+                                : 'N/A';
+
+                            $vehicleInfo = trim(
+                                ($violation->vehicle->plate_number ?? 'N/A') .
+                                ' ' .
+                                ($violation->vehicle->vehicle_type ?? '')
+                            );
+
+                            $location = $violation->location ?? 'N/A';
+
+                            $remarks = $violation->remarks ?? 'N/A';
+
+                        @endphp
+
+
+                        <tr>
+
+                            <td>
+
+                                <span class="ticket-number">
+                                    #{{ $violation->ticket_number }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="driver-name">
+                                    {{ $driverName }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                <div class="violation-badges">
+
+                                    @foreach ($violationNames as $name)
+
+                                        <span class="violation-badge">
+                                            {{ $name }}
+                                        </span>
+
+                                    @endforeach
+
+                                    @if ($violationNames->isEmpty())
+
+                                        <span class="violation-badge">
+                                            {{ $violationName }}
+                                        </span>
+
+                                    @endif
+
+                                </div>
+
+                            </td>
+
+
+                            <td>
+
+                                <span class="date-main">
+                                    {{ $formattedDate }}
+                                </span>
+
+                                <span class="time-text">
+                                    {{ $formattedTime }}
+                                </span>
+
+                            </td>
+
+
+                            <td>
+
+                                @if ($violation->status === 'Settled')
+
+                                    <span class="status-badge settled">
+
+                                        <i class="fa-solid fa-circle-check"></i>
+
+                                        Settled
+
                                     </span>
 
-                                @endforeach
+                                @else
 
-                                @if ($violationNames->isEmpty())
+                                    <span class="status-badge pending">
 
-                                    <span class="violation-badge">
-                                        {{ $violationName }}
+                                        <i class="fa-solid fa-clock"></i>
+
+                                        Pending
+
                                     </span>
 
                                 @endif
 
-                            </div>
+                            </td>
 
-                        </td>
 
-                        <td>
+                            <td>
 
-                            <span class="date-main">
-                                {{ $formattedDate }}
-                            </span>
+                                <button
+                                    type="button"
+                                    class="view-button violation-view-trigger"
+                                    title="View Details"
+                                    data-ticket="{{ $violation->ticket_number }}"
+                                    data-name="{{ $driverName }}"
+                                    data-vehicle="{{ $vehicleInfo }}"
+                                    data-violation="{{ $violationName }}"
+                                    data-officer="{{ $officerName }}"
+                                    data-date="{{ $formattedDate }}"
+                                    data-time="{{ $formattedTime }}"
+                                    data-location="{{ $location }}"
+                                    data-remarks="{{ $remarks }}"
+                                    data-status="{{ $violation->status }}"
+                                >
 
-                            <span class="time-text">
-                                {{ $formattedTime }}
-                            </span>
+                                    <i class="fa-solid fa-eye"></i>
 
-                        </td>
+                                </button>
 
-                        <td>
+                            </td>
 
-                            @if ($violation->status === 'Settled')
+                        </tr>
 
-                                <span class="status-badge settled">
-                                    <i class="fa-solid fa-circle-check"></i>
-                                    Settled
-                                </span>
 
-                            @else
+                    @empty
 
-                                <span class="status-badge pending">
-                                    <i class="fa-solid fa-clock"></i>
-                                    Pending
-                                </span>
+                        <tr>
 
-                            @endif
-
-                        </td>
-
-                        <td>
-
-                            <button
-                                type="button"
-                                class="view-button violation-view-trigger"
-                                title="View Details"
-
-                                data-ticket="{{ $violation->ticket_number }}"
-                                data-name="{{ $driverName }}"
-                                data-vehicle="{{ $vehicleInfo }}"
-                                data-violation="{{ $violationName }}"
-                                data-officer="{{ $officerName }}"
-                                data-date="{{ $formattedDate }}"
-                                data-time="{{ $formattedTime }}"
-                                data-location="{{ $location }}"
-                                data-remarks="{{ $remarks }}"
-                                data-status="{{ $violation->status }}"
+                            <td
+                                colspan="6"
+                                class="empty-table"
                             >
-                                <i class="fa-solid fa-eye"></i>
-                            </button>
 
-                        </td>
+                                <i class="fa-regular fa-folder-open"></i>
 
-                    </tr>
+                                No violation records available.
 
-                @empty
+                            </td>
 
-                    <tr>
-                        <td colspan="6" class="empty-table">
+                        </tr>
 
-                            <i class="fa-regular fa-folder-open"></i>
+                    @endforelse
 
-                            No violation records available.
+                </tbody>
 
-                        </td>
-                    </tr>
+            </table>
 
-                @endforelse
-
-            </tbody>
-
-        </table>
+        </div>
 
     </div>
 
 </div>
-```
 
-</div>
 
 {{-- =========================================================
-SHARED VIOLATION MODAL
-========================================================== --}}
+     SHARED VIOLATION MODAL
+     ========================================================== --}}
 
 @include('partials.bplo-violation-modal')
 
+
 {{-- =========================================================
-CHART.JS
-========================================================== --}}
+     CHART.JS
+     ========================================================== --}}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
+
     document.addEventListener('DOMContentLoaded', function () {
 
-        /*
-        |--------------------------------------------------------------------------
-        | MONTHLY VIOLATION CHART
-        |--------------------------------------------------------------------------
-        */
+        /* ==========================================================
+           MONTHLY VIOLATION CHART
+           ========================================================== */
 
-        const monthlyCanvas = document.getElementById('monthlyViolationsChart');
+        const monthlyCanvas =
+            document.getElementById('monthlyViolationsChart');
 
         if (monthlyCanvas) {
 
             new Chart(monthlyCanvas, {
+
                 type: 'line',
 
                 data: {
+
                     labels: [
                         'Jan',
                         'Feb',
@@ -1273,13 +1408,15 @@ CHART.JS
                     ],
 
                     datasets: [{
+
                         label: 'Violation Records',
 
                         data: @json($monthlyViolations),
 
                         borderColor: '#2563eb',
 
-                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        backgroundColor:
+                            'rgba(37, 99, 235, 0.08)',
 
                         borderWidth: 2,
 
@@ -1290,22 +1427,29 @@ CHART.JS
                         pointRadius: 3,
 
                         pointHoverRadius: 5
+
                     }]
+
                 },
 
                 options: {
+
                     responsive: true,
 
                     maintainAspectRatio: false,
 
                     plugins: {
+
                         legend: {
                             display: false
                         }
+
                     },
 
                     scales: {
+
                         y: {
+
                             beginAtZero: true,
 
                             ticks: {
@@ -1315,54 +1459,72 @@ CHART.JS
                             grid: {
                                 color: '#eef1f5'
                             }
+
                         },
 
                         x: {
+
                             grid: {
                                 display: false
                             }
+
                         }
+
                     }
+
                 }
+
             });
+
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | STATUS CHART
-        |--------------------------------------------------------------------------
-        */
+        /* ==========================================================
+           STATUS CHART
+           ========================================================== */
 
-        const statusCanvas = document.getElementById('statusChart');
+        const statusCanvas =
+            document.getElementById('statusChart');
 
         if (statusCanvas) {
 
             new Chart(statusCanvas, {
+
                 type: 'doughnut',
 
                 data: {
+
                     labels: [
                         'Pending',
                         'Settled'
                     ],
 
                     datasets: [{
+
                         data: [
+
                             {{ $statusStatistics['Pending'] }},
+
                             {{ $statusStatistics['Settled'] }}
+
                         ],
 
                         backgroundColor: [
+
                             '#f59e0b',
+
                             '#22c55e'
+
                         ],
 
                         borderWidth: 0
+
                     }]
+
                 },
 
                 options: {
+
                     responsive: true,
 
                     maintainAspectRatio: false,
@@ -1370,10 +1532,13 @@ CHART.JS
                     cutout: '68%',
 
                     plugins: {
+
                         legend: {
+
                             position: 'bottom',
 
                             labels: {
+
                                 usePointStyle: true,
 
                                 padding: 18,
@@ -1381,38 +1546,51 @@ CHART.JS
                                 font: {
                                     size: 11
                                 }
+
                             }
+
                         }
+
                     }
+
                 }
+
             });
+
         }
 
 
-        /*
-        |--------------------------------------------------------------------------
-        | VIEW MODAL
-        |--------------------------------------------------------------------------
-        */
+        /* ==========================================================
+           VIEW MODAL
+           ========================================================== */
 
-        const modal = document.getElementById('violationDetailsModal');
+        const modal =
+            document.getElementById('violationDetailsModal');
 
-        const modalClose = document.getElementById('violationModalClose');
+        const modalClose =
+            document.getElementById('violationModalClose');
 
-        const modalX = document.getElementById('violationModalX');
+        const modalX =
+            document.getElementById('violationModalX');
 
 
         function setDetail(id, value) {
 
-            const element = document.getElementById(id);
+            const element =
+                document.getElementById(id);
 
             if (element) {
-                element.textContent = value || 'N/A';
+
+                element.textContent =
+                    value || 'N/A';
+
             }
+
         }
 
 
-        document.querySelectorAll('.violation-view-trigger')
+        document
+            .querySelectorAll('.violation-view-trigger')
             .forEach(function (button) {
 
                 button.addEventListener('click', function () {
@@ -1469,7 +1647,9 @@ CHART.JS
 
 
                     if (modal) {
+
                         modal.classList.add('show');
+
                     }
 
                 });
@@ -1480,43 +1660,67 @@ CHART.JS
         function closeModal() {
 
             if (modal) {
+
                 modal.classList.remove('show');
+
             }
+
         }
 
 
         if (modalClose) {
-            modalClose.addEventListener('click', closeModal);
+
+            modalClose.addEventListener(
+                'click',
+                closeModal
+            );
+
         }
 
 
         if (modalX) {
-            modalX.addEventListener('click', closeModal);
+
+            modalX.addEventListener(
+                'click',
+                closeModal
+            );
+
         }
 
 
         if (modal) {
 
-            modal.addEventListener('click', function (event) {
+            modal.addEventListener(
+                'click',
+                function (event) {
 
-                if (event.target === modal) {
-                    closeModal();
+                    if (event.target === modal) {
+
+                        closeModal();
+
+                    }
+
                 }
-
-            });
+            );
 
         }
 
 
-        document.addEventListener('keydown', function (event) {
+        document.addEventListener(
+            'keydown',
+            function (event) {
 
-            if (event.key === 'Escape') {
-                closeModal();
+                if (event.key === 'Escape') {
+
+                    closeModal();
+
+                }
+
             }
-
-        });
+        );
 
     });
+
 </script>
 
 @endsection

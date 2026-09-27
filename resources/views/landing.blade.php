@@ -1165,7 +1165,7 @@
 
     <footer class="bg-[#005fbf] text-white">
 
-        <div class="max-w-7xl mx-auto px-6 py-12">
+        <div class="max-w-7xl mx-auto px-3 py-12">
 
             <div class="grid md:grid-cols-2 gap-10 items-start">
 

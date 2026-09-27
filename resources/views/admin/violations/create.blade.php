@@ -4,615 +4,628 @@
 
 @section('content')
 
-<div class="container-fluid px-4 pt-3">
+    <div class="container-fluid px-4 pt-3">
 
-    {{-- ========================================================= --}}
-    {{-- PAGE HEADER --}}
-    {{-- ========================================================= --}}
+        {{-- ========================================================= --}}
+        {{-- PAGE HEADER --}}
+        {{-- ========================================================= --}}
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-1">Add Citation Record</h1>
+                <p class="text-muted mb-0">
+                    Manually encode a physical traffic citation ticket.
+                </p>
+            </div>
 
-        <div>
-            <h1 class="h3 mb-1">Add Citation Record</h1>
-            <p class="text-muted mb-0">
-                Encode a physical traffic citation ticket.
-            </p>
+            <a href="{{ route('violations.index') }}" class="btn btn-outline-secondary">
+                <i class="fa-solid fa-arrow-left me-1"></i>
+                Back
+            </a>
         </div>
 
-        <a href="{{ route('violations.index') }}" class="btn btn-outline-secondary">
-            <i class="fa-solid fa-arrow-left me-1"></i>
-            Back
-        </a>
 
-    </div>
+        {{-- ========================================================= --}}
+        {{-- VALIDATION ERRORS --}}
+        {{-- ========================================================= --}}
 
+        @if ($errors->any())
 
-    {{-- ========================================================= --}}
-    {{-- VALIDATION ERRORS --}}
-    {{-- ========================================================= --}}
+            <div class="alert alert-danger alert-dismissible fade show">
 
-    @if ($errors->any())
+                <strong>Please correct the following:</strong>
 
-        <div class="alert alert-danger">
+                <ul class="mb-0 mt-2">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
 
-            <strong>Please correct the following:</strong>
-
-            <ul class="mb-0 mt-2">
-
-                @foreach ($errors->all() as $error)
-
-                    <li>{{ $error }}</li>
-
-                @endforeach
-
-            </ul>
-
-        </div>
-
-    @endif
-
-
-    {{-- ========================================================= --}}
-    {{-- MAIN CITATION FORM --}}
-    {{-- ========================================================= --}}
-
-    <div class="card shadow-sm mb-5">
-
-        <div class="card-header bg-white py-3">
-
-            <div class="d-flex justify-content-between align-items-center">
-
-                <div>
-
-                    <h5 class="mb-0">
-                        <i class="fa-solid fa-file-pen me-2"></i>
-                        Traffic Citation
-                    </h5>
-
-                    <small class="text-muted">
-                        Enter the information exactly as written on the physical citation.
-                    </small>
-
-                </div>
-
-                <span class="badge bg-warning text-dark px-3 py-2">
-                    Pending
-                </span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 
             </div>
 
-        </div>
+        @endif
 
 
-        <form
-            action="{{ route('admin.violations.store') }}"
-            method="POST"
-        >
+        {{-- ========================================================= --}}
+        {{-- MAIN CITATION CARD --}}
+        {{-- ========================================================= --}}
 
-            @csrf
+        <div class="card shadow-sm mb-5">
 
-            <div class="card-body p-4">
+            {{-- CARD HEADER --}}
 
+            <div class="card-header bg-white py-3">
 
-                {{-- ================================================= --}}
-                {{-- CITATION DETAILS --}}
-                {{-- ================================================= --}}
+                <div class="d-flex justify-content-between align-items-center">
 
-                <div class="border-bottom pb-3 mb-4">
+                    <div>
+                        <h5 class="mb-0">
+                            <i class="fa-solid fa-file-pen me-2"></i>
+                            Traffic Citation
+                        </h5>
 
-                    <h6 class="fw-bold text-uppercase mb-3">
-                        Citation Details
-                    </h6>
-
-                    <div class="row g-3">
-
-                        <div class="col-md-6">
-
-                            <label for="ticket_number" class="form-label">
-                                Ticket Number
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="ticket_number"
-                                name="ticket_number"
-                                value="{{ old('ticket_number') }}"
-                                placeholder="Enter ticket number"
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <label for="violation_date" class="form-label">
-                                Date <span class="text-danger">*</span>
-                            </label>
-
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="violation_date"
-                                name="violation_date"
-                                value="{{ old('violation_date', now()->format('Y-m-d')) }}"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-3">
-
-                            <label for="violation_time" class="form-label">
-                                Time <span class="text-danger">*</span>
-                            </label>
-
-                            <input
-                                type="time"
-                                class="form-control"
-                                id="violation_time"
-                                name="violation_time"
-                                value="{{ old('violation_time') }}"
-                                required
-                            >
-
-                        </div>
-
+                        <small class="text-muted">
+                            Enter the information exactly as written on the physical citation.
+                        </small>
                     </div>
 
-                    <input
-                        type="hidden"
-                        name="status"
-                        value="Pending"
-                    >
+                    <span class="badge bg-warning text-dark px-3 py-2">
+                        Pending
+                    </span>
 
                 </div>
 
+            </div>
 
-                {{-- ================================================= --}}
-                {{-- VIOLATOR INFORMATION --}}
-                {{-- ================================================= --}}
 
-                <div class="border-bottom pb-3 mb-4">
+            {{-- ========================================================= --}}
+            {{-- FORM --}}
+            {{-- ========================================================= --}}
 
-                    <h6 class="fw-bold text-uppercase mb-3">
-                        Violator Information
-                    </h6>
+            <form action="{{ route('admin.violations.store') }}" method="POST" id="citationForm"
+                enctype="multipart/form-data" novalidate>
 
+                @csrf
 
-                    <div class="row g-3">
+                <div class="card-body p-4">
 
 
-                        <div class="col-md-4">
+                    {{-- ================================================= --}}
+                    {{-- CITATION DETAILS --}}
+                    {{-- ================================================= --}}
 
-                            <label for="last_name" class="form-label">
-                                Last Name <span class="text-danger">*</span>
-                            </label>
+                    <div class="border-bottom pb-3 mb-4">
 
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="last_name"
-                                name="last_name"
-                                value="{{ old('last_name') }}"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label for="first_name" class="form-label">
-                                First Name <span class="text-danger">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="first_name"
-                                name="first_name"
-                                value="{{ old('first_name') }}"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label for="middle_name" class="form-label">
-                                Middle Name
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="middle_name"
-                                name="middle_name"
-                                value="{{ old('middle_name') }}"
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-8">
-
-                            <label for="address" class="form-label">
-                                Address <span class="text-danger">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="address"
-                                name="address"
-                                value="{{ old('address') }}"
-                                placeholder="Complete address"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label for="contact_number" class="form-label">
-                                Contact Number
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="contact_number"
-                                name="contact_number"
-                                value="{{ old('contact_number') }}"
-                                placeholder="Contact number"
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label for="license_number" class="form-label">
-                                License Number <span class="text-danger">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="license_number"
-                                name="license_number"
-                                value="{{ old('license_number') }}"
-                                placeholder="License number"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label for="birth_date" class="form-label">
-                                Birth Date
-                            </label>
-
-                            <input
-                                type="date"
-                                class="form-control"
-                                id="birth_date"
-                                name="birth_date"
-                                value="{{ old('birth_date') }}"
-                            >
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- ================================================= --}}
-                {{-- VEHICLE INFORMATION --}}
-                {{-- ================================================= --}}
-
-                <div class="border-bottom pb-3 mb-4">
-
-                    <h6 class="fw-bold text-uppercase mb-3">
-                        Vehicle Information
-                    </h6>
-
-
-                    <div class="row g-3">
-
-
-                        <div class="col-md-4">
-
-                            <label for="plate_number" class="form-label">
-                                Plate Number <span class="text-danger">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="plate_number"
-                                name="plate_number"
-                                value="{{ old('plate_number') }}"
-                                placeholder="Plate number"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label for="vehicle_type" class="form-label">
-                                Vehicle Type
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="vehicle_type"
-                                name="vehicle_type"
-                                value="{{ old('vehicle_type') }}"
-                                placeholder="e.g. Motorcycle"
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-4">
-
-                            <label for="region_number" class="form-label">
-                                Region Number
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="region_number"
-                                name="region_number"
-                                value="{{ old('region_number') }}"
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-12">
-
-                            <label for="owner_name" class="form-label">
-                                Registered Owner
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="owner_name"
-                                name="owner_name"
-                                value="{{ old('owner_name') }}"
-                            >
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- ================================================= --}}
-                {{-- VIOLATION LOCATION --}}
-                {{-- ================================================= --}}
-
-                <div class="border-bottom pb-3 mb-4">
-
-                    <h6 class="fw-bold text-uppercase mb-3">
-                        Violation Location
-                    </h6>
-
-                    <div class="row g-3">
-
-                        <div class="col-md-12">
-
-                            <label for="location" class="form-label">
-                                Location <span class="text-danger">*</span>
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="location"
-                                name="location"
-                                value="{{ old('location') }}"
-                                placeholder="Enter location where the violation occurred"
-                                required
-                            >
-
-                            <small class="text-muted">
-                                Enter the location manually as written or indicated on the physical citation.
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-
-                {{-- ================================================= --}}
-                {{-- VIOLATIONS --}}
-                {{-- ================================================= --}}
-
-                <div class="border-bottom pb-3 mb-4">
-
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-
-                        <h6 class="fw-bold text-uppercase mb-0">
-                            Violation/s
+                        <h6 class="fw-bold text-uppercase mb-3">
+                            Citation Details
                         </h6>
 
-                        <button
-                            type="button"
-                            class="btn btn-sm btn-outline-primary"
-                            id="addViolationBtn"
-                        >
-                            <i class="fa-solid fa-plus me-1"></i>
-                            Add Violation
-                        </button>
+                        <div class="row g-3">
+
+                            {{-- Ticket Number --}}
+
+                            <div class="col-md-6">
+
+                                <label for="ticket_number" class="form-label">
+                                    Ticket Number
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text" class="form-control" id="ticket_number" name="ticket_number"
+                                    value="{{ old('ticket_number') }}" placeholder="Enter 6-digit ticket number"
+                                    maxlength="6" minlength="6" inputmode="numeric" pattern="[0-9]{6}" required
+                                    autocomplete="off">
+
+                                <small class="text-muted">
+                                    Must contain exactly 6 digits.
+                                </small>
+
+                                <div class="invalid-feedback">
+                                    Ticket number must contain exactly 6 digits.
+                                </div>
+
+                            </div>
+
+
+                            {{-- Date --}}
+
+                            <div class="col-md-3">
+
+                                <label for="violation_date" class="form-label">
+                                    Date
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="date" class="form-control" id="violation_date" name="violation_date"
+                                    value="{{ old('violation_date', now()->setTimezone('Asia/Manila')->format('Y-m-d')) }}"
+                                    required>
+
+                                <div class="invalid-feedback">
+                                    Please enter the citation date.
+                                </div>
+
+                            </div>
+
+
+                            {{-- Time --}}
+
+                            <div class="col-md-3">
+
+                                <label for="violation_time" class="form-label">
+                                    Time
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="time" class="form-control" id="violation_time" name="violation_time"
+                                    value="{{ old('violation_time') }}" required>
+
+                                <div class="invalid-feedback">
+                                    Please enter the citation time.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- Always Pending --}}
+
+                        <input type="hidden" name="status" value="Pending">
 
                     </div>
 
 
-                    {{-- PRIMARY VIOLATION --}}
+                    {{-- ================================================= --}}
+                    {{-- VIOLATOR INFORMATION --}}
+                    {{-- ================================================= --}}
 
-                    <div class="row g-3 mb-3">
+                    <div class="border-bottom pb-3 mb-4">
 
-                        <div class="col-md-12">
+                        <h6 class="fw-bold text-uppercase mb-3">
+                            Violator Information
+                        </h6>
 
-                            <label for="violation_type_id" class="form-label">
+                        <div class="row g-3">
 
-                                Primary Violation
+                            {{-- Last Name --}}
 
-                                <span class="text-danger">*</span>
+                            <div class="col-md-4">
 
-                            </label>
+                                <label for="last_name" class="form-label">
+                                    Last Name
+                                    <span class="text-danger">*</span>
+                                </label>
 
-                            <select
-                                class="form-select"
-                                id="violation_type_id"
-                                name="violation_type_id"
-                                required
-                            >
+                                <input type="text" class="form-control" id="last_name" name="last_name"
+                                    value="{{ old('last_name') }}" placeholder="Last name" maxlength="255" required
+                                    autocomplete="off">
+
+                                <div class="invalid-feedback">
+                                    Please enter the last name.
+                                </div>
+
+                            </div>
+
+
+                            {{-- First Name --}}
+
+                            <div class="col-md-4">
+
+                                <label for="first_name" class="form-label">
+                                    First Name
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text" class="form-control" id="first_name" name="first_name"
+                                    value="{{ old('first_name') }}" placeholder="First name" maxlength="255" required
+                                    autocomplete="off">
+
+                                <div class="invalid-feedback">
+                                    Please enter the first name.
+                                </div>
+
+                            </div>
+
+
+                            {{-- Middle Name --}}
+
+                            <div class="col-md-4">
+
+                                <label for="middle_name" class="form-label">
+                                    Middle Name
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text" class="form-control" id="middle_name" name="middle_name"
+                                    value="{{ old('middle_name') }}" placeholder="Middle name" maxlength="255"
+                                    autocomplete="off">
+
+                                <div class="invalid-feedback">
+                                    Please enter the middle name.
+                                </div>
+
+                            </div>
+
+
+                            {{-- Address --}}
+
+                            <div class="col-md-8">
+
+                                <label for="address" class="form-label">
+                                    Address
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text" class="form-control" id="address" name="address"
+                                    value="{{ old('address') }}" placeholder="Complete address" maxlength="255" required
+                                    autocomplete="off">
+
+                                <div class="invalid-feedback">
+                                    Please enter the complete address.
+                                </div>
+
+                            </div>
+
+
+                            {{-- Contact Number --}}
+
+                            <div class="col-md-4">
+
+                                <label for="contact_number" class="form-label">
+                                    Contact Number
+                                </label>
+
+                                <input type="text" class="form-control" id="contact_number" name="contact_number"
+                                    value="{{ old('contact_number') }}" placeholder="Contact number" maxlength="255"
+                                    inputmode="tel" autocomplete="off">
+
+                            </div>
+
+
+                            {{-- License Number --}}
+
+                            <div class="col-md-6">
+
+                                <label for="license_number" class="form-label">
+                                    License Number
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text" class="form-control" id="license_number" name="license_number"
+                                    value="{{ old('license_number') }}" placeholder="Driver's license number"
+                                    maxlength="255" required autocomplete="off">
+
+                                <div class="invalid-feedback">
+                                    Please enter the license number.
+                                </div>
+
+                            </div>
+
+
+                            {{-- Birth Date --}}
+
+                            <div class="col-md-6">
+
+                                <label for="birth_date" class="form-label">
+                                    Birth Date
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="date" class="form-control" id="birth_date" name="birth_date"
+                                    value="{{ old('birth_date') }}" required>
+
+                                <div class="invalid-feedback">
+                                    Please enter the birth date.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- ================================================= --}}
+                    {{-- VEHICLE INFORMATION --}}
+                    {{-- ================================================= --}}
+
+                    <div class="border-bottom pb-3 mb-4">
+
+                        <h6 class="fw-bold text-uppercase mb-3">
+                            Vehicle Information
+                        </h6>
+
+                        <div class="row g-3">
+
+                            {{-- Plate Number --}}
+
+                            <div class="col-md-6">
+
+                                <label for="plate_number" class="form-label">
+                                    Plate Number
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text" class="form-control" id="plate_number" name="plate_number"
+                                    value="{{ old('plate_number') }}" placeholder="Plate number" maxlength="255"
+                                    required autocomplete="off">
+
+                                <div class="invalid-feedback">
+                                    Please enter the plate number.
+                                </div>
+
+                            </div>
+
+
+                            {{-- Vehicle Type --}}
+
+                            <div class="col-md-6">
+
+                                <label for="vehicle_type" class="form-label">
+                                    Vehicle Type
+                                </label>
+
+                                <input type="text" class="form-control" id="vehicle_type" name="vehicle_type"
+                                    value="{{ old('vehicle_type') }}" placeholder="e.g. Motorcycle, Sedan, SUV"
+                                    maxlength="255" autocomplete="off">
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    {{-- ========================================================= --}}
+                    {{-- VIOLATION LOCATION --}}
+                    {{-- ========================================================= --}}
+
+                    <div class="mb-4">
+                        <label for="location" class="form-label">
+                            Violation Location <span class="text-danger">*</span>
+                        </label>
+
+                        <div class="text-muted small mb-2">
+                            Manually enter the place where the violation occurred.
+                        </div>
+
+                        <input type="text" name="location" id="location"
+                            class="form-control @error('location') is-invalid @enderror" value="{{ old('location') }}"
+                            placeholder="e.g. McArthur Highway, Tarlac City" maxlength="255" required autocomplete="off">
+
+                        @error('location')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+
+                    {{-- ================================================= --}}
+                    {{-- VIOLATIONS --}}
+                    {{-- ================================================= --}}
+
+                    <div class="border-bottom pb-3 mb-4">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+
+                            <h6 class="fw-bold text-uppercase mb-0">
+                                Violation/s
+                            </h6>
+
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="addViolationBtn">
+                                <i class="fa-solid fa-plus me-1"></i>
+                                Add Violation
+                            </button>
+
+                        </div>
+
+
+                        {{-- ================================================= --}}
+                        {{-- PRIMARY VIOLATION --}}
+                        {{-- ================================================= --}}
+
+                        <div class="border rounded p-3 bg-light">
+
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                                <label for="violation_type_id" class="form-label fw-semibold mb-0">
+                                    Primary Violation
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <span class="badge bg-secondary">
+                                    Violation 1
+                                </span>
+
+                            </div>
+
+                            <select class="form-select" id="violation_type_id" name="violation_type_id" required>
 
                                 <option value="">
                                     Select violation
                                 </option>
 
                                 @foreach ($violationTypes as $type)
-
-                                    <option
-                                        value="{{ $type->id }}"
-                                        {{ old('violation_type_id') == $type->id ? 'selected' : '' }}
-                                    >
+                                    <option value="{{ $type->id }}"
+                                        {{ old('violation_type_id') == $type->id ? 'selected' : '' }}>
                                         {{ $type->name }}
                                     </option>
-
                                 @endforeach
 
-                                <option
-                                    value="other"
-                                    {{ old('violation_type_id') === 'other' ? 'selected' : '' }}
-                                >
+                                <option value="other" {{ old('violation_type_id') === 'other' ? 'selected' : '' }}>
                                     Other
                                 </option>
 
                             </select>
 
+                            <div class="invalid-feedback">
+                                Please select a primary violation.
+                            </div>
+
+
+                            {{-- PRIMARY OTHER --}}
+
+                            <div id="otherViolationContainer"
+                                class="mt-3 {{ old('violation_type_id') === 'other' ? '' : 'd-none' }}">
+
+                                <label for="other_violation" class="form-label">
+
+                                    Specify Other Violation
+
+                                    <span class="text-danger">*</span>
+
+                                </label>
+
+                                <input type="text" class="form-control" id="other_violation" name="other_violation"
+                                    value="{{ old('other_violation') }}"
+                                    placeholder="Enter the violation written on the citation" maxlength="255"
+                                    {{ old('violation_type_id') === 'other' ? 'required' : '' }}>
+
+                                <div class="invalid-feedback">
+                                    Please specify the other violation.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        {{-- ================================================= --}}
+                        {{-- ADDITIONAL VIOLATIONS --}}
+                        {{-- ================================================= --}}
+
+                        <div id="additionalViolationsContainer" class="mt-3">
+
+                            {{-- Existing old additional rows are restored here by JavaScript --}}
+
+                        </div>
+
+
+                        <small class="text-muted d-block mt-2">
+
+                            Use "Add Violation" only when more than one violation
+                            is written on the physical citation.
+
+                        </small>
+
+                    </div>
+
+
+                    {{-- ================================================= --}}
+                    {{-- REMARKS --}}
+                    {{-- ================================================= --}}
+
+                    <div class="border-bottom pb-3 mb-4">
+
+                        <h6 class="fw-bold text-uppercase mb-3">
+                            Remarks
+                        </h6>
+
+                        <textarea class="form-control" id="remarks" name="remarks" rows="3" maxlength="1000"
+                            placeholder="Additional remarks or notes">{{ old('remarks') }}</textarea>
+
+                        <small class="text-muted">
+                            Maximum 1000 characters.
+                        </small>
+
+                    </div>
+
+
+                    {{-- ================================================= --}}
+                    {{-- CITATION / EVIDENCE IMAGES --}}
+                    {{-- ================================================= --}}
+
+                    <div class="border-bottom pb-3 mb-4">
+
+                        <h6 class="fw-bold text-uppercase mb-3">
+                            Citation / Evidence
+                        </h6>
+
+                        <div class="row g-3">
+
+                            {{-- Citation Ticket Image --}}
+
+                            <div class="col-md-6">
+
+                                <label for="ticket_image" class="form-label">
+                                    Citation Ticket Image
+                                </label>
+
+                                <input type="file" class="form-control" id="ticket_image" name="ticket_image"
+                                    accept="image/jpeg,image/png,image/webp">
+
+                                <small class="text-muted">
+                                    Optional. JPG, JPEG, PNG, or WEBP. Maximum 5 MB.
+                                </small>
+
+                                <div id="ticketImageError" class="text-danger small mt-1 d-none"></div>
+
+                            </div>
+
+
+                            {{-- Evidence Images --}}
+
+                            <div class="col-md-6">
+
+                                <label for="evidence_images" class="form-label">
+                                    Evidence Photo/s
+                                </label>
+
+                                <input type="file" class="form-control" id="evidence_images" name="evidence_images[]"
+                                    accept="image/jpeg,image/png,image/webp" multiple>
+
+                                <small class="text-muted">
+                                    Optional. Multiple images may be selected. Maximum 5 MB each.
+                                </small>
+
+                                <div id="evidenceImageError" class="text-danger small mt-1 d-none"></div>
+
+                            </div>
+
                         </div>
 
                     </div>
 
 
-                    {{-- OTHER PRIMARY VIOLATION --}}
+                    {{-- ================================================= --}}
+                    {{-- ENCODING INFORMATION --}}
+                    {{-- ================================================= --}}
 
-                    <div
-                        id="otherViolationContainer"
-                        class="mb-3"
-                        style="display: none;"
-                    >
+                    <div>
 
-                        <label for="other_violation" class="form-label">
-                            Specify Other Violation
-                        </label>
+                        <h6 class="fw-bold text-uppercase mb-3">
+                            Encoding Information
+                        </h6>
 
-                        <input
-                            type="text"
-                            class="form-control"
-                            id="other_violation"
-                            name="other_violation"
-                            value="{{ old('other_violation') }}"
-                            placeholder="Enter violation"
-                        >
+                        <div class="row g-3">
 
-                    </div>
+                            {{-- Encoded By --}}
 
+                            <div class="col-md-6">
 
-                    {{-- ADDITIONAL VIOLATIONS --}}
+                                <label class="form-label">
+                                    Encoded By
+                                </label>
 
-                    <div id="additionalViolationsContainer"></div>
+                                <input type="text" class="form-control" value="{{ Auth::user()->name }}" readonly>
 
-                    <small class="text-muted">
-                        Use "Add Violation" only when more than one violation is written on the citation ticket.
-                    </small>
-
-                </div>
+                            </div>
 
 
-                {{-- ================================================= --}}
-                {{-- REMARKS --}}
-                {{-- ================================================= --}}
+                            {{-- Status --}}
 
-                <div class="border-bottom pb-3 mb-4">
+                            <div class="col-md-6">
 
-                    <h6 class="fw-bold text-uppercase mb-3">
-                        Remarks
-                    </h6>
+                                <label class="form-label">
+                                    Status
+                                </label>
 
-                    <textarea
-                        class="form-control"
-                        id="remarks"
-                        name="remarks"
-                        rows="3"
-                        placeholder="Additional remarks or notes"
-                    >{{ old('remarks') }}</textarea>
+                                <input type="text" class="form-control" value="Pending" readonly>
 
-                </div>
-
-
-                {{-- ================================================= --}}
-                {{-- ENCODING INFORMATION --}}
-                {{-- ================================================= --}}
-
-                <div>
-
-                    <h6 class="fw-bold text-uppercase mb-3">
-                        Encoding Information
-                    </h6>
-
-                    <div class="row g-3">
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Encoded By
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="{{ Auth::user()->name }}"
-                                readonly
-                            >
-
-                        </div>
-
-
-                        <div class="col-md-6">
-
-                            <label class="form-label">
-                                Status
-                            </label>
-
-                            <input
-                                type="text"
-                                class="form-control"
-                                value="Pending"
-                                readonly
-                            >
+                            </div>
 
                         </div>
 
@@ -620,171 +633,239 @@
 
                 </div>
 
-            </div>
+
+                {{-- ========================================================= --}}
+                {{-- FORM ACTIONS --}}
+                {{-- ========================================================= --}}
+
+                <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+
+                    <a href="{{ route('violations.index') }}" class="btn btn-outline-secondary">
+                        Cancel
+                    </a>
+
+                    <button type="submit" class="btn btn-primary" id="saveCitationBtn">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>
+                        Save Citation
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
 
 
-            {{-- ================================================= --}}
-            {{-- FORM ACTIONS --}}
-            {{-- ================================================= --}}
+    </div>
 
-            <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
+    {{-- =============================================================== --}}
+    {{-- JAVASCRIPT --}}
+    {{-- =============================================================== --}}
 
-                <a
-                    href="{{ route('violations.index') }}"
-                    class="btn btn-outline-secondary"
-                >
-                    Cancel
-                </a>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const form =
+                document.getElementById('citationForm');
+
+            const primaryViolation =
+                document.getElementById('violation_type_id');
+
+            const otherContainer =
+                document.getElementById('otherViolationContainer');
+
+            const otherInput =
+                document.getElementById('other_violation');
+
+            const addViolationBtn =
+                document.getElementById('addViolationBtn');
+
+            const additionalContainer =
+                document.getElementById('additionalViolationsContainer');
+
+            const saveButton =
+                document.getElementById('saveCitationBtn');
+
+            const ticketNumber =
+                document.getElementById('ticket_number');
+
+            const birthDate =
+                document.getElementById('birth_date');
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | TICKET NUMBER
+            |--------------------------------------------------------------------------
+            */
+
+            if (ticketNumber) {
+
+                ticketNumber.addEventListener('input', function() {
+
+                    this.value =
+                        this.value
+                        .replace(/[^0-9]/g, '')
+                        .slice(0, 6);
+
+                    if (this.value.length === 6) {
+                        this.classList.remove('is-invalid');
+                    }
+
+                });
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | BIRTH DATE
+            |--------------------------------------------------------------------------
+            |
+            | Prevent future birth dates.
+            |
+            */
+
+            if (birthDate) {
+
+                const today =
+                    new Date().toISOString().split('T')[0];
+
+                birthDate.max = today;
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | PRIMARY OTHER VIOLATION
+            |--------------------------------------------------------------------------
+            */
+
+            function updateOtherVisibility() {
+
+                if (primaryViolation.value === 'other') {
+
+                    otherContainer.classList.remove('d-none');
+
+                    otherInput.required = true;
+
+                } else {
+
+                    otherContainer.classList.add('d-none');
+
+                    otherInput.required = false;
+
+                    otherInput.value = '';
+
+                    otherInput.classList.remove('is-invalid');
+
+                }
+
+            }
+
+
+            primaryViolation.addEventListener(
+                'change',
+                updateOtherVisibility
+            );
+
+
+            updateOtherVisibility();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CREATE ADDITIONAL VIOLATION ROW
+            |--------------------------------------------------------------------------
+            */
+
+            function createViolationRow(
+                selectedValue = '',
+                selectedOtherValue = ''
+            ) {
+
+                const wrapper =
+                    document.createElement('div');
+
+                wrapper.className =
+                    'border rounded p-3 mb-3 additional-violation-row bg-light';
+
+
+                wrapper.innerHTML = `
+
+            <div class="d-flex justify-content-between align-items-center mb-2">
+
+                <label class="form-label fw-semibold mb-0">
+
+                    Additional Violation
+
+                    <span class="text-danger">*</span>
+
+                </label>
 
                 <button
-                    type="submit"
-                    class="btn btn-primary"
+                    type="button"
+                    class="btn btn-sm btn-outline-danger remove-violation"
                 >
-                    <i class="fa-solid fa-floppy-disk me-1"></i>
-                    Save Citation
+                    <i class="fa-solid fa-trash me-1"></i>
+                    Remove
                 </button>
 
             </div>
 
-        </form>
 
-    </div>
+            <select
+                class="form-select additional-violation-select"
+                name="additional_violation_type_ids[]"
+                required
+            >
 
-</div>
+                <option value="">
+                    Select violation
+                </option>
 
+                @foreach ($violationTypes as $type)
 
-{{-- =============================================================== --}}
-{{-- JAVASCRIPT --}}
-{{-- =============================================================== --}}
+                    <option value="{{ $type->id }}">
+                        {{ $type->name }}
+                    </option>
 
-<script>
+                @endforeach
 
-document.addEventListener('DOMContentLoaded', function () {
+                <option value="other">
+                    Other
+                </option>
 
-    const primaryViolation =
-        document.getElementById('violation_type_id');
+            </select>
 
-    const otherContainer =
-        document.getElementById('otherViolationContainer');
-
-    const otherInput =
-        document.getElementById('other_violation');
-
-    const addViolationBtn =
-        document.getElementById('addViolationBtn');
-
-    const additionalContainer =
-        document.getElementById('additionalViolationsContainer');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | PRIMARY OTHER VIOLATION
-    |--------------------------------------------------------------------------
-    */
-
-    function updateOtherVisibility() {
-
-        if (primaryViolation.value === 'other') {
-
-            otherContainer.style.display = 'block';
-
-            otherInput.required = true;
-
-        } else {
-
-            otherContainer.style.display = 'none';
-
-            otherInput.required = false;
-
-            otherInput.value = '';
-
-        }
-
-    }
+            <div class="invalid-feedback">
+                Please select an additional violation.
+            </div>
 
 
-    primaryViolation.addEventListener(
-        'change',
-        updateOtherVisibility
-    );
+            <div
+                class="additional-other-container mt-3 d-none"
+            >
 
-    updateOtherVisibility();
+                <label class="form-label">
 
+                    Specify Other Violation
 
-    /*
-    |--------------------------------------------------------------------------
-    | ADDITIONAL VIOLATION
-    |--------------------------------------------------------------------------
-    */
+                    <span class="text-danger">*</span>
 
-    function createViolationRow() {
+                </label>
 
-        const wrapper = document.createElement('div');
+                <input
+                    type="text"
+                    class="form-control additional-other-field"
+                    name="additional_other_violation_names[]"
+                    placeholder="Specify the other violation"
+                    maxlength="255"
+                >
 
-        wrapper.className = 'border rounded p-3 mb-3';
-
-        wrapper.innerHTML = `
-
-            <div class="row g-2 align-items-end">
-
-                <div class="col-md-10">
-
-                    <label class="form-label">
-                        Additional Violation
-                    </label>
-
-                    <select
-                        class="form-select additional-violation-select"
-                        name="additional_violation_type_ids[]"
-                    >
-
-                        <option value="">
-                            Select violation
-                        </option>
-
-                        @foreach ($violationTypes as $type)
-
-                            <option value="{{ $type->id }}">
-                                {{ $type->name }}
-                            </option>
-
-                        @endforeach
-
-                        <option value="other">
-                            Other
-                        </option>
-
-                    </select>
-
-
-                    <div
-                        class="additional-other-container mt-2"
-                        style="display: none;"
-                    >
-
-                        <input
-                            type="text"
-                            class="form-control"
-                            name="additional_other_violation_names[]"
-                            placeholder="Specify other violation"
-                        >
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-2">
-
-                    <button
-                        type="button"
-                        class="btn btn-outline-danger w-100 remove-violation"
-                    >
-                        <i class="fa-solid fa-trash me-1"></i>
-                        Remove
-                    </button>
-
+                <div class="invalid-feedback">
+                    Please specify the other violation.
                 </div>
 
             </div>
@@ -792,60 +873,704 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 
 
-        additionalContainer.appendChild(wrapper);
+                additionalContainer.appendChild(wrapper);
 
 
-        const select =
-            wrapper.querySelector('.additional-violation-select');
+                const select =
+                    wrapper.querySelector(
+                        '.additional-violation-select'
+                    );
 
-        const otherDiv =
-            wrapper.querySelector('.additional-other-container');
+                const otherDiv =
+                    wrapper.querySelector(
+                        '.additional-other-container'
+                    );
 
-        const otherField =
-            wrapper.querySelector(
-                'input[name="additional_other_violation_names[]"]'
-            );
+                const otherField =
+                    wrapper.querySelector(
+                        '.additional-other-field'
+                    );
+
+                const removeButton =
+                    wrapper.querySelector(
+                        '.remove-violation'
+                    );
 
 
-        select.addEventListener('change', function () {
+                /*
+                |--------------------------------------------------------------------------
+                | RESTORE OLD VALUES
+                |--------------------------------------------------------------------------
+                */
 
-            if (this.value === 'other') {
+                if (selectedValue !== '') {
 
-                otherDiv.style.display = 'block';
+                    select.value =
+                        selectedValue;
 
-                otherField.required = true;
+                }
 
-            } else {
 
-                otherDiv.style.display = 'none';
+                if (selectedOtherValue !== '') {
 
-                otherField.required = false;
+                    otherField.value =
+                        selectedOtherValue;
 
-                otherField.value = '';
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | UPDATE ADDITIONAL OTHER VISIBILITY
+                |--------------------------------------------------------------------------
+                */
+
+                function updateAdditionalOtherVisibility() {
+
+                    if (select.value === 'other') {
+
+                        otherDiv.classList.remove('d-none');
+
+                        otherField.required = true;
+
+                    } else {
+
+                        otherDiv.classList.add('d-none');
+
+                        otherField.required = false;
+
+                        otherField.value = '';
+
+                        otherField.classList.remove('is-invalid');
+
+                    }
+
+                }
+
+
+                select.addEventListener(
+                    'change',
+                    updateAdditionalOtherVisibility
+                );
+
+
+                updateAdditionalOtherVisibility();
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | REMOVE ADDITIONAL VIOLATION
+                |--------------------------------------------------------------------------
+                */
+
+                removeButton.addEventListener(
+                    'click',
+                    function() {
+
+                        wrapper.remove();
+
+                    }
+                );
+
+
+                return wrapper;
 
             }
 
+
+            /*
+            |--------------------------------------------------------------------------
+            | ADD VIOLATION BUTTON
+            |--------------------------------------------------------------------------
+            */
+
+            addViolationBtn.addEventListener(
+                'click',
+                function() {
+
+                    createViolationRow();
+
+                }
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | RESTORE OLD ADDITIONAL VIOLATIONS
+            |--------------------------------------------------------------------------
+            |
+            | Laravel's old() arrays are converted to JavaScript safely.
+            |
+            */
+
+            const oldAdditionalViolationIds =
+                @json(old('additional_violation_type_ids', []));
+
+            const oldAdditionalOtherNames =
+                @json(old('additional_other_violation_names', []));
+
+
+            if (
+                Array.isArray(oldAdditionalViolationIds)
+            ) {
+
+                oldAdditionalViolationIds.forEach(
+                    function(selectedValue, index) {
+
+                        createViolationRow(
+                            selectedValue,
+                            oldAdditionalOtherNames[index] ?? ''
+                        );
+
+                    }
+                );
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | FILE VALIDATION
+            |--------------------------------------------------------------------------
+            */
+
+            const MAX_FILE_SIZE =
+                5 * 1024 * 1024;
+
+            const allowedImageTypes = [
+                'image/jpeg',
+                'image/png',
+                'image/webp'
+            ];
+
+
+            const ticketImage =
+                document.getElementById('ticket_image');
+
+            const evidenceImages =
+                document.getElementById('evidence_images');
+
+            const ticketImageError =
+                document.getElementById('ticketImageError');
+
+            const evidenceImageError =
+                document.getElementById('evidenceImageError');
+
+
+            function validateImageFile(
+                file
+            ) {
+
+                if (!allowedImageTypes.includes(file.type)) {
+
+                    return 'Only JPG, JPEG, PNG, and WEBP images are allowed.';
+
+                }
+
+
+                if (file.size > MAX_FILE_SIZE) {
+
+                    return 'Each image must not exceed 5 MB.';
+
+                }
+
+
+                return null;
+
+            }
+
+
+            if (ticketImage) {
+
+                ticketImage.addEventListener(
+                    'change',
+                    function() {
+
+                        ticketImageError.classList.add('d-none');
+
+                        ticketImageError.textContent = '';
+
+
+                        if (!this.files.length) {
+                            return;
+                        }
+
+
+                        const error =
+                            validateImageFile(
+                                this.files[0]
+                            );
+
+
+                        if (error) {
+
+                            ticketImageError.textContent =
+                                error;
+
+                            ticketImageError.classList.remove(
+                                'd-none'
+                            );
+
+                            this.value = '';
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            if (evidenceImages) {
+
+                evidenceImages.addEventListener(
+                    'change',
+                    function() {
+
+                        evidenceImageError.classList.add('d-none');
+
+                        evidenceImageError.textContent = '';
+
+
+                        for (
+                            let i = 0; i < this.files.length; i++
+                        ) {
+
+                            const error =
+                                validateImageFile(
+                                    this.files[i]
+                                );
+
+
+                            if (error) {
+
+                                evidenceImageError.textContent =
+                                    'Evidence photo ' +
+                                    (i + 1) +
+                                    ': ' +
+                                    error;
+
+                                evidenceImageError.classList.remove(
+                                    'd-none'
+                                );
+
+                                this.value = '';
+
+                                break;
+
+                            }
+
+                        }
+
+                    }
+                );
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | FORM VALIDATION
+            |--------------------------------------------------------------------------
+            */
+
+            form.addEventListener(
+                'submit',
+                function(event) {
+
+                    let valid = true;
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | NORMAL REQUIRED FIELDS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    const requiredFields =
+                        form.querySelectorAll(
+                            'input[required], select[required], textarea[required]'
+                        );
+
+
+                    requiredFields.forEach(
+                        function(field) {
+
+                            if (field.disabled) {
+                                return;
+                            }
+
+
+                            if (!field.value.trim()) {
+
+                                field.classList.add(
+                                    'is-invalid'
+                                );
+
+                                valid = false;
+
+                            } else {
+
+                                field.classList.remove(
+                                    'is-invalid'
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | TICKET NUMBER
+                    |--------------------------------------------------------------------------
+                    */
+
+                    const ticketValue =
+                        ticketNumber.value.trim();
+
+
+                    if (
+                        ticketValue.length !== 6 ||
+                        !/^[0-9]{6}$/.test(ticketValue)
+                    ) {
+
+                        ticketNumber.classList.add(
+                            'is-invalid'
+                        );
+
+                        valid = false;
+
+                    } else {
+
+                        ticketNumber.classList.remove(
+                            'is-invalid'
+                        );
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | BIRTH DATE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (birthDate.value) {
+
+                        const today =
+                            new Date().toISOString().split('T')[0];
+
+
+                        if (birthDate.value > today) {
+
+                            birthDate.classList.add(
+                                'is-invalid'
+                            );
+
+                            valid = false;
+
+                        } else {
+
+                            birthDate.classList.remove(
+                                'is-invalid'
+                            );
+
+                        }
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | PRIMARY OTHER
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        primaryViolation.value === 'other'
+                    ) {
+
+                        if (
+                            !otherInput.value.trim()
+                        ) {
+
+                            otherInput.classList.add(
+                                'is-invalid'
+                            );
+
+                            valid = false;
+
+                        } else {
+
+                            otherInput.classList.remove(
+                                'is-invalid'
+                            );
+
+                        }
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ADDITIONAL VIOLATIONS
+                    |--------------------------------------------------------------------------
+                    */
+
+                    const additionalRows =
+                        additionalContainer.querySelectorAll(
+                            '.additional-violation-row'
+                        );
+
+
+                    additionalRows.forEach(
+                        function(row) {
+
+                            const select =
+                                row.querySelector(
+                                    '.additional-violation-select'
+                                );
+
+                            const otherField =
+                                row.querySelector(
+                                    '.additional-other-field'
+                                );
+
+
+                            /*
+                            | Additional violation is required
+                            */
+
+                            if (!select.value) {
+
+                                select.classList.add(
+                                    'is-invalid'
+                                );
+
+                                valid = false;
+
+                            } else {
+
+                                select.classList.remove(
+                                    'is-invalid'
+                                );
+
+                            }
+
+
+                            /*
+                            | Additional Other requires text
+                            */
+
+                            if (
+                                select.value === 'other'
+                            ) {
+
+                                if (
+                                    !otherField.value.trim()
+                                ) {
+
+                                    otherField.classList.add(
+                                        'is-invalid'
+                                    );
+
+                                    valid = false;
+
+                                } else {
+
+                                    otherField.classList.remove(
+                                        'is-invalid'
+                                    );
+
+                                }
+
+                            }
+
+                        }
+                    );
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | FILE VALIDATION
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (
+                        ticketImage &&
+                        ticketImage.files.length
+                    ) {
+
+                        const error =
+                            validateImageFile(
+                                ticketImage.files[0]
+                            );
+
+
+                        if (error) {
+
+                            ticketImageError.textContent =
+                                error;
+
+                            ticketImageError.classList.remove(
+                                'd-none'
+                            );
+
+                            valid = false;
+
+                        }
+
+                    }
+
+
+                    if (
+                        evidenceImages &&
+                        evidenceImages.files.length
+                    ) {
+
+                        for (
+                            let i = 0; i < evidenceImages.files.length; i++
+                        ) {
+
+                            const error =
+                                validateImageFile(
+                                    evidenceImages.files[i]
+                                );
+
+
+                            if (error) {
+
+                                evidenceImageError.textContent =
+                                    'Evidence photo ' +
+                                    (i + 1) +
+                                    ': ' +
+                                    error;
+
+                                evidenceImageError.classList.remove(
+                                    'd-none'
+                                );
+
+                                valid = false;
+
+                                break;
+
+                            }
+
+                        }
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | STOP SUBMISSION
+                    |--------------------------------------------------------------------------
+                    */
+
+                    if (!valid) {
+
+                        event.preventDefault();
+
+
+                        const firstInvalid =
+                            form.querySelector(
+                                '.is-invalid'
+                            );
+
+
+                        if (firstInvalid) {
+
+                            firstInvalid.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
+
+
+                            firstInvalid.focus();
+
+                        }
+
+
+                        return false;
+
+                    }
+
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | PREVENT DOUBLE SUBMISSION
+                    |--------------------------------------------------------------------------
+                    */
+
+                    saveButton.disabled = true;
+
+                    saveButton.innerHTML =
+                        '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
+
+                }
+            );
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | REMOVE INVALID STATE WHEN CORRECTED
+            |--------------------------------------------------------------------------
+            */
+
+            form.addEventListener(
+                'input',
+                function(event) {
+
+                    if (
+                        event.target.matches(
+                            'input, textarea'
+                        )
+                    ) {
+
+                        if (
+                            event.target.value.trim()
+                        ) {
+
+                            event.target.classList.remove(
+                                'is-invalid'
+                            );
+
+                        }
+
+                    }
+
+                }
+            );
+
+
+            form.addEventListener(
+                'change',
+                function(event) {
+
+                    if (
+                        event.target.matches(
+                            'select, input[type="date"], input[type="time"]'
+                        )
+                    ) {
+
+                        if (
+                            event.target.value
+                        ) {
+
+                            event.target.classList.remove(
+                                'is-invalid'
+                            );
+
+                        }
+
+                    }
+
+                }
+            );
+
         });
-
-
-        wrapper
-            .querySelector('.remove-violation')
-            .addEventListener('click', function () {
-
-                wrapper.remove();
-
-            });
-
-    }
-
-
-    addViolationBtn.addEventListener(
-        'click',
-        createViolationRow
-    );
-
-});
-
-</script>
+    </script>
 
 @endsection

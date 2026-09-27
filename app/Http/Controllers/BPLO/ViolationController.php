@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Services\AuditLogger;
 use App\Exports\BploViolationsExport;
 use Maatwebsite\Excel\Facades\Excel;
+
 class ViolationController extends Controller
 {
     // ==========================================================
@@ -18,7 +19,9 @@ class ViolationController extends Controller
     public function index(Request $request)
     {
         $status = $request->get('status', 'all');
-        $search = $request->get('search');
+        $search = trim($request->get('search', ''));
+        $dateFrom = $request->get('date_from');
+        $dateTo = $request->get('date_to');
 
         // ==========================================================
         // VIOLATION QUERY
@@ -29,6 +32,7 @@ class ViolationController extends Controller
             'vehicle',
             'violationType',
             'violationTypes',
+            'violationOtherTypes',
             'user'
         ]);
 
@@ -42,62 +46,104 @@ class ViolationController extends Controller
 
         // ==========================================================
         // SEARCH
+        // Searches:
+        // - Ticket Number
+        // - Driver Name
+        // - Driver License Number
+        // - Vehicle Plate Number
         // ==========================================================
 
         if (!empty($search)) {
             $query->where(function ($q) use ($search) {
 
-                // Search ticket number
-                $q->where('ticket_number', 'like', "%{$search}%")
+                // Ticket number
+                $q->where(
+                    'ticket_number',
+                    'like',
+                    "%{$search}%"
+                )
 
-                    // Search driver
-                    ->orWhereHas('driver', function ($driver) use ($search) {
-                        $driver->where(function ($nameQuery) use ($search) {
-                            $nameQuery
-                                ->whereRaw(
-                                    "CONCAT_WS(' ', first_name, middle_name, last_name) LIKE ?",
-                                    ["%{$search}%"]
-                                )
-                                ->orWhereRaw(
-                                    "CONCAT(first_name, ' ', last_name) LIKE ?",
-                                    ["%{$search}%"]
-                                )
-                                ->orWhere('first_name', 'like', "%{$search}%")
-                                ->orWhere('middle_name', 'like', "%{$search}%")
-                                ->orWhere('last_name', 'like', "%{$search}%");
-                        })
-                            ->orWhere('license_number', 'like', "%{$search}%");
-                    })
+                // Driver information
+                ->orWhereHas('driver', function ($driver) use ($search) {
+                    $driver->where(function ($nameQuery) use ($search) {
 
-                    // Search legacy violation type
-                    ->orWhereHas('violationType', function ($type) use ($search) {
-                        $type->where('name', 'like', "%{$search}%");
-                    })
-
-                    // Search multiple violation types
-                    ->orWhereHas('violationTypes', function ($type) use ($search) {
-                        $type->where('name', 'like', "%{$search}%");
-                    })
-
-
-                    // Search vehicle plate
-                    ->orWhereHas('vehicle', function ($vehicle) use ($search) {
-                        $vehicle->where('plate_number', 'like', "%{$search}%");
+                        $nameQuery
+                            ->whereRaw(
+                                "CONCAT_WS(' ', first_name, middle_name, last_name) LIKE ?",
+                                ["%{$search}%"]
+                            )
+                            ->orWhereRaw(
+                                "CONCAT(first_name, ' ', last_name) LIKE ?",
+                                ["%{$search}%"]
+                            )
+                            ->orWhere(
+                                'first_name',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'middle_name',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'last_name',
+                                'like',
+                                "%{$search}%"
+                            )
+                            ->orWhere(
+                                'license_number',
+                                'like',
+                                "%{$search}%"
+                            );
                     });
-                    });
+                })
 
-                    
-           
+                // Vehicle plate number
+                ->orWhereHas('vehicle', function ($vehicle) use ($search) {
+                    $vehicle->where(
+                        'plate_number',
+                        'like',
+                        "%{$search}%"
+                    );
+                });
+            });
+        }
+
+        // ==========================================================
+        // FILTER BY DATE FROM
+        // ==========================================================
+
+        if (!empty($dateFrom)) {
+            $query->whereDate(
+                'violation_date',
+                '>=',
+                $dateFrom
+            );
+        }
+
+        // ==========================================================
+        // FILTER BY DATE TO
+        // ==========================================================
+
+        if (!empty($dateTo)) {
+            $query->whereDate(
+                'violation_date',
+                '<=',
+                $dateTo
+            );
         }
 
         // ==========================================================
         // GET VIOLATIONS
+        // PAGINATED - 10 RECORDS PER PAGE
         // ==========================================================
 
         $violations = $query
             ->orderBy('violation_date', 'desc')
             ->orderBy('violation_time', 'desc')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         // ==========================================================
         // ALL-TIME VIOLATION COUNTER
@@ -109,14 +155,17 @@ class ViolationController extends Controller
         // NOTIFICATION DATA
         // ==========================================================
 
-        $pendingViolations = Violation::where('status', 'Pending')
-            ->count();
+        $pendingViolations = Violation::where(
+            'status',
+            'Pending'
+        )->count();
 
         $recentViolations = Violation::with([
             'driver',
             'vehicle',
             'violationType',
             'violationTypes',
+            'violationOtherTypes',
             'user'
         ])
             ->where('status', 'Pending')
@@ -129,14 +178,19 @@ class ViolationController extends Controller
         // RETURN VIOLATION REVIEW PAGE
         // ==========================================================
 
-        return view('bplo.violations.index', compact(
-            'violations',
-            'status',
-            'search',
-            'allTimeViolations',
-            'pendingViolations',
-            'recentViolations'
-        ));
+        return view(
+            'bplo.violations.index',
+            compact(
+                'violations',
+                'status',
+                'search',
+                'dateFrom',
+                'dateTo',
+                'allTimeViolations',
+                'pendingViolations',
+                'recentViolations'
+            )
+        );
     }
 
     // ==========================================================
@@ -153,6 +207,7 @@ class ViolationController extends Controller
             'violations.vehicle',
             'violations.violationType',
             'violations.violationTypes',
+            'violations.violationOtherTypes',
             'violations.user',
             'vehicles',
         ]);
@@ -176,13 +231,17 @@ class ViolationController extends Controller
 
         $pendingViolations = $violations
             ->filter(function ($violation) {
-                return strtolower($violation->status ?? '') === 'pending';
+                return strtolower(
+                    $violation->status ?? ''
+                ) === 'pending';
             })
             ->count();
 
         $settledViolations = $violations
             ->filter(function ($violation) {
-                return strtolower($violation->status ?? '') === 'settled';
+                return strtolower(
+                    $violation->status ?? ''
+                ) === 'settled';
             })
             ->count();
 
@@ -191,14 +250,12 @@ class ViolationController extends Controller
         // ==========================================================
 
         return response()->json([
+
             'driver' => [
                 'id' => $driver->id,
                 'name' => $driver->full_name,
                 'license_number' => $driver->license_number,
                 'address' => $driver->address,
-                'contact_number' => $driver->contact_number,
-                'license_type' => $driver->license_type,
-                'license_expiration' => $driver->license_expiration,
             ],
 
             'summary' => [
@@ -221,23 +278,108 @@ class ViolationController extends Controller
                 ->map(function ($violation) {
 
                     // ==================================================
-                    // GET VIOLATION NAMES
+                    // GET ALL VIOLATION NAMES
                     // ==================================================
 
-                    $violationNames = $violation->violationTypes
-                        ->pluck('name')
-                        ->filter()
-                        ->values();
+                    $violationNames = collect();
 
-                    // Fallback to legacy single violation type
-                    if (
-                        $violationNames->isEmpty() &&
-                        $violation->violationType
-                    ) {
-                        $violationNames->push(
-                            $violation->violationType->name
+                    // ==================================================
+                    // PRIMARY OFFICIAL VIOLATION
+                    // ==================================================
+
+                    if ($violation->violationType) {
+                        $name = trim(
+                            (string) $violation->violationType->name
                         );
+
+                        if (
+                            $name !== '' &&
+                            !$violationNames->contains($name)
+                        ) {
+                            $violationNames->push($name);
+                        }
                     }
+
+                    // ==================================================
+                    // PRIMARY CUSTOM "OTHER" VIOLATION
+                    // ==================================================
+
+                    if (!empty($violation->other_violation)) {
+                        $name = trim(
+                            (string) $violation->other_violation
+                        );
+
+                        if (
+                            $name !== '' &&
+                            !$violationNames->contains($name)
+                        ) {
+                            $violationNames->push($name);
+                        }
+                    }
+
+                    // ==================================================
+                    // ADDITIONAL OFFICIAL VIOLATIONS
+                    // ==================================================
+
+                    if (
+                        $violation->violationTypes &&
+                        $violation->violationTypes->count()
+                    ) {
+                        foreach (
+                            $violation->violationTypes as $type
+                        ) {
+                            if (empty($type->name)) {
+                                continue;
+                            }
+
+                            $name = trim(
+                                (string) $type->name
+                            );
+
+                            if (
+                                $name !== '' &&
+                                !$violationNames->contains($name)
+                            ) {
+                                $violationNames->push($name);
+                            }
+                        }
+                    }
+
+                    // ==================================================
+                    // ADDITIONAL CUSTOM "OTHER" VIOLATIONS
+                    // ==================================================
+
+                    if (
+                        $violation->violationOtherTypes &&
+                        $violation->violationOtherTypes->count()
+                    ) {
+                        foreach (
+                            $violation->violationOtherTypes as $otherType
+                        ) {
+                            if (empty($otherType->name)) {
+                                continue;
+                            }
+
+                            $name = trim(
+                                (string) $otherType->name
+                            );
+
+                            if (
+                                $name !== '' &&
+                                !$violationNames->contains($name)
+                            ) {
+                                $violationNames->push($name);
+                            }
+                        }
+                    }
+
+                    // ==================================================
+                    // FALLBACK
+                    // ==================================================
+
+                    $violationName = $violationNames->isNotEmpty()
+                        ? $violationNames->implode(', ')
+                        : 'N/A';
 
                     // ==================================================
                     // VEHICLE INFORMATION
@@ -246,14 +388,24 @@ class ViolationController extends Controller
                     $vehicleInfo = 'N/A';
 
                     if ($violation->vehicle) {
-                        $plate = $violation->vehicle->plate_number ?? '';
-                        $type = $violation->vehicle->vehicle_type ?? '';
+
+                        $plate =
+                            $violation->vehicle->plate_number ?? '';
+
+                        $type =
+                            $violation->vehicle->vehicle_type ?? '';
 
                         if ($plate && $type) {
-                            $vehicleInfo = $plate . ' (' . $type . ')';
+
+                            $vehicleInfo =
+                                $plate . ' (' . $type . ')';
+
                         } elseif ($plate) {
+
                             $vehicleInfo = $plate;
+
                         } elseif ($type) {
+
                             $vehicleInfo = $type;
                         }
                     }
@@ -267,7 +419,7 @@ class ViolationController extends Controller
                         'ticket_number' => $violation->ticket_number,
                         'date' => $violation->violation_date,
                         'time' => $violation->violation_time,
-                        'violation' => $violationNames->implode(', '),
+                        'violation' => $violationName,
                         'vehicle' => $vehicleInfo,
                         'location' => $violation->location ?? 'N/A',
                         'status' => $violation->status,
@@ -281,8 +433,10 @@ class ViolationController extends Controller
     // UPDATE VIOLATION STATUS
     // ==========================================================
 
-    public function updateStatus(Request $request, Violation $violation)
-    {
+    public function updateStatus(
+        Request $request,
+        Violation $violation
+    ) {
         // ==========================================================
         // VALIDATE STATUS
         // ==========================================================
@@ -311,9 +465,12 @@ class ViolationController extends Controller
 
         AuditLogger::log(
             'STATUS_UPDATE',
-            'Updated violation ticket ' . $violation->ticket_number .
-                ' status from ' . $oldStatus .
-                ' to ' . $newStatus . '.',
+            'Updated violation ticket ' .
+                $violation->ticket_number .
+                ' status from ' .
+                $oldStatus .
+                ' to ' .
+                $newStatus . '.',
             $violation
         );
 
@@ -328,19 +485,24 @@ class ViolationController extends Controller
                 'Violation status updated successfully.'
             );
     }
-}
-        // ==========================================================
+
+    // ==========================================================
     // EXPORT BPLO VIOLATION RECORDS TO EXCEL
     // ==========================================================
 
-    public function export()
+    public function export(Request $request)
     {
         $fileName = 'BPLO_Violation_Report_' .
             now()->format('Y-m-d_H-i-s') .
             '.xlsx';
 
         return Excel::download(
-            new BploViolationsExport(),
+            new BploViolationsExport(
+                search: trim($request->get('search', '')),
+                status: $request->get('status', 'all'),
+                dateFrom: $request->get('date_from'),
+                dateTo: $request->get('date_to')
+            ),
             $fileName
         );
     }

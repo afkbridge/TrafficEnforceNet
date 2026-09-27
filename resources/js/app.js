@@ -1,5 +1,5 @@
 import './bootstrap';
-import './enforcer/issue-ticket.js';
+
 
 import Alpine from 'alpinejs';
 

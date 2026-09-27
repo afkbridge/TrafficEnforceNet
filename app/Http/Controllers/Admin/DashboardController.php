@@ -35,19 +35,30 @@ class DashboardController extends Controller
 
         /*
         |--------------------------------------------------------------------------
+        | CURRENT MONTH DATE RANGE
+        |--------------------------------------------------------------------------
+        |
+        | This range will be used by the dashboard's operational analytics.
+        |
+        */
+
+        $currentMonthStart = now()->copy()->startOfMonth();
+        $currentMonthEnd = now()->copy()->endOfMonth();
+
+
+        /*
+        |--------------------------------------------------------------------------
         | THIS MONTH
         |--------------------------------------------------------------------------
         */
 
-        $thisMonthViolations = Violation::whereMonth(
+        $thisMonthViolations = Violation::whereBetween(
             'violation_date',
-            now()->month
-        )
-            ->whereYear(
-                'violation_date',
-                now()->year
-            )
-            ->count();
+            [
+                $currentMonthStart->toDateString(),
+                $currentMonthEnd->toDateString(),
+            ]
+        )->count();
 
 
         /*
@@ -56,13 +67,15 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        $lastMonthDate = now()->copy()->subMonth();
+
         $lastMonthViolations = Violation::whereMonth(
             'violation_date',
-            now()->subMonth()->month
+            $lastMonthDate->month
         )
             ->whereYear(
                 'violation_date',
-                now()->subMonth()->year
+                $lastMonthDate->year
             )
             ->count();
 
@@ -71,11 +84,17 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         | MONTHLY VIOLATION TREND
         |--------------------------------------------------------------------------
+        |
+        | This remains a YEARLY chart.
+        |
+        | It shows January to December for the current year.
+        |
         */
 
         $monthlyViolations = [];
 
         for ($month = 1; $month <= 12; $month++) {
+
             $monthlyViolations[] = Violation::whereMonth(
                 'violation_date',
                 $month
@@ -90,24 +109,223 @@ class DashboardController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | TOP VIOLATION TYPES
+        | LOAD CURRENT-MONTH VIOLATION DATA FOR ANALYTICS
+        |--------------------------------------------------------------------------
+        |
+        | IMPORTANT:
+        |
+        | Only current-month violation records are loaded here.
+        |
+        | This includes:
+        |
+        | 1. Primary official violation
+        | 2. Primary custom "Other" violation
+        | 3. Additional official violations
+        | 4. Additional custom "Other" violations
+        |
+        */
+
+        $violationsForAnalytics = Violation::with([
+            'violationType',
+            'violationTypes',
+            'violationOtherTypes',
+        ])
+            ->whereBetween(
+                'violation_date',
+                [
+                    $currentMonthStart->toDateString(),
+                    $currentMonthEnd->toDateString(),
+                ]
+            )
+            ->get();
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | HELPER: GET ALL VIOLATION NAMES FROM ONE RECORD
         |--------------------------------------------------------------------------
         */
 
-        $topViolations = Violation::with('violationType')
-            ->selectRaw('violation_type_id, COUNT(*) as total')
-            ->whereNotNull('violation_type_id')
-            ->groupBy('violation_type_id')
-            ->orderByDesc('total')
-            ->limit(5)
-            ->get();
+        $getViolationNames = function ($violation) {
 
-        $violationLabels = $topViolations->map(function ($item) {
-            return $item->violationType->name
-                ?? 'Unknown';
-        })->values();
+            $names = [];
 
-        $violationCounts = $topViolations
+
+            /*
+            |--------------------------------------------------------------------------
+            | PRIMARY OFFICIAL VIOLATION
+            |--------------------------------------------------------------------------
+            */
+
+            if ($violation->violationType) {
+
+                $name = trim(
+                    (string) $violation->violationType->name
+                );
+
+                if ($name !== '') {
+                    $names[] = $name;
+                }
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | PRIMARY CUSTOM "OTHER" VIOLATION
+            |--------------------------------------------------------------------------
+            */
+
+            if (!empty($violation->other_violation)) {
+
+                $name = trim(
+                    (string) $violation->other_violation
+                );
+
+                if ($name !== '') {
+                    $names[] = $name;
+                }
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ADDITIONAL OFFICIAL VIOLATIONS
+            |--------------------------------------------------------------------------
+            */
+
+            if ($violation->violationTypes) {
+
+                foreach ($violation->violationTypes as $type) {
+
+                    $name = trim(
+                        (string) ($type->name ?? '')
+                    );
+
+                    if ($name !== '') {
+                        $names[] = $name;
+                    }
+                }
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | ADDITIONAL CUSTOM "OTHER" VIOLATIONS
+            |--------------------------------------------------------------------------
+            */
+
+            if ($violation->violationOtherTypes) {
+
+                foreach ($violation->violationOtherTypes as $otherType) {
+
+                    $name = trim(
+                        (string) ($otherType->name ?? '')
+                    );
+
+                    if ($name !== '') {
+                        $names[] = $name;
+                    }
+                }
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | REMOVE DUPLICATES FROM SAME TICKET
+            |--------------------------------------------------------------------------
+            */
+
+            $uniqueNames = [];
+
+            foreach ($names as $name) {
+
+                $normalized = mb_strtolower(
+                    preg_replace(
+                        '/\s+/',
+                        ' ',
+                        trim($name)
+                    )
+                );
+
+                if (!isset($uniqueNames[$normalized])) {
+
+                    $uniqueNames[$normalized] = $name;
+                }
+            }
+
+            return array_values($uniqueNames);
+        };
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CURRENT MONTH - TOP VIOLATION TYPES
+        |--------------------------------------------------------------------------
+        |
+        | Counts only violations recorded during the current month.
+        |
+        | Custom "Other" violations are included.
+        |
+        */
+
+        $violationTypeTotals = [];
+
+        foreach ($violationsForAnalytics as $violation) {
+
+            $violationNames = $getViolationNames($violation);
+
+            foreach ($violationNames as $name) {
+
+                $normalized = mb_strtolower(
+                    preg_replace(
+                        '/\s+/',
+                        ' ',
+                        trim($name)
+                    )
+                );
+
+                if (!isset($violationTypeTotals[$normalized])) {
+
+                    $violationTypeTotals[$normalized] = [
+                        'name' => trim($name),
+                        'total' => 0,
+                    ];
+                }
+
+                $violationTypeTotals[$normalized]['total']++;
+            }
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | SORT VIOLATION TYPES
+        |--------------------------------------------------------------------------
+        */
+
+        usort(
+            $violationTypeTotals,
+            function ($a, $b) {
+
+                return $b['total'] <=> $a['total'];
+            }
+        );
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | PREPARE TOP VIOLATION CHART DATA
+        |--------------------------------------------------------------------------
+        |
+        | All current-month violation types are included.
+        |
+        */
+
+        $violationLabels = collect($violationTypeTotals)
+            ->pluck('name')
+            ->values();
+
+        $violationCounts = collect($violationTypeTotals)
             ->pluck('total')
             ->values();
 
@@ -116,6 +334,9 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         | PEAK VIOLATION PERIODS
         |--------------------------------------------------------------------------
+        |
+        | Current month only.
+        |
         */
 
         $peakPeriods = [
@@ -131,14 +352,14 @@ class DashboardController extends Controller
         $peakPeriodCounts = [];
 
         foreach ($peakPeriods as $label => $hours) {
-            $count = Violation::whereMonth(
-                'created_at',
-                now()->month
+
+            $count = Violation::whereBetween(
+                'violation_date',
+                [
+                    $currentMonthStart->toDateString(),
+                    $currentMonthEnd->toDateString(),
+                ]
             )
-                ->whereYear(
-                    'created_at',
-                    now()->year
-                )
                 ->whereRaw(
                     'HOUR(created_at) >= ?',
                     [$hours[0]]
@@ -178,20 +399,29 @@ class DashboardController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | ENFORCER ACTIVITY
+        | CURRENT MONTH - ENFORCER ACTIVITY
         |--------------------------------------------------------------------------
         */
 
         $enforcerActivity = Violation::with('user')
             ->selectRaw('user_id, COUNT(*) as total')
             ->whereNotNull('user_id')
+            ->whereBetween(
+                'violation_date',
+                [
+                    $currentMonthStart->toDateString(),
+                    $currentMonthEnd->toDateString(),
+                ]
+            )
             ->groupBy('user_id')
             ->orderByDesc('total')
             ->limit(5)
             ->get();
 
         $enforcerLabels = $enforcerActivity->map(function ($item) {
+
             if ($item->user) {
+
                 return trim(
                     ($item->user->first_name ?? '') .
                     ' ' .
@@ -200,6 +430,7 @@ class DashboardController extends Controller
             }
 
             return 'Unknown';
+
         })->values();
 
         $enforcerCounts = $enforcerActivity
@@ -209,38 +440,46 @@ class DashboardController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | VIOLATION HOTSPOT DATA
+        | CURRENT MONTH - VIOLATION HOTSPOT DATA
         |--------------------------------------------------------------------------
-        |
-        | Groups nearby violation records into hotspot areas.
-        |
         */
 
-        $violationLocations = Violation::with('violationType')
+        $violationLocations = Violation::with([
+            'violationType',
+            'violationTypes',
+            'violationOtherTypes',
+        ])
             ->select(
                 'id',
                 'latitude',
                 'longitude',
-                'violation_type_id'
+                'violation_type_id',
+                'other_violation'
+            )
+            ->whereBetween(
+                'violation_date',
+                [
+                    $currentMonthStart->toDateString(),
+                    $currentMonthEnd->toDateString(),
+                ]
             )
             ->whereNotNull('latitude')
             ->whereNotNull('longitude')
             ->get();
 
+
         $hotspotGroups = [];
 
         foreach ($violationLocations as $violation) {
+
             $latitude = (float) $violation->latitude;
             $longitude = (float) $violation->longitude;
+
 
             /*
             |--------------------------------------------------------------------------
             | GROUP NEARBY LOCATIONS
             |--------------------------------------------------------------------------
-            |
-            | Rounding to 3 decimal places groups locations roughly
-            | within around 100 meters of each other.
-            |
             */
 
             $gridLatitude = round($latitude, 3);
@@ -248,38 +487,55 @@ class DashboardController extends Controller
 
             $groupKey = $gridLatitude . ',' . $gridLongitude;
 
+
             if (!isset($hotspotGroups[$groupKey])) {
+
                 $hotspotGroups[$groupKey] = [
                     'latitude' => 0,
                     'longitude' => 0,
                     'violations' => 0,
-                    'violation_types' => []
+                    'violation_types' => [],
                 ];
             }
+
 
             $hotspotGroups[$groupKey]['latitude'] += $latitude;
             $hotspotGroups[$groupKey]['longitude'] += $longitude;
             $hotspotGroups[$groupKey]['violations']++;
 
+
             /*
             |--------------------------------------------------------------------------
-            | COUNT VIOLATION TYPES
+            | COUNT VIOLATION TYPES IN HOTSPOT
             |--------------------------------------------------------------------------
             */
 
-            $violationTypeName =
-                $violation->violationType?->name
-                ?? 'Unknown';
+            $violationNames = $getViolationNames($violation);
 
-            if (
-                !isset(
-                    $hotspotGroups[$groupKey]['violation_types'][$violationTypeName]
-                )
-            ) {
-                $hotspotGroups[$groupKey]['violation_types'][$violationTypeName] = 0;
+            foreach ($violationNames as $violationTypeName) {
+
+                $normalized = mb_strtolower(
+                    preg_replace(
+                        '/\s+/',
+                        ' ',
+                        trim($violationTypeName)
+                    )
+                );
+
+                if (
+                    !isset(
+                        $hotspotGroups[$groupKey]['violation_types'][$normalized]
+                    )
+                ) {
+
+                    $hotspotGroups[$groupKey]['violation_types'][$normalized] = [
+                        'name' => trim($violationTypeName),
+                        'total' => 0,
+                    ];
+                }
+
+                $hotspotGroups[$groupKey]['violation_types'][$normalized]['total']++;
             }
-
-            $hotspotGroups[$groupKey]['violation_types'][$violationTypeName]++;
         }
 
 
@@ -291,7 +547,9 @@ class DashboardController extends Controller
 
         $hotspots = collect($hotspotGroups)
             ->map(function ($group) {
+
                 $count = $group['violations'];
+
 
                 /*
                 |--------------------------------------------------------------------------
@@ -300,10 +558,15 @@ class DashboardController extends Controller
                 */
 
                 if ($count >= 8) {
+
                     $level = 'high';
+
                 } elseif ($count >= 4) {
+
                     $level = 'moderate';
+
                 } else {
+
                     $level = 'low';
                 }
 
@@ -317,13 +580,26 @@ class DashboardController extends Controller
                 $mostCommonViolation = 'Unknown';
 
                 if (!empty($group['violation_types'])) {
-                    arsort($group['violation_types']);
 
-                    $mostCommonViolation =
-                        array_key_first(
-                            $group['violation_types']
-                        );
+                    uasort(
+                        $group['violation_types'],
+                        function ($a, $b) {
+
+                            return $b['total'] <=> $a['total'];
+                        }
+                    );
+
+                    $firstViolation = reset(
+                        $group['violation_types']
+                    );
+
+                    if ($firstViolation) {
+
+                        $mostCommonViolation =
+                            $firstViolation['name'];
+                    }
                 }
+
 
                 return [
                     'latitude' =>
@@ -339,7 +615,7 @@ class DashboardController extends Controller
                         $level,
 
                     'most_common_violation' =>
-                        $mostCommonViolation
+                        $mostCommonViolation,
                 ];
             })
             ->values();
@@ -347,17 +623,24 @@ class DashboardController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | VIOLATIONS BY LOCATION
+        | CURRENT MONTH - VIOLATIONS BY LOCATION
         |--------------------------------------------------------------------------
-        |
-        | Groups violation records using the location field.
-        | The top 10 locations are displayed in the dashboard chart.
-        |
         */
 
         $locationViolations = Violation::selectRaw(
-            "COALESCE(NULLIF(TRIM(location), ''), 'Location Not Specified') as location_name, COUNT(*) as total"
+            "COALESCE(
+                NULLIF(TRIM(location), ''),
+                'Location Not Specified'
+            ) as location_name,
+            COUNT(*) as total"
         )
+            ->whereBetween(
+                'violation_date',
+                [
+                    $currentMonthStart->toDateString(),
+                    $currentMonthEnd->toDateString(),
+                ]
+            )
             ->groupBy('location_name')
             ->orderByDesc('total')
             ->limit(10)
@@ -376,13 +659,22 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         | RECENT VIOLATIONS
         |--------------------------------------------------------------------------
+        |
+        | Keeps the dashboard compact.
+        |
+        | Shows the latest 8 records regardless of month.
+        |
         */
 
         $recentViolations = Violation::with([
             'violationType',
-            'driver'
+            'violationTypes',
+            'violationOtherTypes',
+            'driver',
         ])
-            ->latest('violation_date')
+            ->orderByDesc('violation_date')
+            ->orderByDesc('violation_time')
+            ->orderByDesc('id')
             ->limit(8)
             ->get();
 
@@ -394,11 +686,14 @@ class DashboardController extends Controller
         */
 
         if ($lastMonthViolations > 0) {
+
             $monthlyChange = (
                 ($thisMonthViolations - $lastMonthViolations)
                 / $lastMonthViolations
             ) * 100;
+
         } else {
+
             $monthlyChange = $thisMonthViolations > 0
                 ? 100
                 : 0;
@@ -409,13 +704,30 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         | MOST COMMON VIOLATION
         |--------------------------------------------------------------------------
+        |
+        | Current month only.
+        |
+        | Custom Other violations are included.
+        |
         */
 
-        $mostCommonViolation = $topViolations->first();
+        $mostCommonViolation =
+            $violationTypeTotals[0] ?? null;
 
         $mostCommonViolationName =
-            $mostCommonViolation?->violationType?->name
-            ?? 'No data';
+            $mostCommonViolation['name'] ?? 'No data';
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | CURRENT MONTH LABEL
+        |--------------------------------------------------------------------------
+        |
+        | This can be used later by the Blade view for chart titles.
+        |
+        */
+
+        $currentMonthLabel = now()->format('F Y');
 
 
         /*
@@ -424,37 +736,32 @@ class DashboardController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        return view('admin.dashboard.index', compact(
-            'totalViolations',
-            'todayTickets',
-            'pendingCases',
-            'activeEnforcers',
-
-            'thisMonthViolations',
-            'lastMonthViolations',
-            'monthlyChange',
-
-            'monthlyViolations',
-
-            'violationLabels',
-            'violationCounts',
-
-            'peakPeriodLabels',
-            'peakPeriodCounts',
-            'peakPeriodName',
-            'peakPeriodCount',
-
-            'enforcerLabels',
-            'enforcerCounts',
-
-            'hotspots',
-
-            'locationLabels',
-            'locationCounts',
-
-            'recentViolations',
-
-            'mostCommonViolationName'
-        ));
+        return view(
+            'admin.dashboard.index',
+            compact(
+                'totalViolations',
+                'todayTickets',
+                'pendingCases',
+                'activeEnforcers',
+                'thisMonthViolations',
+                'lastMonthViolations',
+                'monthlyChange',
+                'monthlyViolations',
+                'violationLabels',
+                'violationCounts',
+                'peakPeriodLabels',
+                'peakPeriodCounts',
+                'peakPeriodName',
+                'peakPeriodCount',
+                'enforcerLabels',
+                'enforcerCounts',
+                'hotspots',
+                'locationLabels',
+                'locationCounts',
+                'recentViolations',
+                'mostCommonViolationName',
+                'currentMonthLabel'
+            )
+        );
     }
 }

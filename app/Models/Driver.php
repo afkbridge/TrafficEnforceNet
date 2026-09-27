@@ -8,6 +8,7 @@ class Driver extends Model
 {
     protected $fillable = [
         'license_number',
+        'has_no_license',
         'first_name',
         'middle_name',
         'last_name',
@@ -16,6 +17,12 @@ class Driver extends Model
         'contact_number',
         'license_type',
         'license_expiration',
+    ];
+
+    protected $casts = [
+        'has_no_license' => 'boolean',
+        'birth_date' => 'date',
+        'license_expiration' => 'date',
     ];
 
     /**
