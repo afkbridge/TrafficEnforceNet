@@ -19,8 +19,10 @@ use App\Http\Controllers\Enforcer\ProfileController as EnforcerProfileController
 
 use App\Http\Controllers\BPLO\DashboardController as BPLODashboardController;
 use App\Http\Controllers\BPLO\ViolationController as BPLOViolationController;
+use App\Http\Controllers\BPLO\SettingsController as BPLOSettingsController;
 
 use App\Http\Controllers\SuperAdmin\UserManagementController;
+use App\Http\Controllers\SuperAdmin\SAProfileController;
 
 use App\Models\Violation;
 
@@ -50,7 +52,6 @@ Route::get('/', function (Request $request) {
     }
 
     return view('landing', compact('violation'));
-
 })->name('landing');
 
 
@@ -67,7 +68,6 @@ Route::get('/check-ticket', [SearchController::class, 'check'])
 Route::get('/office', function () {
 
     return view('office.index');
-
 })->name('office.portal');
 
 
@@ -84,7 +84,7 @@ Route::get('/admin/dashboard', [DashboardController::class, 'index'])
 
 /*
 |--------------------------------------------------------------------------
-| Super Admin - User Management
+| Super Admin - User Management & My Account
 |--------------------------------------------------------------------------
 |
 | Super Administrator only.
@@ -92,6 +92,12 @@ Route::get('/admin/dashboard', [DashboardController::class, 'index'])
 */
 
 Route::middleware(['auth', 'role:Super Administrator', 'prevent-back'])->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Management
+    |--------------------------------------------------------------------------
+    */
 
     Route::get('/super-admin/users', [UserManagementController::class, 'index'])
         ->name('super-admin.users');
@@ -111,8 +117,23 @@ Route::middleware(['auth', 'role:Super Administrator', 'prevent-back'])->group(f
     Route::delete('/super-admin/users/{user}', [UserManagementController::class, 'destroy'])
         ->name('super-admin.users.destroy');
 
-});
 
+    /*
+    |--------------------------------------------------------------------------
+    | Super Administrator - My Account
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/super-admin/profile', [SAProfileController::class, 'edit'])
+        ->name('super-admin.profile');
+
+    Route::put('/super-admin/profile', [SAProfileController::class, 'updateProfile'])
+        ->name('super-admin.profile.update');
+
+    Route::put('/super-admin/profile/password', [SAProfileController::class, 'updatePassword'])
+        ->name('super-admin.profile.password');
+
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -135,6 +156,25 @@ Route::get('/bplo/dashboard', [BPLODashboardController::class, 'index'])
     ->middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])
     ->name('bplo.dashboard');
 
+
+/*
+|--------------------------------------------------------------------------
+| BPLO Setting Review
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])->group(function () {
+
+    Route::get('/bplo/settings', [BPLOSettingsController::class, 'index'])
+        ->name('bplo.settings');
+
+    Route::put('/bplo/settings/account', [BPLOSettingsController::class, 'updateAccount'])
+        ->name('bplo.settings.account');
+
+    Route::put('/bplo/settings/password', [BPLOSettingsController::class, 'updatePassword'])
+        ->name('bplo.settings.password');
+
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -207,7 +247,6 @@ Route::get('/dashboard', function () {
     }
 
     return redirect('/');
-
 })->middleware('auth')->name('dashboard');
 
 
@@ -290,7 +329,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/settings', function () {
 
         return view('admin.settings.index');
-
     })->name('admin.settings');
 
 
@@ -507,7 +545,6 @@ Route::middleware('auth')->group(function () {
             return response()->json([
                 'success' => true,
             ]);
-
         })->name('enforcer.heartbeat');
 
 
@@ -531,7 +568,6 @@ Route::middleware('auth')->group(function () {
             '/enforcer/profile/password',
             [EnforcerProfileController::class, 'updatePassword']
         )->name('enforcer.password.update');
-
     });
 
 
@@ -551,7 +587,6 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
-
 });
 
 

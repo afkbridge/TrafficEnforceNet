@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use App\Models\User;
 
 class LoginRequest extends FormRequest
 {
@@ -36,6 +36,17 @@ class LoginRequest extends FormRequest
     }
 
     /**
+     * Custom validation messages.
+     */
+    public function messages(): array
+    {
+        return [
+            'username.required' => 'Please enter your username.',
+            'password.required' => 'Please enter your password.',
+        ];
+    }
+
+    /**
      * Attempt to authenticate the request's credentials.
      *
      * @throws ValidationException
@@ -48,32 +59,53 @@ class LoginRequest extends FormRequest
         $password = $this->string('password')->toString();
 
         /*
-         * First check if the username exists.
-         */
+        |--------------------------------------------------------------------------
+        | Find the user by username
+        |--------------------------------------------------------------------------
+        */
         $user = User::where('username', $username)->first();
 
-        if (!$user) {
+        /*
+        |--------------------------------------------------------------------------
+        | Check username and password
+        |--------------------------------------------------------------------------
+        |
+        | If the username does not exist OR the password is incorrect,
+        | show one general login error.
+        |
+        */
+        if (!$user || !Hash::check($password, $user->password)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'username' => 'The username you entered is incorrect.',
+                'login' => 'These credentials do not match our records.',
             ]);
         }
 
         /*
-         * Username exists, so check the password.
-         */
-        if (!Hash::check($password, $user->password)) {
+        |--------------------------------------------------------------------------
+        | Check account status
+        |--------------------------------------------------------------------------
+        |
+        | Only Active accounts are allowed to authenticate.
+        |
+        | This check happens BEFORE Auth::login(), so an Inactive
+        | account never becomes authenticated.
+        |
+        */
+        if (strtolower((string) $user->account_status) !== 'active') {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'password' => 'The password you entered is incorrect.',
+                'login' => 'Your account is currently inactive. Please contact the system administrator.',
             ]);
         }
 
         /*
-         * Credentials are correct.
-         */
+        |--------------------------------------------------------------------------
+        | Credentials and account status are valid
+        |--------------------------------------------------------------------------
+        */
         Auth::login($user, $this->boolean('remember'));
 
         RateLimiter::clear($this->throttleKey());
@@ -108,7 +140,9 @@ class LoginRequest extends FormRequest
     public function throttleKey(): string
     {
         return Str::transliterate(
-            Str::lower($this->string('username')->toString()) . '|' . $this->ip()
+            Str::lower(
+                $this->string('username')->toString()
+            ) . '|' . $this->ip()
         );
     }
 }

@@ -39,6 +39,38 @@
 
         </header>
 
+        {{-- =========================================================
+     CONNECTION STATUS
+========================================================= --}}
+        <div class="max-w-7xl mx-auto px-3 sm:px-5 lg:px-8">
+
+            <div id="networkStatusNotification"
+                class="mt-1.5 mb-1 flex items-center justify-between gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5">
+                <div class="flex items-center gap-2 min-w-0">
+
+                    <span id="networkStatusDot" class="w-2 h-2 rounded-full bg-green-500 flex-shrink-0"></span>
+
+                    <div class="min-w-0">
+
+                        <p id="networkStatusTitle" class="text-[11px] font-semibold text-green-700">
+                            Online
+                        </p>
+
+                        <p id="networkStatusMessage" class="text-[10px] text-green-600 truncate">
+                            Internet connection is available.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <span id="networkStatusIcon" class="text-sm text-green-600 flex-shrink-0">
+                    ✓
+                </span>
+
+            </div>
+
+        </div>
 
         {{-- =========================================================
              PAGE CONTENT
@@ -85,7 +117,7 @@
             {{-- =====================================================
                  OFFLINE SYNC STATUS
             ====================================================== --}}
-            <div id="offlineSyncContainer" class="pt-4 space-y-2">
+            <div id="offlineSyncContainer" class="pt-0 space-y-2">
 
                 {{-- PENDING OFFLINE TICKETS --}}
                 <div id="offlinePendingBox" class="hidden rounded-xl border border-orange-200 bg-orange-50 p-3">
@@ -206,7 +238,7 @@
                  MAIN FORM
             ====================================================== --}}
             <form id="issueTicketForm" action="{{ route('enforcer.violations.store') }}" method="POST"
-                enctype="multipart/form-data" class="space-y-4 pt-4">
+                enctype="multipart/form-data" class="space-y-4 pt-1">
 
                 @csrf
 
@@ -2095,6 +2127,137 @@
                 );
 
             }
+
+        });
+    </script>
+
+    {{-- =========================================================
+         NETWORK STATUS NOTIFICATION
+    ========================================================== --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const notification =
+                document.getElementById('networkStatusNotification');
+
+            const dot =
+                document.getElementById('networkStatusDot');
+
+            const title =
+                document.getElementById('networkStatusTitle');
+
+            const message =
+                document.getElementById('networkStatusMessage');
+
+            const icon =
+                document.getElementById('networkStatusIcon');
+
+
+            if (
+                !notification ||
+                !dot ||
+                !title ||
+                !message ||
+                !icon
+            ) {
+                return;
+            }
+
+
+            function updateNetworkStatus() {
+
+                if (navigator.onLine) {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | ONLINE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    notification.className =
+                        'mt-2.5 flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2';
+
+                    dot.className =
+                        'w-2 h-2 rounded-full bg-green-500 flex-shrink-0';
+
+                    title.className =
+                        'text-[11px] font-semibold text-green-700';
+
+                    title.textContent =
+                        'Online';
+
+                    message.className =
+                        'text-[10px] text-green-600 truncate';
+
+                    message.textContent =
+                        'Internet connection is available.';
+
+                    icon.className =
+                        'text-sm text-green-600 flex-shrink-0';
+
+                    icon.textContent =
+                        '✓';
+
+                } else {
+
+                    /*
+                    |--------------------------------------------------------------------------
+                    | OFFLINE
+                    |--------------------------------------------------------------------------
+                    */
+
+                    notification.className =
+                        'mt-2.5 flex items-center justify-between gap-3 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2';
+
+                    dot.className =
+                        'w-2 h-2 rounded-full bg-orange-500 flex-shrink-0';
+
+                    title.className =
+                        'text-[11px] font-semibold text-orange-700';
+
+                    title.textContent =
+                        'Offline';
+
+                    message.className =
+                        'text-[10px] text-orange-600 truncate';
+
+                    message.textContent =
+                        'No internet connection. You can continue working offline.';
+
+                    icon.className =
+                        'text-sm text-orange-600 flex-shrink-0';
+
+                    icon.textContent =
+                        '⚠';
+
+                }
+
+            }
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | CHECK INITIAL STATUS
+            |--------------------------------------------------------------------------
+            */
+
+            updateNetworkStatus();
+
+
+            /*
+            |--------------------------------------------------------------------------
+            | DETECT CONNECTION CHANGES
+            |--------------------------------------------------------------------------
+            */
+
+            window.addEventListener('online', function() {
+                updateNetworkStatus();
+            });
+
+
+            window.addEventListener('offline', function() {
+                updateNetworkStatus();
+            });
 
         });
     </script>

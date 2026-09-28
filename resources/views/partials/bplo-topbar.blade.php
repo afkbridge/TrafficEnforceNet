@@ -57,7 +57,7 @@
                         @php
                             $notifications = $recentViolations
                                 ->where('status', 'Pending')
-                                ->take(5);
+                                ->take(15);
                         @endphp
 
                         @forelse($notifications as $notification)
