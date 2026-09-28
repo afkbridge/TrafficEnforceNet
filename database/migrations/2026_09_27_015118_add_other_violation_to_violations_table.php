@@ -6,15 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        // The other_violation column already exists in the database.
+        if (!Schema::hasColumn('violations', 'other_violation')) {
+            Schema::table('violations', function (Blueprint $table) {
+                $table->text('other_violation')
+                    ->nullable()
+                    ->after('violation_type_id');
+            });
+        }
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('violations', function (Blueprint $table) {
-            $table->dropColumn('other_violation');
-        });
+        if (Schema::hasColumn('violations', 'other_violation')) {
+            Schema::table('violations', function (Blueprint $table) {
+                $table->dropColumn('other_violation');
+            });
+        }
     }
 };
