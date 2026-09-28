@@ -89,12 +89,13 @@ class ViolationTypeSeeder extends Seeder
                 'description' => 'Unauthorized public utility vehicle'
             ],
 
-            
-
         ];
 
         foreach ($violations as $violation) {
-            ViolationType::create($violation);
+            ViolationType::updateOrCreate(
+                ['name' => $violation['name']],
+                ['description' => $violation['description']]
+            );
         }
     }
 }

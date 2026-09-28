@@ -47,7 +47,7 @@ class UserSeeder extends Seeder
                 'badge_number' => 'POSO-001',
                 'first_name' => 'Juan',
                 'last_name' => 'Dela Cruz',
-                'position' => 'Traffic Enforcer I',
+                'position' => 'Traffic Enforcer',
                 'employment_status' => 'Active',
             ]
         );
