@@ -1,24 +1,51 @@
-*.log
-.DS_Store
+# ==========================================================
+# TrafficEnforceNet - Git Ignore
+# ==========================================================
+
+# Laravel environment / secrets
 .env
 .env.backup
 .env.production
-.phpactor.json
+
+# Laravel logs / runtime files
+*.log
+/storage/logs/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/pail
+/storage/*.key
+
+# Laravel generated public storage
+/public/storage
+
+# Laravel compiled assets
+/public/build
+/public/hot
+
+# Dependencies
+/vendor
+/node_modules
+
+# PHPUnit / testing cache
 .phpunit.result.cache
+/.phpunit.cache
+
+# PHP / IDE tooling
+.phpactor.json
+/auth.json
+
+# IDEs / editors
 /.fleet
 /.idea
 /.nova
-/.phpunit.cache
 /.vscode
 /.zed
-/auth.json
-/node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Homestead
 Homestead.json
 Homestead.yaml
-Thumbs.db

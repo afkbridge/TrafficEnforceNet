@@ -9,9 +9,14 @@ class Vehicle extends Model
     protected $fillable = [
         'driver_id',
         'plate_number',
+        'has_no_plate',
         'vehicle_type',
         'region_number',
         'owner_name',
+    ];
+
+    protected $casts = [
+        'has_no_plate' => 'boolean',
     ];
 
     /**
