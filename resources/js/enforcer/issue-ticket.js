@@ -1863,6 +1863,13 @@ async function processCitationTicket(file) {
         return;
     }
 
+    alert(
+        "OCR IMAGE INFO\n\n" +
+        "Name: " + (file.name || "Unknown") + "\n" +
+        "Type: " + (file.type || "Unknown") + "\n" +
+        "Size: " + file.size + " bytes"
+    );
+
     setTicketOcrStatus(
         "loading",
         "Reading citation ticket...",
