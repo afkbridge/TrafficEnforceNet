@@ -856,38 +856,38 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     function updateEvidenceInput() {
-        if (!evidenceInput) {
-            return;
-        }
-
-        try {
-            const dataTransfer =
-                new DataTransfer();
-
-            selectedEvidenceFiles.forEach(
-                function (file) {
-                    dataTransfer.items.add(
-                        file
-                    );
-                }
-            );
-
-            evidenceInput.files =
-                dataTransfer.files;
-
-            console.log(
-                "Updated evidence input:",
-                Array.from(
-                    evidenceInput.files
-                )
-            );
-        } catch (error) {
-            console.error(
-                "Unable to update evidence file input:",
-                error
-            );
-        }
+    if (!evidenceInput) {
+        return;
     }
+
+    try {
+        const dataTransfer =
+            new DataTransfer();
+
+        selectedEvidenceFiles.forEach(
+            function (file) {
+                if (file instanceof File) {
+                    dataTransfer.items.add(file);
+                }
+            }
+        );
+
+        evidenceInput.files =
+            dataTransfer.files;
+
+        console.log(
+            "Updated evidence input:",
+            Array.from(
+                evidenceInput.files
+            )
+        );
+    } catch (error) {
+        console.error(
+            "Unable to update evidence file input:",
+            error
+        );
+    }
+}
 
     // ===================================================
     // DISPLAY EVIDENCE PREVIEW
