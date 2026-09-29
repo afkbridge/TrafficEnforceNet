@@ -1803,16 +1803,38 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     window.previewTicket =
-        function (event) {
-            const input =
-                event.target;
+    function (event) {
 
-            const file =
-                input?.files?.[0];
+        alert(
+            "PREVIEW TICKET EVENT FIRED"
+        );
 
-            if (!file) {
-                return;
-            }
+        const input =
+            event.target;
+
+        const file =
+            input?.files?.[0];
+
+        alert(
+            "FILE CHECK\n\n" +
+            "File exists: " +
+            (file ? "YES" : "NO")
+        );
+
+        if (!file) {
+            return;
+        }
+
+        alert(
+            "FILE RECEIVED\n\n" +
+            "Name: " +
+            (file.name || "Unknown") +
+            "\nType: " +
+            (file.type || "Unknown") +
+            "\nSize: " +
+            file.size +
+            " bytes"
+        );
 
             const preview =
                 getElement(
