@@ -3785,60 +3785,266 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
 
                 // -------------------------------------------------
-                // ONLINE
-                // -------------------------------------------------
+// ONLINE
+// -------------------------------------------------
+if (
+    navigator.onLine
+) {
+    // -------------------------------------------------
+    // PREVENT NATIVE FORM SUBMISSION
+    //
+    // We submit the form manually so the browser does
+    // not try to reuse the DataTransfer-generated
+    // evidenceInput.files collection.
+    // -------------------------------------------------
+    event.preventDefault();
+
+    console.log(
+        "Submitting online with evidence photos:",
+        selectedEvidenceFiles.length
+    );
+
+    console.log(
+        "No License:",
+        noLicenseCheckbox?.checked
+    );
+
+    console.log(
+        "No Plate Number:",
+        noPlateCheckbox?.checked
+    );
+
+    console.log(
+        "Evidence files selected:",
+        selectedEvidenceFiles
+    );
+
+    // -------------------------------------------------
+    // SHOW LOADING
+    // -------------------------------------------------
+    showTicketProcessing(
+        "Processing Citation Ticket",
+        "Please wait while the citation ticket and evidence are being submitted.",
+        "Preparing ticket data and evidence photos..."
+    );
+
+    try {
+        // -------------------------------------------------
+        // BUILD FORM DATA FROM THE FORM
+        // -------------------------------------------------
+        const onlineFormData =
+            new FormData(form);
+
+        // -------------------------------------------------
+        // REMOVE THE EVIDENCE FILES THAT CAME FROM THE
+        // NATIVE INPUT / DATATRANSFER FILELIST
+        // -------------------------------------------------
+        onlineFormData.delete(
+            "evidence_images[]"
+        );
+
+        // -------------------------------------------------
+        // ADD THE ORIGINAL SELECTED FILE OBJECTS
+        // DIRECTLY TO FORMDATA
+        // -------------------------------------------------
+        selectedEvidenceFiles.forEach(
+            function (file) {
+                if (
+                    file &&
+                    file instanceof File &&
+                    file.size > 0
+                ) {
+                    onlineFormData.append(
+                        "evidence_images[]",
+                        file,
+                        file.name
+                    );
+
+                    console.log(
+                        "Evidence file appended:",
+                        file.name,
+                        file.size,
+                        file.type
+                    );
+                }
+            }
+        );
+
+        // -------------------------------------------------
+        // GET FORM ACTION
+        // -------------------------------------------------
+        const action =
+            form.action;
+
+        // -------------------------------------------------
+        // GET FORM METHOD
+        // -------------------------------------------------
+        const method =
+            (
+                form.method ||
+                "POST"
+            ).toUpperCase();
+
+        console.log(
+            "Online ticket submission URL:",
+            action
+        );
+
+        console.log(
+            "Online ticket submission method:",
+            method
+        );
+
+        // -------------------------------------------------
+        // SUBMIT USING FETCH
+        // -------------------------------------------------
+        const response =
+            await fetch(
+                action,
+                {
+                    method:
+                        method,
+                    body:
+                        onlineFormData,
+                    credentials:
+                        "same-origin",
+                    headers: {
+                        Accept:
+                            "application/json",
+                        "X-Requested-With":
+                            "XMLHttpRequest",
+                    },
+                }
+            );
+
+        console.log(
+            "Online ticket response status:",
+            response.status
+        );
+
+        // -------------------------------------------------
+        // HANDLE SERVER ERROR
+        // -------------------------------------------------
+        if (!response.ok) {
+            let message =
+                `Server returned HTTP ${response.status}.`;
+
+            try {
+                const data =
+                    await response.json();
 
                 if (
-                    navigator.onLine
+                    data.message
                 ) {
-                    console.log(
-                        "Submitting online with evidence photos:",
-                        selectedEvidenceFiles.length
-                    );
-
-                    console.log(
-                        "No License:",
-                        noLicenseCheckbox?.checked
-                    );
-
-                    console.log(
-                        "No Plate Number:",
-                        noPlateCheckbox?.checked
-                    );
-
-                    console.log(
-                        "Evidence files:",
-                        Array.from(
-                            evidenceInput?.files ||
-                                []
-                        )
-                    );
-
-                    // ---------------------------------------------
-                    // SHOW LOADING
-                    //
-                    // IMPORTANT:
-                    // We intentionally DO NOT call
-                    // event.preventDefault() here.
-                    //
-                    // The browser will continue with the normal
-                    // Laravel form submission after this handler.
-                    // The overlay remains visible while the browser
-                    // processes the request.
-                    // ---------------------------------------------
-
-                    showTicketProcessing(
-                        "Processing Citation Ticket",
-                        "Please wait while the citation ticket and evidence are being submitted.",
-                        "Submitting ticket data to the server..."
-                    );
-
-                    console.log(
-                        "Online citation ticket submission started."
-                    );
-
-                    return;
+                    message =
+                        data.message;
                 }
+
+                if (
+                    data.errors
+                ) {
+                    const firstError =
+                        Object.values(
+                            data.errors
+                        )
+                            .flat()
+                            .find(
+                                Boolean
+                            );
+
+                    if (
+                        firstError
+                    ) {
+                        message =
+                            firstError;
+                    }
+                }
+            } catch (
+                error
+            ) {
+                console.error(
+                    "Unable to read server error response:",
+                    error
+                );
+            }
+
+            throw new Error(
+                message
+            );
+        }
+
+        // -------------------------------------------------
+        // TRY TO READ JSON RESPONSE
+        // -------------------------------------------------
+        let responseData =
+            null;
+
+        try {
+            responseData =
+                await response.json();
+        } catch (
+            error
+        ) {
+            console.log(
+                "Server response was not JSON."
+            );
+        }
+
+        // -------------------------------------------------
+        // SUCCESS
+        // -------------------------------------------------
+        console.log(
+            "Online citation ticket submitted successfully."
+        );
+
+        // -------------------------------------------------
+        // IF LARAVEL RETURNS A REDIRECT URL
+        // -------------------------------------------------
+        if (
+            responseData &&
+            responseData.redirect
+        ) {
+            window.location.href =
+                responseData.redirect;
+
+            return;
+        }
+
+        // -------------------------------------------------
+        // IF THE RESPONSE URL CHANGED BECAUSE LARAVEL
+        // REDIRECTED AFTER SUCCESSFUL SUBMISSION
+        // -------------------------------------------------
+        if (
+            response.url &&
+            response.url !==
+                window.location.href
+        ) {
+            window.location.href =
+                response.url;
+
+            return;
+        }
+
+        // -------------------------------------------------
+        // FALLBACK SUCCESS
+        // -------------------------------------------------
+        window.location.reload();
+    } catch (
+        error
+    ) {
+        console.error(
+            "Online ticket submission error:",
+            error
+        );
+
+        showTicketProcessingError(
+            error.message ||
+                "Unable to submit the citation ticket. Please try again."
+        );
+    }
+
+    return;
+}
 
                 // -------------------------------------------------
                 // OFFLINE
