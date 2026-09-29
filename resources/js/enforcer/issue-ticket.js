@@ -97,53 +97,625 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = getElement("issueTicketForm");
 
     // ===================================================
+    // SUBMISSION PROCESSING STATE
+    // ===================================================
+
+    let ticketSubmissionProcessing = false;
+
+    let ticketProcessingOverlay = null;
+
+    let ticketSubmitButtons = [];
+
+    let ticketSubmitButtonStates = [];
+
+    // ===================================================
+    // FIND SUBMIT BUTTONS
+    // ===================================================
+
+    function getTicketSubmitButtons() {
+        if (!form) {
+            return [];
+        }
+
+        const buttons = Array.from(
+            form.querySelectorAll(
+                'button[type="submit"], input[type="submit"]'
+            )
+        );
+
+        return buttons;
+    }
+
+    // ===================================================
+    // CREATE PROCESSING OVERLAY
+    // ===================================================
+
+    function createTicketProcessingOverlay() {
+        if (ticketProcessingOverlay) {
+            return ticketProcessingOverlay;
+        }
+
+        const overlay = document.createElement("div");
+
+        overlay.id =
+            "ticketProcessingOverlay";
+
+        overlay.className =
+            "fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-5";
+
+        overlay.setAttribute(
+            "role",
+            "dialog"
+        );
+
+        overlay.setAttribute(
+            "aria-modal",
+            "true"
+        );
+
+        overlay.setAttribute(
+            "aria-live",
+            "polite"
+        );
+
+        overlay.innerHTML = `
+            <div
+                class="w-full max-w-sm rounded-3xl bg-white shadow-2xl border border-gray-100 px-6 py-7 text-center"
+            >
+                <div
+                    id="ticketProcessingSpinner"
+                    class="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50"
+                >
+                    <div
+                        class="h-9 w-9 animate-spin rounded-full border-4 border-blue-100 border-t-blue-600"
+                        aria-hidden="true"
+                    ></div>
+                </div>
+
+                <div
+                    id="ticketProcessingIcon"
+                    class="hidden mx-auto mb-5 h-16 w-16 items-center justify-center rounded-full bg-green-50 text-green-600 text-3xl font-bold"
+                >
+                    ✓
+                </div>
+
+                <div
+                    id="ticketProcessingErrorIcon"
+                    class="hidden mx-auto mb-5 h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-600 text-3xl font-bold"
+                >
+                    ✕
+                </div>
+
+                <h2
+                    id="ticketProcessingTitle"
+                    class="text-lg font-bold text-gray-900"
+                >
+                    Processing Citation Ticket
+                </h2>
+
+                <p
+                    id="ticketProcessingMessage"
+                    class="mt-2 text-sm leading-6 text-gray-500"
+                >
+                    Please wait while the citation ticket is being processed...
+                </p>
+
+                <div
+                    id="ticketProcessingProgress"
+                    class="mt-5"
+                >
+                    <div class="h-1.5 w-full overflow-hidden rounded-full bg-gray-100">
+                        <div
+                            class="h-full w-1/2 rounded-full bg-blue-600 animate-pulse"
+                        ></div>
+                    </div>
+
+                    <p
+                        id="ticketProcessingStatus"
+                        class="mt-3 text-xs font-medium text-blue-600"
+                    >
+                        Please do not close or refresh this page.
+                    </p>
+                </div>
+
+                <button
+                    id="ticketProcessingCloseButton"
+                    type="button"
+                    class="hidden mt-5 w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                    Close
+                </button>
+            </div>
+        `;
+
+        document.body.appendChild(
+            overlay
+        );
+
+        ticketProcessingOverlay =
+            overlay;
+
+        return overlay;
+    }
+
+    // ===================================================
+    // SET PROCESSING BUTTON STATE
+    // ===================================================
+
+    function disableTicketSubmitButtons() {
+        ticketSubmitButtons =
+            getTicketSubmitButtons();
+
+        ticketSubmitButtonStates =
+            ticketSubmitButtons.map(
+                function (button) {
+                    return {
+                        button:
+                            button,
+
+                        disabled:
+                            button.disabled,
+
+                        text:
+                            button.tagName ===
+                            "INPUT"
+                                ? button.value
+                                : button.innerHTML,
+                    };
+                }
+            );
+
+        ticketSubmitButtons.forEach(
+            function (button) {
+                button.disabled =
+                    true;
+
+                button.setAttribute(
+                    "aria-disabled",
+                    "true"
+                );
+
+                button.classList.add(
+                    "opacity-70",
+                    "cursor-not-allowed"
+                );
+
+                if (
+                    button.tagName ===
+                    "INPUT"
+                ) {
+                    button.value =
+                        "Processing...";
+                } else {
+                    button.innerHTML = `
+                        <span class="inline-flex items-center justify-center gap-2">
+                            <span
+                                class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+                            ></span>
+                            <span>Processing...</span>
+                        </span>
+                    `;
+                }
+            }
+        );
+    }
+
+    // ===================================================
+    // RESTORE SUBMIT BUTTON STATE
+    // ===================================================
+
+    function restoreTicketSubmitButtons() {
+        ticketSubmitButtonStates.forEach(
+            function (state) {
+                if (!state.button) {
+                    return;
+                }
+
+                state.button.disabled =
+                    state.disabled;
+
+                state.button.removeAttribute(
+                    "aria-disabled"
+                );
+
+                state.button.classList.remove(
+                    "opacity-70",
+                    "cursor-not-allowed"
+                );
+
+                if (
+                    state.button.tagName ===
+                    "INPUT"
+                ) {
+                    state.button.value =
+                        state.text;
+                } else {
+                    state.button.innerHTML =
+                        state.text;
+                }
+            }
+        );
+
+        ticketSubmitButtons = [];
+
+        ticketSubmitButtonStates = [];
+    }
+
+    // ===================================================
+    // UPDATE PROCESSING OVERLAY
+    // ===================================================
+
+    function updateTicketProcessingOverlay(
+        type,
+        title,
+        message,
+        statusMessage
+    ) {
+        const overlay =
+            createTicketProcessingOverlay();
+
+        const spinner =
+            overlay.querySelector(
+                "#ticketProcessingSpinner"
+            );
+
+        const successIcon =
+            overlay.querySelector(
+                "#ticketProcessingIcon"
+            );
+
+        const errorIcon =
+            overlay.querySelector(
+                "#ticketProcessingErrorIcon"
+            );
+
+        const titleElement =
+            overlay.querySelector(
+                "#ticketProcessingTitle"
+            );
+
+        const messageElement =
+            overlay.querySelector(
+                "#ticketProcessingMessage"
+            );
+
+        const progress =
+            overlay.querySelector(
+                "#ticketProcessingProgress"
+            );
+
+        const statusElement =
+            overlay.querySelector(
+                "#ticketProcessingStatus"
+            );
+
+        const closeButton =
+            overlay.querySelector(
+                "#ticketProcessingCloseButton"
+            );
+
+        if (titleElement) {
+            titleElement.innerText =
+                title;
+        }
+
+        if (messageElement) {
+            messageElement.innerText =
+                message;
+        }
+
+        if (statusElement) {
+            statusElement.innerText =
+                statusMessage ||
+                "";
+        }
+
+        if (spinner) {
+            spinner.classList.add(
+                "hidden"
+            );
+        }
+
+        if (successIcon) {
+            successIcon.classList.add(
+                "hidden"
+            );
+
+            successIcon.classList.remove(
+                "flex"
+            );
+        }
+
+        if (errorIcon) {
+            errorIcon.classList.add(
+                "hidden"
+            );
+
+            errorIcon.classList.remove(
+                "flex"
+            );
+        }
+
+        if (progress) {
+            progress.classList.remove(
+                "hidden"
+            );
+        }
+
+        if (closeButton) {
+            closeButton.classList.add(
+                "hidden"
+            );
+
+            closeButton.onclick =
+                null;
+        }
+
+        if (type === "loading") {
+            if (spinner) {
+                spinner.classList.remove(
+                    "hidden"
+                );
+            }
+
+            if (progress) {
+                progress.classList.remove(
+                    "hidden"
+                );
+            }
+        }
+
+        if (type === "success") {
+            if (successIcon) {
+                successIcon.classList.remove(
+                    "hidden"
+                );
+
+                successIcon.classList.add(
+                    "flex"
+                );
+            }
+
+            if (progress) {
+                progress.classList.add(
+                    "hidden"
+                );
+            }
+
+            if (closeButton) {
+                closeButton.classList.remove(
+                    "hidden"
+                );
+
+                closeButton.onclick =
+                    function () {
+                        hideTicketProcessingOverlay();
+                    };
+            }
+        }
+
+        if (type === "error") {
+            if (errorIcon) {
+                errorIcon.classList.remove(
+                    "hidden"
+                );
+
+                errorIcon.classList.add(
+                    "flex"
+                );
+            }
+
+            if (progress) {
+                progress.classList.add(
+                    "hidden"
+                );
+            }
+
+            if (closeButton) {
+                closeButton.classList.remove(
+                    "hidden"
+                );
+
+                closeButton.onclick =
+                    function () {
+                        hideTicketProcessingOverlay();
+                    };
+            }
+        }
+
+        overlay.classList.remove(
+            "hidden"
+        );
+    }
+
+    // ===================================================
+    // SHOW PROCESSING OVERLAY
+    // ===================================================
+
+    function showTicketProcessing(
+        title,
+        message,
+        statusMessage
+    ) {
+        ticketSubmissionProcessing =
+            true;
+
+        disableTicketSubmitButtons();
+
+        updateTicketProcessingOverlay(
+            "loading",
+            title ||
+                "Processing Citation Ticket",
+            message ||
+                "Please wait while the citation ticket is being processed...",
+            statusMessage ||
+                "Please do not close or refresh this page."
+        );
+    }
+
+    // ===================================================
+    // HIDE PROCESSING OVERLAY
+    // ===================================================
+
+    function hideTicketProcessingOverlay() {
+        if (
+            ticketProcessingOverlay
+        ) {
+            ticketProcessingOverlay.classList.add(
+                "hidden"
+            );
+        }
+
+        ticketSubmissionProcessing =
+            false;
+
+        restoreTicketSubmitButtons();
+    }
+
+    // ===================================================
+    // SHOW PROCESSING SUCCESS
+    // ===================================================
+
+    function showTicketProcessingSuccess(
+        title,
+        message
+    ) {
+        updateTicketProcessingOverlay(
+            "success",
+            title ||
+                "Ticket Saved Offline",
+            message ||
+                "Your citation ticket has been saved on this device and will automatically synchronize when the connection is restored.",
+            "The ticket is waiting for synchronization."
+        );
+    }
+
+    // ===================================================
+    // SHOW PROCESSING ERROR
+    // ===================================================
+
+    function showTicketProcessingError(
+        message
+    ) {
+        updateTicketProcessingOverlay(
+            "error",
+            "Unable to Process Ticket",
+            message ||
+                "The citation ticket could not be saved. Please try again.",
+            "You may close this message and try again."
+        );
+    }
+
+    // ===================================================
+    // HELPER - ONLY SET VALUE IF OCR FOUND SOMETHING
+    // ===================================================
+
+    function setFieldValue(id, value) {
+        const field = getElement(id);
+
+        if (!field) {
+            return;
+        }
+
+        // -------------------------------------------------
+        // DO NOT LET OCR WRITE INTO A FIELD MARKED AS
+        // "NO LICENSE" OR "NO PLATE NUMBER"
+        // -------------------------------------------------
+
+        if (
+            id === "license_number" &&
+            getElement("no_license")?.checked
+        ) {
+            return;
+        }
+
+        if (
+            id === "plate_number" &&
+            getElement("no_plate")?.checked
+        ) {
+            return;
+        }
+
+        if (
+            value === null ||
+            value === undefined ||
+            String(value).trim() === ""
+        ) {
+            field.value = "";
+            return;
+        }
+
+        field.value = String(value).trim();
+    }
+
+    // ===================================================
     // NO LICENSE / NO PLATE NUMBER
     // ===================================================
 
-    const noLicenseCheckbox = getElement("no_license");
-    const licenseNumberInput = getElement("license_number");
-    const licenseRequiredMark = getElement("licenseRequiredMark");
+    const noLicenseCheckbox =
+        getElement("no_license");
 
-    const noPlateCheckbox = getElement("no_plate");
-    const plateNumberInput = getElement("plate_number");
-    const plateRequiredMark = getElement("plateRequiredMark");
+    const licenseNumberInput =
+        getElement("license_number");
+
+    const licenseRequiredMark =
+        getElement("licenseRequiredMark");
+
+    const noPlateCheckbox =
+        getElement("no_plate");
+
+    const plateNumberInput =
+        getElement("plate_number");
+
+    const plateRequiredMark =
+        getElement("plateRequiredMark");
 
     // ===================================================
     // UPDATE LICENSE FIELD STATE
     // ===================================================
 
     function updateLicenseFieldState() {
-        if (!licenseNumberInput || !noLicenseCheckbox) {
+        if (
+            !licenseNumberInput ||
+            !noLicenseCheckbox
+        ) {
             return;
         }
 
-        if (noLicenseCheckbox.checked) {
-            // ---------------------------------------------
-            // NO LICENSE
-            // ---------------------------------------------
+        if (
+            noLicenseCheckbox.checked
+        ) {
+            licenseNumberInput.value =
+                "";
 
-            licenseNumberInput.value = "";
-            licenseNumberInput.disabled = true;
-            licenseNumberInput.required = false;
+            licenseNumberInput.disabled =
+                true;
+
+            licenseNumberInput.required =
+                false;
 
             if (licenseRequiredMark) {
-                licenseRequiredMark.classList.add("hidden");
+                licenseRequiredMark.classList.add(
+                    "hidden"
+                );
             }
         } else {
-            // ---------------------------------------------
-            // HAS LICENSE
-            // ---------------------------------------------
+            licenseNumberInput.disabled =
+                false;
 
-            licenseNumberInput.disabled = false;
-            licenseNumberInput.required = true;
+            licenseNumberInput.required =
+                true;
 
             if (licenseRequiredMark) {
-                licenseRequiredMark.classList.remove("hidden");
+                licenseRequiredMark.classList.remove(
+                    "hidden"
+                );
             }
         }
 
-        // Clear browser validation state
-        licenseNumberInput.setCustomValidity("");
+        licenseNumberInput.setCustomValidity(
+            ""
+        );
     }
 
     // ===================================================
@@ -151,37 +723,47 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     function updatePlateFieldState() {
-        if (!plateNumberInput || !noPlateCheckbox) {
+        if (
+            !plateNumberInput ||
+            !noPlateCheckbox
+        ) {
             return;
         }
 
-        if (noPlateCheckbox.checked) {
-            // ---------------------------------------------
-            // NO PLATE NUMBER
-            // ---------------------------------------------
+        if (
+            noPlateCheckbox.checked
+        ) {
+            plateNumberInput.value =
+                "";
 
-            plateNumberInput.value = "";
-            plateNumberInput.disabled = true;
-            plateNumberInput.required = false;
+            plateNumberInput.disabled =
+                true;
+
+            plateNumberInput.required =
+                false;
 
             if (plateRequiredMark) {
-                plateRequiredMark.classList.add("hidden");
+                plateRequiredMark.classList.add(
+                    "hidden"
+                );
             }
         } else {
-            // ---------------------------------------------
-            // HAS PLATE NUMBER
-            // ---------------------------------------------
+            plateNumberInput.disabled =
+                false;
 
-            plateNumberInput.disabled = false;
-            plateNumberInput.required = true;
+            plateNumberInput.required =
+                true;
 
             if (plateRequiredMark) {
-                plateRequiredMark.classList.remove("hidden");
+                plateRequiredMark.classList.remove(
+                    "hidden"
+                );
             }
         }
 
-        // Clear browser validation state
-        plateNumberInput.setCustomValidity("");
+        plateNumberInput.setCustomValidity(
+            ""
+        );
     }
 
     // ===================================================
@@ -231,15 +813,16 @@ document.addEventListener("DOMContentLoaded", function () {
     // EVIDENCE PHOTO - MULTIPLE PHOTO ATTACHMENT
     // ===================================================
 
-    const evidenceInput = getElement("evidence_images");
+    const evidenceInput =
+        getElement("evidence_images");
 
-    const evidencePreviewContainer = getElement(
-        "evidencePreviewContainer"
-    );
+    const evidencePreviewContainer =
+        getElement(
+            "evidencePreviewContainer"
+        );
 
-    const evidencePreview = getElement(
-        "evidencePreview"
-    );
+    const evidencePreview =
+        getElement("evidencePreview");
 
     let selectedEvidenceFiles = [];
 
@@ -250,16 +833,20 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     function clearEvidencePreviewUrls() {
-        evidencePreviewUrls.forEach(function (url) {
-            try {
-                URL.revokeObjectURL(url);
-            } catch (error) {
-                console.warn(
-                    "Unable to revoke evidence preview URL:",
-                    error
-                );
+        evidencePreviewUrls.forEach(
+            function (url) {
+                try {
+                    URL.revokeObjectURL(
+                        url
+                    );
+                } catch (error) {
+                    console.warn(
+                        "Unable to revoke evidence preview URL:",
+                        error
+                    );
+                }
             }
-        });
+        );
 
         evidencePreviewUrls = [];
     }
@@ -274,17 +861,25 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         try {
-            const dataTransfer = new DataTransfer();
+            const dataTransfer =
+                new DataTransfer();
 
-            selectedEvidenceFiles.forEach(function (file) {
-                dataTransfer.items.add(file);
-            });
+            selectedEvidenceFiles.forEach(
+                function (file) {
+                    dataTransfer.items.add(
+                        file
+                    );
+                }
+            );
 
-            evidenceInput.files = dataTransfer.files;
+            evidenceInput.files =
+                dataTransfer.files;
 
             console.log(
                 "Updated evidence input:",
-                Array.from(evidenceInput.files)
+                Array.from(
+                    evidenceInput.files
+                )
             );
         } catch (error) {
             console.error(
@@ -308,9 +903,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         clearEvidencePreviewUrls();
 
-        evidencePreview.innerHTML = "";
+        evidencePreview.innerHTML =
+            "";
 
-        if (selectedEvidenceFiles.length === 0) {
+        if (
+            selectedEvidenceFiles.length ===
+            0
+        ) {
             evidencePreviewContainer.classList.add(
                 "hidden"
             );
@@ -327,26 +926,34 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (
                     !file ||
                     !file.type ||
-                    !file.type.startsWith("image/")
+                    !file.type.startsWith(
+                        "image/"
+                    )
                 ) {
                     return;
                 }
 
                 const previewUrl =
-                    URL.createObjectURL(file);
+                    URL.createObjectURL(
+                        file
+                    );
 
                 evidencePreviewUrls.push(
                     previewUrl
                 );
 
                 const wrapper =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 wrapper.className =
                     "relative rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-sm";
 
                 const image =
-                    document.createElement("img");
+                    document.createElement(
+                        "img"
+                    );
 
                 image.src =
                     previewUrl;
@@ -358,7 +965,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     "w-full h-36 sm:h-40 object-cover";
 
                 const removeButton =
-                    document.createElement("button");
+                    document.createElement(
+                        "button"
+                    );
 
                 removeButton.type =
                     "button";
@@ -399,13 +1008,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
                 const overlay =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 overlay.className =
                     "absolute bottom-0 left-0 right-0 bg-black/60 text-white px-2 py-1.5";
 
                 const fileName =
-                    document.createElement("p");
+                    document.createElement(
+                        "p"
+                    );
 
                 fileName.className =
                     "text-[10px] leading-tight truncate";
@@ -415,7 +1028,9 @@ document.addEventListener("DOMContentLoaded", function () {
                     `Evidence photo ${index + 1}`;
 
                 const fileSize =
-                    document.createElement("p");
+                    document.createElement(
+                        "p"
+                    );
 
                 fileSize.className =
                     "text-[9px] text-gray-200 mt-0.5";
@@ -440,7 +1055,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
 
                 const photoNumber =
-                    document.createElement("div");
+                    document.createElement(
+                        "div"
+                    );
 
                 photoNumber.className =
                     "absolute top-2 left-2 bg-black/60 text-white rounded-full px-2 py-1 text-[10px] font-semibold";
@@ -471,14 +1088,17 @@ document.addEventListener("DOMContentLoaded", function () {
         );
 
         const countMessage =
-            document.createElement("p");
+            document.createElement(
+                "p"
+            );
 
         countMessage.className =
             "col-span-full text-xs text-gray-500 mt-1";
 
         countMessage.textContent =
             `${selectedEvidenceFiles.length} evidence photo${
-                selectedEvidenceFiles.length === 1
+                selectedEvidenceFiles.length ===
+                1
                     ? ""
                     : "s"
             } attached`;
@@ -498,7 +1118,9 @@ document.addEventListener("DOMContentLoaded", function () {
             function () {
                 const newFiles =
                     this.files
-                        ? Array.from(this.files)
+                        ? Array.from(
+                              this.files
+                          )
                         : [];
 
                 console.log(
@@ -506,7 +1128,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     newFiles
                 );
 
-                if (newFiles.length === 0) {
+                if (
+                    newFiles.length ===
+                    0
+                ) {
                     return;
                 }
 
@@ -592,18 +1217,29 @@ document.addEventListener("DOMContentLoaded", function () {
         title,
         message
     ) {
-        const badge = getElement("ocrBadge");
-        const status = getElement("ocrStatus");
-        const icon = getElement("ocrIcon");
-        const ocrTitle = getElement("ocrTitle");
-        const ocrMessage = getElement("ocrMessage");
+        const badge =
+            getElement("ocrBadge");
+
+        const status =
+            getElement("ocrStatus");
+
+        const icon =
+            getElement("ocrIcon");
+
+        const ocrTitle =
+            getElement("ocrTitle");
+
+        const ocrMessage =
+            getElement("ocrMessage");
 
         if (ocrTitle) {
-            ocrTitle.innerText = title;
+            ocrTitle.innerText =
+                title;
         }
 
         if (ocrMessage) {
-            ocrMessage.innerText = message;
+            ocrMessage.innerText =
+                message;
         }
 
         if (status) {
@@ -614,14 +1250,31 @@ document.addEventListener("DOMContentLoaded", function () {
                 "bg-yellow-50"
             );
 
-            if (type === "success") {
-                status.classList.add("bg-green-50");
-            } else if (type === "error") {
-                status.classList.add("bg-red-50");
-            } else if (type === "loading") {
-                status.classList.add("bg-yellow-50");
+            if (
+                type ===
+                "success"
+            ) {
+                status.classList.add(
+                    "bg-green-50"
+                );
+            } else if (
+                type ===
+                "error"
+            ) {
+                status.classList.add(
+                    "bg-red-50"
+                );
+            } else if (
+                type ===
+                "loading"
+            ) {
+                status.classList.add(
+                    "bg-yellow-50"
+                );
             } else {
-                status.classList.add("bg-blue-50");
+                status.classList.add(
+                    "bg-blue-50"
+                );
             }
         }
 
@@ -637,7 +1290,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 "text-yellow-700"
             );
 
-            if (type === "success") {
+            if (
+                type ===
+                "success"
+            ) {
                 badge.classList.add(
                     "bg-green-100",
                     "text-green-700"
@@ -645,7 +1301,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 badge.innerText =
                     "Completed";
-            } else if (type === "error") {
+            } else if (
+                type ===
+                "error"
+            ) {
                 badge.classList.add(
                     "bg-red-100",
                     "text-red-700"
@@ -653,7 +1312,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 badge.innerText =
                     "Error";
-            } else if (type === "loading") {
+            } else if (
+                type ===
+                "loading"
+            ) {
                 badge.classList.add(
                     "bg-yellow-100",
                     "text-yellow-700"
@@ -673,14 +1335,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (icon) {
-            if (type === "success") {
-                icon.innerText = "✓";
-            } else if (type === "error") {
-                icon.innerText = "✕";
-            } else if (type === "loading") {
-                icon.innerText = "⏳";
+            if (
+                type ===
+                "success"
+            ) {
+                icon.innerText =
+                    "✓";
+            } else if (
+                type ===
+                "error"
+            ) {
+                icon.innerText =
+                    "✕";
+            } else if (
+                type ===
+                "loading"
+            ) {
+                icon.innerText =
+                    "⏳";
             } else {
-                icon.innerText = "ℹ";
+                icon.innerText =
+                    "ℹ";
             }
         }
     }
@@ -737,15 +1412,24 @@ document.addEventListener("DOMContentLoaded", function () {
                 "bg-yellow-50"
             );
 
-            if (type === "success") {
+            if (
+                type ===
+                "success"
+            ) {
                 status.classList.add(
                     "bg-green-50"
                 );
-            } else if (type === "error") {
+            } else if (
+                type ===
+                "error"
+            ) {
                 status.classList.add(
                     "bg-red-50"
                 );
-            } else if (type === "loading") {
+            } else if (
+                type ===
+                "loading"
+            ) {
                 status.classList.add(
                     "bg-yellow-50"
                 );
@@ -768,7 +1452,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 "text-yellow-700"
             );
 
-            if (type === "success") {
+            if (
+                type ===
+                "success"
+            ) {
                 badge.classList.add(
                     "bg-green-100",
                     "text-green-700"
@@ -776,7 +1463,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 badge.innerText =
                     "Completed";
-            } else if (type === "error") {
+            } else if (
+                type ===
+                "error"
+            ) {
                 badge.classList.add(
                     "bg-red-100",
                     "text-red-700"
@@ -784,7 +1474,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 badge.innerText =
                     "Error";
-            } else if (type === "loading") {
+            } else if (
+                type ===
+                "loading"
+            ) {
                 badge.classList.add(
                     "bg-yellow-100",
                     "text-yellow-700"
@@ -804,14 +1497,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (icon) {
-            if (type === "success") {
-                icon.innerText = "✓";
-            } else if (type === "error") {
-                icon.innerText = "✕";
-            } else if (type === "loading") {
-                icon.innerText = "⏳";
+            if (
+                type ===
+                "success"
+            ) {
+                icon.innerText =
+                    "✓";
+            } else if (
+                type ===
+                "error"
+            ) {
+                icon.innerText =
+                    "✕";
+            } else if (
+                type ===
+                "loading"
+            ) {
+                icon.innerText =
+                    "⏳";
             } else {
-                icon.innerText = "ℹ";
+                icon.innerText =
+                    "ℹ";
             }
         }
     }
@@ -1331,7 +2037,8 @@ document.addEventListener("DOMContentLoaded", function () {
             !Array.isArray(
                 violations
             ) ||
-            violations.length === 0
+            violations.length ===
+                0
         ) {
             return;
         }
@@ -1379,7 +2086,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 .filter(Boolean);
 
         if (
-            detected.length === 0
+            detected.length ===
+            0
         ) {
             return;
         }
@@ -2588,7 +3296,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 await getPendingTickets();
 
             if (
-                tickets.length === 0
+                tickets.length ===
+                0
             ) {
                 hideOfflineStatus();
                 return;
@@ -2650,7 +3359,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 remainingTickets.length;
 
             if (
-                remainingCount === 0
+                remainingCount ===
+                0
             ) {
                 if (
                     syncedCount > 0
@@ -2982,6 +3692,61 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ===================================================
+    // RESET FORM AFTER OFFLINE SAVE
+    // ===================================================
+
+    function resetTicketFormAfterOfflineSave() {
+        if (!form) {
+            return;
+        }
+
+        form.reset();
+
+        selectedEvidenceFiles = [];
+
+        clearEvidencePreviewUrls();
+
+        if (
+            evidencePreview
+        ) {
+            evidencePreview.innerHTML =
+                "";
+        }
+
+        if (
+            evidencePreviewContainer
+        ) {
+            evidencePreviewContainer.classList.add(
+                "hidden"
+            );
+        }
+
+        updateLicenseFieldState();
+
+        updatePlateFieldState();
+
+        setupRequiredFields();
+
+        if (
+            otherViolationContainer
+        ) {
+            otherViolationContainer.classList.add(
+                "hidden"
+            );
+        }
+
+        if (
+            otherViolationInput
+        ) {
+            otherViolationInput.required =
+                false;
+
+            otherViolationInput.value =
+                "";
+        }
+    }
+
+    // ===================================================
     // FORM SUBMISSION
     // ===================================================
 
@@ -2991,6 +3756,26 @@ document.addEventListener("DOMContentLoaded", function () {
             async function (
                 event
             ) {
+                // -------------------------------------------------
+                // PREVENT DOUBLE SUBMISSION
+                // -------------------------------------------------
+
+                if (
+                    ticketSubmissionProcessing
+                ) {
+                    event.preventDefault();
+
+                    console.log(
+                        "Ticket submission is already being processed."
+                    );
+
+                    return;
+                }
+
+                // -------------------------------------------------
+                // VALIDATE FORM FIRST
+                // -------------------------------------------------
+
                 if (
                     !validateTicketForm()
                 ) {
@@ -3024,8 +3809,32 @@ document.addEventListener("DOMContentLoaded", function () {
                     console.log(
                         "Evidence files:",
                         Array.from(
-                            evidenceInput?.files || []
+                            evidenceInput?.files ||
+                                []
                         )
+                    );
+
+                    // ---------------------------------------------
+                    // SHOW LOADING
+                    //
+                    // IMPORTANT:
+                    // We intentionally DO NOT call
+                    // event.preventDefault() here.
+                    //
+                    // The browser will continue with the normal
+                    // Laravel form submission after this handler.
+                    // The overlay remains visible while the browser
+                    // processes the request.
+                    // ---------------------------------------------
+
+                    showTicketProcessing(
+                        "Processing Citation Ticket",
+                        "Please wait while the citation ticket and evidence are being submitted.",
+                        "Submitting ticket data to the server..."
+                    );
+
+                    console.log(
+                        "Online citation ticket submission started."
                     );
 
                     return;
@@ -3037,14 +3846,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
                 event.preventDefault();
 
+                // -------------------------------------------------
+                // PREVENT MULTIPLE OFFLINE SAVES
+                // -------------------------------------------------
+
                 if (
                     syncInProgress
                 ) {
                     return;
                 }
 
+                // -------------------------------------------------
+                // SHOW OFFLINE PROCESSING
+                // -------------------------------------------------
+
+                showTicketProcessing(
+                    "Saving Ticket Offline",
+                    "Please wait while the citation ticket and evidence photos are being saved on this device.",
+                    "Saving ticket data to local storage..."
+                );
+
                 try {
+                    console.log(
+                        "Offline ticket saving started."
+                    );
+
                     await saveTicketOffline();
+
+                    console.log(
+                        "Ticket successfully saved to IndexedDB."
+                    );
+
+                    updateTicketProcessingOverlay(
+                        "loading",
+                        "Ticket Saved Locally",
+                        "The ticket has been saved on this device. Checking pending synchronization status...",
+                        "Preparing the ticket for automatic synchronization."
+                    );
 
                     await updatePendingSyncCount();
 
@@ -3059,7 +3897,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     ) {
                         offlinePendingMessage.innerText =
                             `You are offline. Your ticket has been saved on this device. ${count} ticket${
-                                count === 1
+                                count ===
+                                1
                                     ? ""
                                     : "s"
                             } waiting to sync.`;
@@ -3069,49 +3908,20 @@ document.addEventListener("DOMContentLoaded", function () {
                         "Ticket saved successfully for offline synchronization."
                     );
 
-                    form.reset();
+                    // ---------------------------------------------
+                    // RESET FORM
+                    // ---------------------------------------------
 
-                    selectedEvidenceFiles = [];
+                    resetTicketFormAfterOfflineSave();
 
-                    clearEvidencePreviewUrls();
+                    // ---------------------------------------------
+                    // SHOW SUCCESS
+                    // ---------------------------------------------
 
-                    if (
-                        evidencePreview
-                    ) {
-                        evidencePreview.innerHTML =
-                            "";
-                    }
-
-                    if (
-                        evidencePreviewContainer
-                    ) {
-                        evidencePreviewContainer.classList.add(
-                            "hidden"
-                        );
-                    }
-
-                    updateLicenseFieldState();
-                    updatePlateFieldState();
-
-                    setupRequiredFields();
-
-                    if (
-                        otherViolationContainer
-                    ) {
-                        otherViolationContainer.classList.add(
-                            "hidden"
-                        );
-                    }
-
-                    if (
-                        otherViolationInput
-                    ) {
-                        otherViolationInput.required =
-                            false;
-
-                        otherViolationInput.value =
-                            "";
-                    }
+                    showTicketProcessingSuccess(
+                        "Ticket Saved Offline",
+                        "Your citation ticket has been saved on this device and will automatically synchronize when the connection is restored."
+                    );
                 } catch (
                     error
                 ) {
@@ -3119,6 +3929,19 @@ document.addEventListener("DOMContentLoaded", function () {
                         "Offline ticket save error:",
                         error
                     );
+
+                    // ---------------------------------------------
+                    // SHOW ERROR IN PROCESSING OVERLAY
+                    // ---------------------------------------------
+
+                    showTicketProcessingError(
+                        error.message ||
+                            "Unable to save the ticket on this device."
+                    );
+
+                    // ---------------------------------------------
+                    // ALSO SHOW EXISTING OFFLINE ERROR UI
+                    // ---------------------------------------------
 
                     showSyncError(
                         error.message ||
