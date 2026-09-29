@@ -1849,9 +1849,32 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
             }
 
-            processCitationTicket(
-                file
-            );
+            console.log(
+    "CAMERA/FILE SELECTED:",
+    {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: file.lastModified
+    }
+);
+
+alert(
+    "CAMERA IMAGE RECEIVED\n\n" +
+    "Name: " +
+        (file.name || "Unknown") +
+    "\n" +
+    "Type: " +
+        (file.type || "Unknown") +
+    "\n" +
+    "Size: " +
+        file.size +
+        " bytes"
+);
+
+processCitationTicket(
+    file
+);
         };
 
 
