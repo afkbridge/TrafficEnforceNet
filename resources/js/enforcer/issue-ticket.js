@@ -1855,176 +1855,509 @@ document.addEventListener("DOMContentLoaded", function () {
         };
 
     // ===================================================
-    // CITATION TICKET OCR
-    // ===================================================
+// CITATION TICKET OCR
+// ===================================================
+async function processCitationTicket(file) {
 
-    async function processCitationTicket(
-        file
-    ) {
-        if (!file) {
-            return;
+    if (!file) {
+        return;
+    }
+
+    setTicketOcrStatus(
+        "loading",
+        "Reading citation ticket...",
+        "Preparing the image and extracting the ticket information."
+    );
+
+    try {
+
+        // ===================================================
+        // NORMALIZE IMAGE BEFORE OCR
+        //
+        // This is especially important for phone camera
+        // images because some phones produce very large
+        // images or formats/encodings that OCR services
+        // may not process reliably.
+        // ===================================================
+
+        let ocrFile = file;
+
+        try {
+
+            if (
+                file.type &&
+                file.type.startsWith("image/")
+            ) {
+
+                const normalizedBlob =
+                    await new Promise(
+                        function (resolve, reject) {
+
+                            const image =
+                                new Image();
+
+                            const objectUrl =
+                                URL.createObjectURL(
+                                    file
+                                );
+
+                            image.onload =
+                                function () {
+
+                                    URL.revokeObjectURL(
+                                        objectUrl
+                                    );
+
+                                    try {
+
+                                        // ---------------------------------------
+                                        // LIMIT IMAGE SIZE
+                                        // ---------------------------------------
+                                        const MAX_WIDTH =
+                                            2200;
+
+                                        const MAX_HEIGHT =
+                                            2200;
+
+                                        let width =
+                                            image.naturalWidth;
+
+                                        let height =
+                                            image.naturalHeight;
+
+                                        if (
+                                            width <= 0 ||
+                                            height <= 0
+                                        ) {
+                                            reject(
+                                                new Error(
+                                                    "Unable to read the camera image dimensions."
+                                                )
+                                            );
+
+                                            return;
+                                        }
+
+                                        // ---------------------------------------
+                                        // SCALE DOWN LARGE CAMERA PHOTOS
+                                        // ---------------------------------------
+                                        const scale =
+                                            Math.min(
+                                                1,
+                                                MAX_WIDTH /
+                                                    width,
+                                                MAX_HEIGHT /
+                                                    height
+                                            );
+
+                                        width =
+                                            Math.round(
+                                                width *
+                                                    scale
+                                            );
+
+                                        height =
+                                            Math.round(
+                                                height *
+                                                    scale
+                                            );
+
+                                        const canvas =
+                                            document.createElement(
+                                                "canvas"
+                                            );
+
+                                        canvas.width =
+                                            width;
+
+                                        canvas.height =
+                                            height;
+
+                                        const context =
+                                            canvas.getContext(
+                                                "2d"
+                                            );
+
+                                        if (!context) {
+                                            reject(
+                                                new Error(
+                                                    "Unable to process the camera image."
+                                                )
+                                            );
+
+                                            return;
+                                        }
+
+                                        // ---------------------------------------
+                                        // WHITE BACKGROUND
+                                        //
+                                        // Helps when the original image has
+                                        // transparency or unusual encoding.
+                                        // ---------------------------------------
+                                        context.fillStyle =
+                                            "#FFFFFF";
+
+                                        context.fillRect(
+                                            0,
+                                            0,
+                                            width,
+                                            height
+                                        );
+
+                                        // ---------------------------------------
+                                        // DRAW IMAGE
+                                        // ---------------------------------------
+                                        context.drawImage(
+                                            image,
+                                            0,
+                                            0,
+                                            width,
+                                            height
+                                        );
+
+                                        // ---------------------------------------
+                                        // CONVERT TO STANDARD JPEG
+                                        // ---------------------------------------
+                                        canvas.toBlob(
+                                            function (
+                                                blob
+                                            ) {
+
+                                                if (!blob) {
+                                                    reject(
+                                                        new Error(
+                                                            "Unable to convert the camera image to JPEG."
+                                                        )
+                                                    );
+
+                                                    return;
+                                                }
+
+                                                resolve(
+                                                    blob
+                                                );
+
+                                            },
+                                            "image/jpeg",
+                                            0.85
+                                        );
+
+                                    } catch (
+                                        error
+                                    ) {
+
+                                        reject(
+                                            error
+                                        );
+
+                                    }
+                                };
+
+                            image.onerror =
+                                function () {
+
+                                    URL.revokeObjectURL(
+                                        objectUrl
+                                    );
+
+                                    reject(
+                                        new Error(
+                                            "Unable to open the camera image."
+                                        )
+                                    );
+
+                                };
+
+                            image.src =
+                                objectUrl;
+                        }
+                    );
+
+                if (
+                    normalizedBlob
+                ) {
+
+                    ocrFile =
+                        new File(
+                            [
+                                normalizedBlob
+                            ],
+                            "citation-ticket.jpg",
+                            {
+                                type:
+                                    "image/jpeg",
+                                lastModified:
+                                    Date.now(),
+                            }
+                        );
+
+                    console.log(
+                        "Original OCR image:",
+                        {
+                            name:
+                                file.name,
+                            type:
+                                file.type,
+                            size:
+                                file.size,
+                        }
+                    );
+
+                    console.log(
+                        "Normalized OCR image:",
+                        {
+                            name:
+                                ocrFile.name,
+                            type:
+                                ocrFile.type,
+                            size:
+                                ocrFile.size,
+                        }
+                    );
+                }
+
+            }
+
+        } catch (
+            imageError
+        ) {
+
+            console.warn(
+                "Image normalization failed. Using original file:",
+                imageError
+            );
+
+            // -----------------------------------------------
+            // DO NOT BLOCK OCR IF NORMALIZATION FAILS
+            // -----------------------------------------------
+            ocrFile =
+                file;
         }
 
-        setTicketOcrStatus(
-            "loading",
-            "Reading citation ticket...",
-            "Please wait while the system extracts the ticket information."
-        );
+        // ===================================================
+        // CREATE FORM DATA
+        // ===================================================
 
         const formData =
             new FormData();
 
         formData.append(
             "ticket_image",
-            file
+            ocrFile,
+            ocrFile.name ||
+                "citation-ticket.jpg"
         );
 
+        console.log(
+            "Sending citation ticket OCR image:",
+            {
+                name:
+                    ocrFile.name,
+                type:
+                    ocrFile.type,
+                size:
+                    ocrFile.size,
+            }
+        );
+
+        // ===================================================
+        // SEND TO LARAVEL OCR ENDPOINT
+        // ===================================================
+
+        const response =
+            await fetch(
+                "/enforcer/ocr/citation-ticket",
+                {
+                    method:
+                        "POST",
+
+                    body:
+                        formData,
+
+                    headers: {
+                        "X-CSRF-TOKEN":
+                            document
+                                .querySelector(
+                                    'meta[name="csrf-token"]'
+                                )
+                                ?.getAttribute(
+                                    "content"
+                                ) ||
+                            "",
+
+                        Accept:
+                            "application/json",
+                    },
+
+                    credentials:
+                        "same-origin",
+                }
+            );
+
+        console.log(
+            "Citation OCR HTTP status:",
+            response.status
+        );
+
+        // ===================================================
+        // READ RESPONSE SAFELY
+        // ===================================================
+
+        let data =
+            null;
+
         try {
-            const response =
-                await fetch(
-                    "/enforcer/ocr/citation-ticket",
-                    {
-                        method: "POST",
 
-                        body:
-                            formData,
-
-                        headers: {
-                            "X-CSRF-TOKEN":
-                                document
-                                    .querySelector(
-                                        'meta[name="csrf-token"]'
-                                    )
-                                    ?.getAttribute(
-                                        "content"
-                                    ) ||
-                                "",
-
-                            Accept:
-                                "application/json",
-                        },
-
-                        credentials:
-                            "same-origin",
-                    }
-                );
-
-            const data =
+            data =
                 await response.json();
 
-            if (
-                !response.ok ||
-                !data.success
-            ) {
-                throw new Error(
-                    data.message ||
-                        "Citation ticket OCR failed."
-                );
-            }
-
-            const result =
-                data.data ||
-                {};
-
-            setFieldValue(
-                "ticket_number",
-                result.ticket_number
-            );
-
-            setFieldValue(
-                "first_name",
-                result.first_name
-            );
-
-            setFieldValue(
-                "middle_name",
-                result.middle_name
-            );
-
-            setFieldValue(
-                "last_name",
-                result.last_name
-            );
-
-            setFieldValue(
-                "license_number",
-                result.license_number
-            );
-
-            setFieldValue(
-                "address",
-                result.address
-            );
-
-            setFieldValue(
-                "birth_date",
-                result.birth_date
-            );
-
-            setFieldValue(
-                "plate_number",
-                result.plate_number
-            );
-
-            setFieldValue(
-                "vehicle_type",
-                result.vehicle_type
-            );
-
-            setFieldValue(
-                "region_number",
-                result.region_number
-            );
-
-            setFieldValue(
-                "owner_name",
-                result.owner_name
-            );
-
-            // Location is intentionally NOT populated
-            // by OCR. Location is controlled by GPS.
-
-            handleDetectedViolations(
-                result.violations ||
-                    []
-            );
-
-            setTicketOcrStatus(
-                "success",
-                "Citation ticket scanned",
-                data.message ||
-                    "Readable information was extracted. Fields that could not be read clearly were left blank for manual entry."
-            );
-
-            console.log(
-                "Citation Ticket OCR:",
-                result
-            );
-
-            if (
-                data.raw_text
-            ) {
-                console.log(
-                    "Citation Ticket OCR Raw Text:",
-                    data.raw_text
-                );
-            }
         } catch (
-            error
+            jsonError
         ) {
+
             console.error(
-                "Citation Ticket OCR Error:",
-                error
+                "Citation OCR response was not valid JSON:",
+                jsonError
             );
 
-            setTicketOcrStatus(
-                "error",
-                "OCR failed",
-                error.message ||
-                    "Unable to read the citation ticket."
+            throw new Error(
+                `OCR server returned HTTP ${response.status}, but the response could not be read.`
             );
         }
+
+        // ===================================================
+        // HANDLE OCR FAILURE
+        // ===================================================
+
+        if (
+            !response.ok ||
+            !data.success
+        ) {
+
+            console.error(
+                "Citation OCR server response:",
+                data
+            );
+
+            throw new Error(
+                data.message ||
+                    `Citation ticket OCR failed. Server returned HTTP ${response.status}.`
+            );
+        }
+
+        // ===================================================
+        // OCR SUCCESS
+        // ===================================================
+
+        const result =
+            data.data ||
+            {};
+
+        setFieldValue(
+            "ticket_number",
+            result.ticket_number
+        );
+
+        setFieldValue(
+            "first_name",
+            result.first_name
+        );
+
+        setFieldValue(
+            "middle_name",
+            result.middle_name
+        );
+
+        setFieldValue(
+            "last_name",
+            result.last_name
+        );
+
+        setFieldValue(
+            "license_number",
+            result.license_number
+        );
+
+        setFieldValue(
+            "address",
+            result.address
+        );
+
+        setFieldValue(
+            "birth_date",
+            result.birth_date
+        );
+
+        setFieldValue(
+            "plate_number",
+            result.plate_number
+        );
+
+        setFieldValue(
+            "vehicle_type",
+            result.vehicle_type
+        );
+
+        setFieldValue(
+            "region_number",
+            result.region_number
+        );
+
+        setFieldValue(
+            "owner_name",
+            result.owner_name
+        );
+
+        // ===================================================
+        // LOCATION IS NOT POPULATED BY OCR
+        //
+        // GPS controls the location.
+        // ===================================================
+
+        handleDetectedViolations(
+            result.violations ||
+                []
+        );
+
+        setTicketOcrStatus(
+            "success",
+            "Citation ticket scanned",
+            data.message ||
+                "Readable information was extracted. Fields that could not be read clearly were left blank for manual entry."
+        );
+
+        console.log(
+            "Citation Ticket OCR:",
+            result
+        );
+
+        if (
+            data.raw_text
+        ) {
+
+            console.log(
+                "Citation Ticket OCR Raw Text:",
+                data.raw_text
+            );
+        }
+
+    } catch (
+        error
+    ) {
+
+        console.error(
+            "Citation Ticket OCR Error:",
+            error
+        );
+
+        setTicketOcrStatus(
+            "error",
+            "OCR failed",
+            error.message ||
+                "Unable to read the citation ticket."
+        );
     }
+}
 
     // ===================================================
     // HANDLE OCR DETECTED VIOLATIONS
