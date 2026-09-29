@@ -1854,7 +1854,8 @@ document.addEventListener("DOMContentLoaded", function () {
             );
         };
 
-    // ===================================================
+
+// ===================================================
 // CITATION TICKET OCR
 // ===================================================
 async function processCitationTicket(file) {
@@ -1862,13 +1863,6 @@ async function processCitationTicket(file) {
     if (!file) {
         return;
     }
-
-    alert(
-        "OCR IMAGE INFO\n\n" +
-        "Name: " + (file.name || "Unknown") + "\n" +
-        "Type: " + (file.type || "Unknown") + "\n" +
-        "Size: " + file.size + " bytes"
-    );
 
     setTicketOcrStatus(
         "loading",
@@ -1880,11 +1874,11 @@ async function processCitationTicket(file) {
 
         // ===================================================
         // NORMALIZE IMAGE BEFORE OCR
-        //
-        // This is especially important for phone camera
-        // images because some phones produce very large
-        // images or formats/encodings that OCR services
-        // may not process reliably.
+        // ===================================================
+        // This converts the camera/uploaded image into a
+        // standard JPEG before sending it to OCR.
+        // This helps with large camera images and unusual
+        // image encodings produced by some phones.
         // ===================================================
 
         let ocrFile = file;
@@ -1920,6 +1914,7 @@ async function processCitationTicket(file) {
                                         // ---------------------------------------
                                         // LIMIT IMAGE SIZE
                                         // ---------------------------------------
+
                                         const MAX_WIDTH =
                                             2200;
 
@@ -1936,6 +1931,7 @@ async function processCitationTicket(file) {
                                             width <= 0 ||
                                             height <= 0
                                         ) {
+
                                             reject(
                                                 new Error(
                                                     "Unable to read the camera image dimensions."
@@ -1948,6 +1944,7 @@ async function processCitationTicket(file) {
                                         // ---------------------------------------
                                         // SCALE DOWN LARGE CAMERA PHOTOS
                                         // ---------------------------------------
+
                                         const scale =
                                             Math.min(
                                                 1,
@@ -1969,6 +1966,10 @@ async function processCitationTicket(file) {
                                                     scale
                                             );
 
+                                        // ---------------------------------------
+                                        // CREATE CANVAS
+                                        // ---------------------------------------
+
                                         const canvas =
                                             document.createElement(
                                                 "canvas"
@@ -1986,6 +1987,7 @@ async function processCitationTicket(file) {
                                             );
 
                                         if (!context) {
+
                                             reject(
                                                 new Error(
                                                     "Unable to process the camera image."
@@ -1997,10 +1999,8 @@ async function processCitationTicket(file) {
 
                                         // ---------------------------------------
                                         // WHITE BACKGROUND
-                                        //
-                                        // Helps when the original image has
-                                        // transparency or unusual encoding.
                                         // ---------------------------------------
+
                                         context.fillStyle =
                                             "#FFFFFF";
 
@@ -2014,6 +2014,7 @@ async function processCitationTicket(file) {
                                         // ---------------------------------------
                                         // DRAW IMAGE
                                         // ---------------------------------------
+
                                         context.drawImage(
                                             image,
                                             0,
@@ -2025,12 +2026,12 @@ async function processCitationTicket(file) {
                                         // ---------------------------------------
                                         // CONVERT TO STANDARD JPEG
                                         // ---------------------------------------
+
                                         canvas.toBlob(
-                                            function (
-                                                blob
-                                            ) {
+                                            function (blob) {
 
                                                 if (!blob) {
+
                                                     reject(
                                                         new Error(
                                                             "Unable to convert the camera image to JPEG."
@@ -2049,14 +2050,11 @@ async function processCitationTicket(file) {
                                             0.85
                                         );
 
-                                    } catch (
-                                        error
-                                    ) {
+                                    } catch (error) {
 
                                         reject(
                                             error
                                         );
-
                                     }
                                 };
 
@@ -2072,7 +2070,6 @@ async function processCitationTicket(file) {
                                             "Unable to open the camera image."
                                         )
                                     );
-
                                 };
 
                             image.src =
@@ -2080,9 +2077,11 @@ async function processCitationTicket(file) {
                         }
                     );
 
-                if (
-                    normalizedBlob
-                ) {
+                // ---------------------------------------
+                // CREATE STANDARD JPEG FILE
+                // ---------------------------------------
+
+                if (normalizedBlob) {
 
                     ocrFile =
                         new File(
@@ -2093,6 +2092,7 @@ async function processCitationTicket(file) {
                             {
                                 type:
                                     "image/jpeg",
+
                                 lastModified:
                                     Date.now(),
                             }
@@ -2103,8 +2103,10 @@ async function processCitationTicket(file) {
                         {
                             name:
                                 file.name,
+
                             type:
                                 file.type,
+
                             size:
                                 file.size,
                         }
@@ -2115,28 +2117,25 @@ async function processCitationTicket(file) {
                         {
                             name:
                                 ocrFile.name,
+
                             type:
                                 ocrFile.type,
+
                             size:
                                 ocrFile.size,
                         }
                     );
                 }
-
             }
 
-        } catch (
-            imageError
-        ) {
+        } catch (imageError) {
 
             console.warn(
                 "Image normalization failed. Using original file:",
                 imageError
             );
 
-            // -----------------------------------------------
-            // DO NOT BLOCK OCR IF NORMALIZATION FAILS
-            // -----------------------------------------------
+            // Do not stop OCR if normalization fails.
             ocrFile =
                 file;
         }
@@ -2160,8 +2159,10 @@ async function processCitationTicket(file) {
             {
                 name:
                     ocrFile.name,
+
                 type:
                     ocrFile.type,
+
                 size:
                     ocrFile.size,
             }
@@ -2182,6 +2183,7 @@ async function processCitationTicket(file) {
                         formData,
 
                     headers: {
+
                         "X-CSRF-TOKEN":
                             document
                                 .querySelector(
@@ -2218,9 +2220,7 @@ async function processCitationTicket(file) {
             data =
                 await response.json();
 
-        } catch (
-            jsonError
-        ) {
+        } catch (jsonError) {
 
             console.error(
                 "Citation OCR response was not valid JSON:",
@@ -2260,10 +2260,18 @@ async function processCitationTicket(file) {
             data.data ||
             {};
 
+        // ===================================================
+        // TICKET INFORMATION
+        // ===================================================
+
         setFieldValue(
             "ticket_number",
             result.ticket_number
         );
+
+        // ===================================================
+        // DRIVER INFORMATION
+        // ===================================================
 
         setFieldValue(
             "first_name",
@@ -2295,6 +2303,10 @@ async function processCitationTicket(file) {
             result.birth_date
         );
 
+        // ===================================================
+        // VEHICLE INFORMATION
+        // ===================================================
+
         setFieldValue(
             "plate_number",
             result.plate_number
@@ -2317,8 +2329,13 @@ async function processCitationTicket(file) {
 
         // ===================================================
         // LOCATION IS NOT POPULATED BY OCR
-        //
+        // ===================================================
         // GPS controls the location.
+        // OCR must NOT overwrite the GPS location.
+        // ===================================================
+
+        // ===================================================
+        // DETECTED VIOLATIONS
         // ===================================================
 
         handleDetectedViolations(
@@ -2326,12 +2343,20 @@ async function processCitationTicket(file) {
                 []
         );
 
+        // ===================================================
+        // OCR SUCCESS STATUS
+        // ===================================================
+
         setTicketOcrStatus(
             "success",
             "Citation ticket scanned",
             data.message ||
                 "Readable information was extracted. Fields that could not be read clearly were left blank for manual entry."
         );
+
+        // ===================================================
+        // DEBUG INFORMATION
+        // ===================================================
 
         console.log(
             "Citation Ticket OCR:",
@@ -2348,9 +2373,11 @@ async function processCitationTicket(file) {
             );
         }
 
-    } catch (
-        error
-    ) {
+    } catch (error) {
+
+        // ===================================================
+        // OCR ERROR
+        // ===================================================
 
         console.error(
             "Citation Ticket OCR Error:",
@@ -2365,6 +2392,8 @@ async function processCitationTicket(file) {
         );
     }
 }
+
+
 
     // ===================================================
     // HANDLE OCR DETECTED VIOLATIONS
