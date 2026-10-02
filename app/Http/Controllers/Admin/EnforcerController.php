@@ -123,11 +123,26 @@ class EnforcerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'badge_number' => 'required|unique:enforcers,badge_number',
+            /*
+            |--------------------------------------------------------------------------
+            | Badge Number - OPTIONAL
+            |--------------------------------------------------------------------------
+            */
+            'badge_number' => [
+                'nullable',
+                'string',
+                'unique:enforcers,badge_number',
+            ],
+
             'first_name' => 'required',
+
             'last_name' => 'required',
 
-            // POSO positions
+            /*
+            |--------------------------------------------------------------------------
+            | POSO Position
+            |--------------------------------------------------------------------------
+            */
             'position' => [
                 'required',
                 Rule::in([
@@ -136,7 +151,18 @@ class EnforcerController extends Controller
                 ]),
             ],
 
-            'employment_status' => 'required',
+            /*
+            |--------------------------------------------------------------------------
+            | Employment Status
+            |--------------------------------------------------------------------------
+            */
+            'employment_status' => [
+                'required',
+                Rule::in([
+                    'Permanent',
+                    'Job Order',
+                ]),
+            ],
 
             'username' => [
                 'required',
@@ -148,11 +174,25 @@ class EnforcerController extends Controller
             'password' => [
                 'required',
                 'min:8',
-                'confirmed'
+                'confirmed',
             ],
 
-            // Kept temporarily for database compatibility.
-            // Email is no longer collected from the UI.
+            /*
+            |--------------------------------------------------------------------------
+            | Contact Number - OPTIONAL
+            |--------------------------------------------------------------------------
+            */
+            'contact_number' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Email - OPTIONAL
+            |--------------------------------------------------------------------------
+            */
             'email' => [
                 'nullable',
                 'email',
@@ -185,20 +225,36 @@ class EnforcerController extends Controller
 
             Enforcer::create([
                 'user_id' => $user->id,
+
+                // Optional badge number
                 'badge_number' => $request->badge_number,
+
                 'first_name' => $request->first_name,
+
                 'middle_name' => $request->middle_name,
+
                 'last_name' => $request->last_name,
+
+                // Optional contact number
                 'contact_number' => $request->contact_number,
-                'email' => $request->email,
+
+                // Email is no longer collected
+                'email' => null,
+
+                // Traffic Enforcer / Traffic Aide
                 'position' => $request->position,
+
+                // Permanent / Job Order
                 'employment_status' => $request->employment_status,
             ]);
         });
 
         return redirect()
             ->route('enforcers.index')
-            ->with('success', 'Enforcer and account created successfully.');
+            ->with(
+                'success',
+                'Enforcer and account created successfully.'
+            );
     }
 
     /*
@@ -209,9 +265,6 @@ class EnforcerController extends Controller
 
     /**
      * Create an Administrator or BPLO Personnel account.
-     *
-     * This method is used by the User Management section
-     * at the bottom of the Enforcer Management page.
      */
     public function storeStaff(Request $request)
     {
@@ -392,7 +445,10 @@ class EnforcerController extends Controller
      */
     public function edit(Enforcer $enforcer)
     {
-        return view('admin.enforcers.edit', compact('enforcer'));
+        return view(
+            'admin.enforcers.edit',
+            compact('enforcer')
+        );
     }
 
     /**
@@ -414,16 +470,26 @@ class EnforcerController extends Controller
     public function update(Request $request, Enforcer $enforcer)
     {
         $request->validate([
+            /*
+            |--------------------------------------------------------------------------
+            | Badge Number - OPTIONAL
+            |--------------------------------------------------------------------------
+            */
             'badge_number' => [
-                'required',
-                'unique:enforcers,badge_number,' . $enforcer->id
+                'nullable',
+                'string',
+                'unique:enforcers,badge_number,' . $enforcer->id,
             ],
 
             'first_name' => 'required',
 
             'last_name' => 'required',
 
-            // POSO positions
+            /*
+            |--------------------------------------------------------------------------
+            | POSO Position
+            |--------------------------------------------------------------------------
+            */
             'position' => [
                 'required',
                 Rule::in([
@@ -432,7 +498,18 @@ class EnforcerController extends Controller
                 ]),
             ],
 
-            'employment_status' => 'required',
+            /*
+            |--------------------------------------------------------------------------
+            | Employment Status
+            |--------------------------------------------------------------------------
+            */
+            'employment_status' => [
+                'required',
+                Rule::in([
+                    'Permanent',
+                    'Job Order',
+                ]),
+            ],
 
             'username' => [
                 'required',
@@ -443,7 +520,22 @@ class EnforcerController extends Controller
                 ),
             ],
 
-            // Kept temporarily for database compatibility.
+            /*
+            |--------------------------------------------------------------------------
+            | Contact Number - OPTIONAL
+            |--------------------------------------------------------------------------
+            */
+            'contact_number' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Email - OPTIONAL
+            |--------------------------------------------------------------------------
+            */
             'email' => 'nullable|email|max:255',
         ]);
 
@@ -459,7 +551,7 @@ class EnforcerController extends Controller
             'middle_name' => $request->middle_name,
             'last_name' => $request->last_name,
             'contact_number' => $request->contact_number,
-            'email' => $request->email,
+            'email' => null,
             'position' => $request->position,
             'employment_status' => $request->employment_status,
         ]);
@@ -530,7 +622,7 @@ class EnforcerController extends Controller
             'password' => [
                 'required',
                 'min:8',
-                'confirmed'
+                'confirmed',
             ],
         ]);
 
@@ -563,7 +655,7 @@ class EnforcerController extends Controller
         */
 
         $user->update([
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
         ]);
 
         return back()->with(
@@ -572,3 +664,4 @@ class EnforcerController extends Controller
         );
     }
 }
+

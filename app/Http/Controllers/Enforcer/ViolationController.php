@@ -13,6 +13,7 @@ use App\Services\AuditLogger;
 use App\Services\OcrSpaceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class ViolationController extends Controller
 {
@@ -1204,6 +1205,12 @@ class ViolationController extends Controller
         // BACKEND VALIDATION
         // ===================================================
 
+        // Names: letters (incl. accents), spaces, . ' -
+        $namePattern = '/^\p{L}[\p{L}\s.\'\-]*$/u';
+
+        // "Others" free-text violation: letters, numbers, spaces, , . - / ( ) ' &
+        $otherPattern = '/^[\p{L}\p{N}\s,.\-\/()\'&]+$/u';
+
         $request->validate([
             // ===================================================
             // TICKET NUMBER
@@ -1223,19 +1230,24 @@ class ViolationController extends Controller
             'first_name' => [
                 'required',
                 'string',
+                'min:2',
                 'max:50',
+                'regex:' . $namePattern,
             ],
 
             'middle_name' => [
                 'nullable',
                 'string',
                 'max:50',
+                'regex:' . $namePattern,
             ],
 
             'last_name' => [
                 'required',
                 'string',
+                'min:2',
                 'max:50',
+                'regex:' . $namePattern,
             ],
 
             // ---------------------------------------------------
@@ -1257,20 +1269,25 @@ class ViolationController extends Controller
             'license_number' => [
                 'nullable',
                 'string',
+                'min:5',
                 'max:20',
-                'regex:/^[A-Za-z0-9-]+$/',
+                'regex:/^[A-Za-z0-9\-]+$/',
                 'required_unless:has_no_license,1',
             ],
 
             'address' => [
                 'required',
                 'string',
+                'min:5',
                 'max:255',
+                'regex:/^[\p{L}\p{N}\s,.\-#\/\'()]+$/u',
             ],
 
             'birth_date' => [
-                'required',
+                'nullable',
                 'date',
+                'before_or_equal:today',
+                'after:1899-12-31',
             ],
 
             // ===================================================
@@ -1296,28 +1313,46 @@ class ViolationController extends Controller
             'plate_number' => [
                 'nullable',
                 'string',
+                'min:3',
                 'max:10',
-                'regex:/^[A-Za-z0-9 -]+$/',
+                'regex:/^[A-Za-z0-9 \-]+$/',
                 'required_unless:has_no_plate,1',
             ],
 
             'vehicle_type' => [
                 'nullable',
+                Rule::in([
+                    'MC',
+                    'MTC Private',
+                    'MTC For Hire',
+                    'PUJ',
+                    'Private Vehicle',
+                    'Others',
+                ]),
+            ],
+
+            'other_vehicle_type' => [
+                'nullable',
+                'required_if:vehicle_type,Others',
                 'string',
+                'min:2',
                 'max:50',
+                'regex:/^[\p{L}\p{N}\s.\-\/]+$/u',
             ],
 
             'region_number' => [
                 'nullable',
                 'string',
                 'max:20',
-                'regex:/^[A-Za-z0-9-]+$/',
+                'regex:/^[A-Za-z0-9\-]+$/',
             ],
 
             'owner_name' => [
                 'nullable',
                 'string',
+                'min:2',
                 'max:100',
+                'regex:/^\p{L}[\p{L}\s.,\'&\-]*$/u',
             ],
 
             // ===================================================
@@ -1328,30 +1363,37 @@ class ViolationController extends Controller
                 'required',
             ],
 
+            'other_violation' => [
+                'nullable',
+                'required_if:violation_type_id,other',
+                'string',
+                'min:3',
+                'max:150',
+                'regex:' . $otherPattern,
+            ],
+
             'additional_violation_type_ids' => [
                 'nullable',
                 'array',
+                'max:10',
             ],
 
             'additional_violation_type_ids.*' => [
                 'required',
             ],
 
-            'other_violation' => [
-                'nullable',
-                'string',
-                'max:150',
-            ],
-
             'additional_other_violation_names' => [
                 'nullable',
                 'array',
+                'max:10',
             ],
 
             'additional_other_violation_names.*' => [
                 'nullable',
                 'string',
+                'min:3',
                 'max:150',
+                'regex:' . $otherPattern,
             ],
 
             // ===================================================
@@ -1367,11 +1409,13 @@ class ViolationController extends Controller
             'latitude' => [
                 'nullable',
                 'numeric',
+                'between:-90,90',
             ],
 
             'longitude' => [
                 'nullable',
                 'numeric',
+                'between:-180,180',
             ],
 
             // ===================================================
@@ -1399,12 +1443,34 @@ class ViolationController extends Controller
             // EVIDENCE IMAGES
             // ===================================================
 
+            'evidence_images' => [
+                'nullable',
+                'array',
+                'max:10',
+            ],
+
             'evidence_images.*' => [
                 'nullable',
                 'image',
                 'mimes:jpeg,jpg,png,webp',
                 'max:5120',
             ],
+        ], [
+            'first_name.regex' => 'First name may only contain letters, spaces, periods, apostrophes and hyphens.',
+            'middle_name.regex' => 'Middle name may only contain letters, spaces, periods, apostrophes and hyphens.',
+            'last_name.regex' => 'Last name may only contain letters, spaces, periods, apostrophes and hyphens.',
+            'owner_name.regex' => 'Vehicle owner may only contain letters, spaces and . , \' & -',
+            'license_number.regex' => 'License number may only contain letters, numbers and hyphens.',
+            'address.regex' => 'Address contains invalid characters.',
+            'plate_number.regex' => 'Plate number may only contain letters, numbers, spaces and hyphens.',
+            'region_number.regex' => 'Region number may only contain letters, numbers and hyphens.',
+            'other_vehicle_type.required_if' => 'Please specify the vehicle type.',
+            'other_vehicle_type.regex' => 'Vehicle type contains invalid characters.',
+            'other_violation.required_if' => 'Please specify the other violation.',
+            'other_violation.regex' => 'The violation description contains invalid characters.',
+            'additional_other_violation_names.*.regex' => 'An additional violation description contains invalid characters.',
+            'birth_date.before_or_equal' => 'Birth date cannot be in the future.',
+            'birth_date.after' => 'Please enter a valid birth date.',
         ]);
 
         // =======================================================
@@ -1430,9 +1496,11 @@ class ViolationController extends Controller
 
         $licenseNumber = $hasNoLicense
             ? null
-            : trim(
-                (string) $request->input(
-                    'license_number'
+            : strtoupper(
+                trim(
+                    (string) $request->input(
+                        'license_number'
+                    )
                 )
             );
 
@@ -1445,6 +1513,17 @@ class ViolationController extends Controller
                     )
                 )
             );
+
+        // -------------------------------------------------------
+        // VEHICLE TYPE
+        //
+        // If "Others" was selected, store the text the enforcer
+        // typed instead of the literal word "Others".
+        // -------------------------------------------------------
+
+        $vehicleTypeValue = $request->vehicle_type === 'Others'
+            ? trim((string) $request->other_vehicle_type)
+            : $request->vehicle_type;
 
         // =======================================================
         // PRIMARY VIOLATION
@@ -1808,7 +1887,7 @@ class ViolationController extends Controller
                     true,
 
                 'vehicle_type' =>
-                    $request->vehicle_type,
+                    $vehicleTypeValue,
 
                 'region_number' =>
                     $request->region_number,
@@ -1830,7 +1909,7 @@ class ViolationController extends Controller
                         false,
 
                     'vehicle_type' =>
-                        $request->vehicle_type,
+                        $vehicleTypeValue,
 
                     'region_number' =>
                         $request->region_number,

@@ -334,17 +334,17 @@ class BploViolationsExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'DATE OF APPREHENSION',
-            'TICKET NUMBER',
-            'VEHICLE TYPE',
-            'PLATE NUMBER',
-            'PLACE OF APPREHENSION',
-            'VIOLATION',
+            'Date of Apprehension',
+            'TCT #',
+            'Vehicle Type',
+            'Plate #/ Body #',
+            'Place of Apprehension',
+            'Violation',
             'NAME',
-            'ADDRESS',
-            'LICENSE NUMBER',
-            'APPREHENDING OFFICER',
-            'REMARKS',
+            'Address',
+            'LICENSE N0',
+            'Apprehending Officer',
+            'Remarks',
         ];
     }
 }

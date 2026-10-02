@@ -4,15 +4,14 @@
 
 @section('content')
 
-    <div class="container-fluid px-4 pt-3">
+    <div class="violation-details-page">
 
-        {{-- ========================================================= --}}
-        {{-- PAGE HEADER --}}
-        {{-- ========================================================= --}}
-
+        {{-- =========================================================
+         PAGE HEADER
+         ========================================================= --}}
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h1 class="h3 mb-1">Add Citation Record</h1>
+                <h1 class="fw-bold mb-1">Add Citation Record</h1>
                 <p class="text-muted mb-0">
                     Manually encode a physical traffic citation ticket.
                 </p>
@@ -25,14 +24,11 @@
         </div>
 
 
-        {{-- ========================================================= --}}
-        {{-- VALIDATION ERRORS --}}
-        {{-- ========================================================= --}}
-
+        {{-- =========================================================
+         VALIDATION ERRORS
+         ========================================================= --}}
         @if ($errors->any())
-
             <div class="alert alert-danger alert-dismissible fade show">
-
                 <strong>Please correct the following:</strong>
 
                 <ul class="mb-0 mt-2">
@@ -42,22 +38,17 @@
                 </ul>
 
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-
             </div>
-
         @endif
 
 
-        {{-- ========================================================= --}}
-        {{-- MAIN CITATION CARD --}}
-        {{-- ========================================================= --}}
-
+        {{-- =========================================================
+         MAIN CITATION CARD
+         ========================================================= --}}
         <div class="card shadow-sm mb-5">
 
             {{-- CARD HEADER --}}
-
             <div class="card-header bg-white py-3">
-
                 <div class="d-flex justify-content-between align-items-center">
 
                     <div>
@@ -76,26 +67,22 @@
                     </span>
 
                 </div>
-
             </div>
 
 
-            {{-- ========================================================= --}}
-            {{-- FORM --}}
-            {{-- ========================================================= --}}
-
+            {{-- =========================================================
+             FORM
+             ========================================================= --}}
             <form action="{{ route('admin.violations.store') }}" method="POST" id="citationForm"
                 enctype="multipart/form-data" novalidate>
-
                 @csrf
 
                 <div class="card-body p-4">
 
 
-                    {{-- ================================================= --}}
-                    {{-- CITATION DETAILS --}}
-                    {{-- ================================================= --}}
-
+                    {{-- =================================================
+                     CITATION DETAILS
+                     ================================================= --}}
                     <div class="border-bottom pb-3 mb-4">
 
                         <h6 class="fw-bold text-uppercase mb-3">
@@ -105,9 +92,7 @@
                         <div class="row g-3">
 
                             {{-- Ticket Number --}}
-
                             <div class="col-md-6">
-
                                 <label for="ticket_number" class="form-label">
                                     Ticket Number
                                     <span class="text-danger">*</span>
@@ -125,14 +110,11 @@
                                 <div class="invalid-feedback">
                                     Ticket number must contain exactly 6 digits.
                                 </div>
-
                             </div>
 
 
                             {{-- Date --}}
-
                             <div class="col-md-3">
-
                                 <label for="violation_date" class="form-label">
                                     Date
                                     <span class="text-danger">*</span>
@@ -145,14 +127,11 @@
                                 <div class="invalid-feedback">
                                     Please enter the citation date.
                                 </div>
-
                             </div>
 
 
                             {{-- Time --}}
-
                             <div class="col-md-3">
-
                                 <label for="violation_time" class="form-label">
                                     Time
                                     <span class="text-danger">*</span>
@@ -164,23 +143,19 @@
                                 <div class="invalid-feedback">
                                     Please enter the citation time.
                                 </div>
-
                             </div>
 
                         </div>
 
-
                         {{-- Always Pending --}}
-
                         <input type="hidden" name="status" value="Pending">
 
                     </div>
 
 
-                    {{-- ================================================= --}}
-                    {{-- VIOLATOR INFORMATION --}}
-                    {{-- ================================================= --}}
-
+                    {{-- =================================================
+                     VIOLATOR INFORMATION
+                     ================================================= --}}
                     <div class="border-bottom pb-3 mb-4">
 
                         <h6 class="fw-bold text-uppercase mb-3">
@@ -190,9 +165,7 @@
                         <div class="row g-3">
 
                             {{-- Last Name --}}
-
                             <div class="col-md-4">
-
                                 <label for="last_name" class="form-label">
                                     Last Name
                                     <span class="text-danger">*</span>
@@ -205,14 +178,11 @@
                                 <div class="invalid-feedback">
                                     Please enter the last name.
                                 </div>
-
                             </div>
 
 
                             {{-- First Name --}}
-
                             <div class="col-md-4">
-
                                 <label for="first_name" class="form-label">
                                     First Name
                                     <span class="text-danger">*</span>
@@ -225,17 +195,13 @@
                                 <div class="invalid-feedback">
                                     Please enter the first name.
                                 </div>
-
                             </div>
 
 
                             {{-- Middle Name --}}
-
                             <div class="col-md-4">
-
                                 <label for="middle_name" class="form-label">
                                     Middle Name
-                                    <span class="text-danger">*</span>
                                 </label>
 
                                 <input type="text" class="form-control" id="middle_name" name="middle_name"
@@ -245,14 +211,11 @@
                                 <div class="invalid-feedback">
                                     Please enter the middle name.
                                 </div>
-
                             </div>
 
 
                             {{-- Address --}}
-
                             <div class="col-md-8">
-
                                 <label for="address" class="form-label">
                                     Address
                                     <span class="text-danger">*</span>
@@ -265,14 +228,11 @@
                                 <div class="invalid-feedback">
                                     Please enter the complete address.
                                 </div>
-
                             </div>
 
 
                             {{-- Contact Number --}}
-
                             <div class="col-md-4">
-
                                 <label for="contact_number" class="form-label">
                                     Contact Number
                                 </label>
@@ -280,14 +240,11 @@
                                 <input type="text" class="form-control" id="contact_number" name="contact_number"
                                     value="{{ old('contact_number') }}" placeholder="Contact number" maxlength="255"
                                     inputmode="tel" autocomplete="off">
-
                             </div>
 
 
                             {{-- License Number --}}
-
                             <div class="col-md-6">
-
                                 <label for="license_number" class="form-label">
                                     License Number
                                     <span class="text-danger">*</span>
@@ -300,14 +257,11 @@
                                 <div class="invalid-feedback">
                                     Please enter the license number.
                                 </div>
-
                             </div>
 
 
                             {{-- Birth Date --}}
-
                             <div class="col-md-6">
-
                                 <label for="birth_date" class="form-label">
                                     Birth Date
                                     <span class="text-danger">*</span>
@@ -319,19 +273,18 @@
                                 <div class="invalid-feedback">
                                     Please enter the birth date.
                                 </div>
-
                             </div>
 
                         </div>
-
                     </div>
 
 
-                    {{-- ================================================= --}}
-                    {{-- VEHICLE INFORMATION --}}
-                    {{-- ================================================= --}}
+                    {{-- =================================================
+VEHICLE INFORMATION
+================================================= --}}
 
                     <div class="border-bottom pb-3 mb-4">
+
 
                         <h6 class="fw-bold text-uppercase mb-3">
                             Vehicle Information
@@ -340,7 +293,6 @@
                         <div class="row g-3">
 
                             {{-- Plate Number --}}
-
                             <div class="col-md-6">
 
                                 <label for="plate_number" class="form-label">
@@ -360,31 +312,87 @@
 
 
                             {{-- Vehicle Type --}}
-
                             <div class="col-md-6">
 
                                 <label for="vehicle_type" class="form-label">
                                     Vehicle Type
                                 </label>
 
-                                <input type="text" class="form-control" id="vehicle_type" name="vehicle_type"
-                                    value="{{ old('vehicle_type') }}" placeholder="e.g. Motorcycle, Sedan, SUV"
-                                    maxlength="255" autocomplete="off">
+                                <select class="form-select" id="vehicle_type" name="vehicle_type">
+                                    <option value="" disabled {{ old('vehicle_type') ? '' : 'selected' }}>
+                                        Select vehicle type
+                                    </option>
+
+                                    <option value="MC" {{ old('vehicle_type') === 'MC' ? 'selected' : '' }}>
+                                        MC
+                                    </option>
+
+                                    <option value="MTC Private"
+                                        {{ old('vehicle_type') === 'MTC Private' ? 'selected' : '' }}>
+                                        MTC Private
+                                    </option>
+
+                                    <option value="MTC For Hire"
+                                        {{ old('vehicle_type') === 'MTC For Hire' ? 'selected' : '' }}>
+                                        MTC For Hire
+                                    </option>
+
+                                    <option value="PUJ" {{ old('vehicle_type') === 'PUJ' ? 'selected' : '' }}>
+                                        PUJ
+                                    </option>
+
+                                    <option value="Private Vehicle"
+                                        {{ old('vehicle_type') === 'Private Vehicle' ? 'selected' : '' }}>
+                                        Private Vehicle
+                                    </option>
+
+                                    <option value="Others" {{ old('vehicle_type') === 'Others' ? 'selected' : '' }}>
+                                        Others
+                                    </option>
+                                </select>
+
+                            </div>
+
+
+                            {{-- Specify Other Vehicle Type --}}
+                            <div id="otherVehicleTypeContainer" class="col-md-6 offset-md-6"
+                                style="{{ old('vehicle_type') === 'Others' ? '' : 'display: none;' }}">
+
+                                <label for="other_vehicle_type" class="form-label">
+                                    Specify Vehicle Type
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input type="text" class="form-control" id="other_vehicle_type"
+                                    name="other_vehicle_type" value="{{ old('other_vehicle_type') }}"
+                                    placeholder="Enter vehicle type" maxlength="255" autocomplete="off"
+                                    {{ old('vehicle_type') === 'Others' ? 'required' : '' }}>
+
+                                <div class="invalid-feedback">
+                                    Please specify the vehicle type.
+                                </div>
 
                             </div>
 
                         </div>
 
+
                     </div>
 
 
-                    {{-- ========================================================= --}}
-                    {{-- VIOLATION LOCATION --}}
-                    {{-- ========================================================= --}}
 
-                    <div class="mb-4">
+                    {{-- =================================================
+                     VIOLATION LOCATION
+                     ================================================= --}}
+                    <div class="border-bottom pb-3 mb-4">
+
+                        <h6 class="fw-bold text-uppercase mb-3">
+                            Violation Location
+                        </h6>
+
                         <label for="location" class="form-label">
-                            Violation Location <span class="text-danger">*</span>
+                            Place of Violation
+                            <span class="text-danger">*</span>
                         </label>
 
                         <div class="text-muted small mb-2">
@@ -400,13 +408,13 @@
                                 {{ $message }}
                             </div>
                         @enderror
+
                     </div>
 
 
-                    {{-- ================================================= --}}
-                    {{-- VIOLATIONS --}}
-                    {{-- ================================================= --}}
-
+                    {{-- =================================================
+                     VIOLATIONS
+                     ================================================= --}}
                     <div class="border-bottom pb-3 mb-4">
 
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -423,10 +431,7 @@
                         </div>
 
 
-                        {{-- ================================================= --}}
                         {{-- PRIMARY VIOLATION --}}
-                        {{-- ================================================= --}}
-
                         <div class="border rounded p-3 bg-light">
 
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -442,8 +447,8 @@
 
                             </div>
 
-                            <select class="form-select" id="violation_type_id" name="violation_type_id" required>
 
+                            <select class="form-select" id="violation_type_id" name="violation_type_id" required>
                                 <option value="">
                                     Select violation
                                 </option>
@@ -458,7 +463,6 @@
                                 <option value="other" {{ old('violation_type_id') === 'other' ? 'selected' : '' }}>
                                     Other
                                 </option>
-
                             </select>
 
                             <div class="invalid-feedback">
@@ -467,16 +471,11 @@
 
 
                             {{-- PRIMARY OTHER --}}
-
                             <div id="otherViolationContainer"
                                 class="mt-3 {{ old('violation_type_id') === 'other' ? '' : 'd-none' }}">
-
                                 <label for="other_violation" class="form-label">
-
                                     Specify Other Violation
-
                                     <span class="text-danger">*</span>
-
                                 </label>
 
                                 <input type="text" class="form-control" id="other_violation" name="other_violation"
@@ -487,37 +486,27 @@
                                 <div class="invalid-feedback">
                                     Please specify the other violation.
                                 </div>
-
                             </div>
 
                         </div>
 
 
-                        {{-- ================================================= --}}
                         {{-- ADDITIONAL VIOLATIONS --}}
-                        {{-- ================================================= --}}
-
                         <div id="additionalViolationsContainer" class="mt-3">
-
-                            {{-- Existing old additional rows are restored here by JavaScript --}}
-
+                            {{-- Additional violation rows are created by JavaScript --}}
                         </div>
 
-
                         <small class="text-muted d-block mt-2">
-
                             Use "Add Violation" only when more than one violation
                             is written on the physical citation.
-
                         </small>
 
                     </div>
 
 
-                    {{-- ================================================= --}}
-                    {{-- REMARKS --}}
-                    {{-- ================================================= --}}
-
+                    {{-- =================================================
+                     REMARKS
+                     ================================================= --}}
                     <div class="border-bottom pb-3 mb-4">
 
                         <h6 class="fw-bold text-uppercase mb-3">
@@ -534,10 +523,9 @@
                     </div>
 
 
-                    {{-- ================================================= --}}
-                    {{-- CITATION / EVIDENCE IMAGES --}}
-                    {{-- ================================================= --}}
-
+                    {{-- =================================================
+                     CITATION / EVIDENCE IMAGES
+                     ================================================= --}}
                     <div class="border-bottom pb-3 mb-4">
 
                         <h6 class="fw-bold text-uppercase mb-3">
@@ -547,7 +535,6 @@
                         <div class="row g-3">
 
                             {{-- Citation Ticket Image --}}
-
                             <div class="col-md-6">
 
                                 <label for="ticket_image" class="form-label">
@@ -567,7 +554,6 @@
 
 
                             {{-- Evidence Images --}}
-
                             <div class="col-md-6">
 
                                 <label for="evidence_images" class="form-label">
@@ -578,7 +564,8 @@
                                     accept="image/jpeg,image/png,image/webp" multiple>
 
                                 <small class="text-muted">
-                                    Optional. Multiple images may be selected. Maximum 5 MB each.
+                                    Optional. Multiple images may be selected.
+                                    Maximum 5 MB each.
                                 </small>
 
                                 <div id="evidenceImageError" class="text-danger small mt-1 d-none"></div>
@@ -590,10 +577,9 @@
                     </div>
 
 
-                    {{-- ================================================= --}}
-                    {{-- ENCODING INFORMATION --}}
-                    {{-- ================================================= --}}
-
+                    {{-- =================================================
+                     ENCODING INFORMATION
+                     ================================================= --}}
                     <div>
 
                         <h6 class="fw-bold text-uppercase mb-3">
@@ -603,7 +589,6 @@
                         <div class="row g-3">
 
                             {{-- Encoded By --}}
-
                             <div class="col-md-6">
 
                                 <label class="form-label">
@@ -616,7 +601,6 @@
 
 
                             {{-- Status --}}
-
                             <div class="col-md-6">
 
                                 <label class="form-label">
@@ -634,10 +618,9 @@
                 </div>
 
 
-                {{-- ========================================================= --}}
-                {{-- FORM ACTIONS --}}
-                {{-- ========================================================= --}}
-
+                {{-- =========================================================
+                 FORM ACTIONS
+                 ========================================================= --}}
                 <div class="card-footer bg-white d-flex justify-content-end gap-2 py-3">
 
                     <a href="{{ route('violations.index') }}" class="btn btn-outline-secondary">
@@ -655,18 +638,16 @@
 
         </div>
 
-
     </div>
 
-    {{-- =============================================================== --}}
-    {{-- JAVASCRIPT --}}
-    {{-- =============================================================== --}}
 
+    {{-- ===============================================================
+     JAVASCRIPT
+     =============================================================== --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            const form =
-                document.getElementById('citationForm');
+            const form = document.getElementById('citationForm');
 
             const primaryViolation =
                 document.getElementById('violation_type_id');
@@ -693,18 +674,15 @@
                 document.getElementById('birth_date');
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | TICKET NUMBER
-            |--------------------------------------------------------------------------
-            */
+            // =========================================================
+            // TICKET NUMBER
+            // =========================================================
 
             if (ticketNumber) {
 
                 ticketNumber.addEventListener('input', function() {
 
-                    this.value =
-                        this.value
+                    this.value = this.value
                         .replace(/[^0-9]/g, '')
                         .slice(0, 6);
 
@@ -717,14 +695,10 @@
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | BIRTH DATE
-            |--------------------------------------------------------------------------
-            |
-            | Prevent future birth dates.
-            |
-            */
+            // =========================================================
+            // BIRTH DATE
+            // Prevent future birth dates.
+            // =========================================================
 
             if (birthDate) {
 
@@ -736,26 +710,85 @@
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | PRIMARY OTHER VIOLATION
-            |--------------------------------------------------------------------------
-            */
+            // =========================================================
+            // VEHICLE TYPE / OTHER VEHICLE TYPE
+            // =========================================================
+
+            const vehicleTypeSelect =
+                document.getElementById('vehicle_type');
+
+            const otherVehicleTypeContainer =
+                document.getElementById('otherVehicleTypeContainer');
+
+            const otherVehicleTypeInput =
+                document.getElementById('other_vehicle_type');
+
+
+            function updateOtherVehicleTypeVisibility() {
+
+                if (
+                    !vehicleTypeSelect ||
+                    !otherVehicleTypeContainer
+                ) {
+                    return;
+                }
+
+                if (vehicleTypeSelect.value === 'Others') {
+
+                    otherVehicleTypeContainer.style.display = '';
+
+                    if (otherVehicleTypeInput) {
+                        otherVehicleTypeInput.disabled = false;
+                        otherVehicleTypeInput.required = true;
+                    }
+
+                } else {
+
+                    otherVehicleTypeContainer.style.display = 'none';
+
+                    if (otherVehicleTypeInput) {
+
+                        otherVehicleTypeInput.disabled = true;
+                        otherVehicleTypeInput.required = false;
+                        otherVehicleTypeInput.value = '';
+
+                        otherVehicleTypeInput.classList.remove(
+                            'is-invalid'
+                        );
+                    }
+
+                }
+
+            }
+
+
+            if (vehicleTypeSelect) {
+
+                vehicleTypeSelect.addEventListener(
+                    'change',
+                    updateOtherVehicleTypeVisibility
+                );
+
+                updateOtherVehicleTypeVisibility();
+
+            }
+
+
+            // =========================================================
+            // PRIMARY OTHER VIOLATION
+            // =========================================================
 
             function updateOtherVisibility() {
 
                 if (primaryViolation.value === 'other') {
 
                     otherContainer.classList.remove('d-none');
-
                     otherInput.required = true;
 
                 } else {
 
                     otherContainer.classList.add('d-none');
-
                     otherInput.required = false;
-
                     otherInput.value = '';
 
                     otherInput.classList.remove('is-invalid');
@@ -770,38 +803,30 @@
                 updateOtherVisibility
             );
 
-
             updateOtherVisibility();
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | CREATE ADDITIONAL VIOLATION ROW
-            |--------------------------------------------------------------------------
-            */
+            // =========================================================
+            // CREATE ADDITIONAL VIOLATION ROW
+            // =========================================================
 
             function createViolationRow(
                 selectedValue = '',
                 selectedOtherValue = ''
             ) {
 
-                const wrapper =
-                    document.createElement('div');
+                const wrapper = document.createElement('div');
 
                 wrapper.className =
                     'border rounded p-3 mb-3 additional-violation-row bg-light';
 
 
                 wrapper.innerHTML = `
-
             <div class="d-flex justify-content-between align-items-center mb-2">
 
                 <label class="form-label fw-semibold mb-0">
-
                     Additional Violation
-
                     <span class="text-danger">*</span>
-
                 </label>
 
                 <button
@@ -820,23 +845,19 @@
                 name="additional_violation_type_ids[]"
                 required
             >
-
                 <option value="">
                     Select violation
                 </option>
 
                 @foreach ($violationTypes as $type)
-
                     <option value="{{ $type->id }}">
                         {{ $type->name }}
                     </option>
-
                 @endforeach
 
                 <option value="other">
                     Other
                 </option>
-
             </select>
 
             <div class="invalid-feedback">
@@ -844,16 +865,11 @@
             </div>
 
 
-            <div
-                class="additional-other-container mt-3 d-none"
-            >
+            <div class="additional-other-container mt-3 d-none">
 
                 <label class="form-label">
-
                     Specify Other Violation
-
                     <span class="text-danger">*</span>
-
                 </label>
 
                 <input
@@ -869,7 +885,6 @@
                 </div>
 
             </div>
-
         `;
 
 
@@ -897,33 +912,22 @@
                     );
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | RESTORE OLD VALUES
-                |--------------------------------------------------------------------------
-                */
+                // =====================================================
+                // RESTORE OLD VALUES
+                // =====================================================
 
                 if (selectedValue !== '') {
-
-                    select.value =
-                        selectedValue;
-
+                    select.value = selectedValue;
                 }
-
 
                 if (selectedOtherValue !== '') {
-
-                    otherField.value =
-                        selectedOtherValue;
-
+                    otherField.value = selectedOtherValue;
                 }
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | UPDATE ADDITIONAL OTHER VISIBILITY
-                |--------------------------------------------------------------------------
-                */
+                // =====================================================
+                // UPDATE ADDITIONAL OTHER VISIBILITY
+                // =====================================================
 
                 function updateAdditionalOtherVisibility() {
 
@@ -931,17 +935,20 @@
 
                         otherDiv.classList.remove('d-none');
 
+                        otherField.disabled = false;
                         otherField.required = true;
 
                     } else {
 
                         otherDiv.classList.add('d-none');
 
+                        otherField.disabled = true;
                         otherField.required = false;
-
                         otherField.value = '';
 
-                        otherField.classList.remove('is-invalid');
+                        otherField.classList.remove(
+                            'is-invalid'
+                        );
 
                     }
 
@@ -953,55 +960,40 @@
                     updateAdditionalOtherVisibility
                 );
 
-
                 updateAdditionalOtherVisibility();
 
 
-                /*
-                |--------------------------------------------------------------------------
-                | REMOVE ADDITIONAL VIOLATION
-                |--------------------------------------------------------------------------
-                */
+                // =====================================================
+                // REMOVE ADDITIONAL VIOLATION
+                // =====================================================
 
                 removeButton.addEventListener(
                     'click',
                     function() {
-
                         wrapper.remove();
-
                     }
                 );
 
 
                 return wrapper;
-
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | ADD VIOLATION BUTTON
-            |--------------------------------------------------------------------------
-            */
+            // =========================================================
+            // ADD VIOLATION BUTTON
+            // =========================================================
 
             addViolationBtn.addEventListener(
                 'click',
                 function() {
-
                     createViolationRow();
-
                 }
             );
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | RESTORE OLD ADDITIONAL VIOLATIONS
-            |--------------------------------------------------------------------------
-            |
-            | Laravel's old() arrays are converted to JavaScript safely.
-            |
-            */
+            // =========================================================
+            // RESTORE OLD ADDITIONAL VIOLATIONS
+            // =========================================================
 
             const oldAdditionalViolationIds =
                 @json(old('additional_violation_type_ids', []));
@@ -1010,9 +1002,7 @@
                 @json(old('additional_other_violation_names', []));
 
 
-            if (
-                Array.isArray(oldAdditionalViolationIds)
-            ) {
+            if (Array.isArray(oldAdditionalViolationIds)) {
 
                 oldAdditionalViolationIds.forEach(
                     function(selectedValue, index) {
@@ -1028,11 +1018,9 @@
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | FILE VALIDATION
-            |--------------------------------------------------------------------------
-            */
+            // =========================================================
+            // FILE VALIDATION
+            // =========================================================
 
             const MAX_FILE_SIZE =
                 5 * 1024 * 1024;
@@ -1057,26 +1045,17 @@
                 document.getElementById('evidenceImageError');
 
 
-            function validateImageFile(
-                file
-            ) {
+            function validateImageFile(file) {
 
                 if (!allowedImageTypes.includes(file.type)) {
-
                     return 'Only JPG, JPEG, PNG, and WEBP images are allowed.';
-
                 }
-
 
                 if (file.size > MAX_FILE_SIZE) {
-
                     return 'Each image must not exceed 5 MB.';
-
                 }
 
-
                 return null;
-
             }
 
 
@@ -1087,32 +1066,24 @@
                     function() {
 
                         ticketImageError.classList.add('d-none');
-
                         ticketImageError.textContent = '';
-
 
                         if (!this.files.length) {
                             return;
                         }
 
-
                         const error =
-                            validateImageFile(
-                                this.files[0]
-                            );
-
+                            validateImageFile(this.files[0]);
 
                         if (error) {
 
-                            ticketImageError.textContent =
-                                error;
+                            ticketImageError.textContent = error;
 
                             ticketImageError.classList.remove(
                                 'd-none'
                             );
 
                             this.value = '';
-
                         }
 
                     }
@@ -1128,19 +1099,14 @@
                     function() {
 
                         evidenceImageError.classList.add('d-none');
-
                         evidenceImageError.textContent = '';
-
 
                         for (
                             let i = 0; i < this.files.length; i++
                         ) {
 
                             const error =
-                                validateImageFile(
-                                    this.files[i]
-                                );
-
+                                validateImageFile(this.files[i]);
 
                             if (error) {
 
@@ -1157,7 +1123,6 @@
                                 this.value = '';
 
                                 break;
-
                             }
 
                         }
@@ -1168,11 +1133,9 @@
             }
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | FORM VALIDATION
-            |--------------------------------------------------------------------------
-            */
+            // =========================================================
+            // FORM VALIDATION
+            // =========================================================
 
             form.addEventListener(
                 'submit',
@@ -1181,11 +1144,9 @@
                     let valid = true;
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | NORMAL REQUIRED FIELDS
-                    |--------------------------------------------------------------------------
-                    */
+                    // =================================================
+                    // NORMAL REQUIRED FIELDS
+                    // =================================================
 
                     const requiredFields =
                         form.querySelectorAll(
@@ -1199,7 +1160,6 @@
                             if (field.disabled) {
                                 return;
                             }
-
 
                             if (!field.value.trim()) {
 
@@ -1221,11 +1181,9 @@
                     );
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | TICKET NUMBER
-                    |--------------------------------------------------------------------------
-                    */
+                    // =================================================
+                    // TICKET NUMBER
+                    // =================================================
 
                     const ticketValue =
                         ticketNumber.value.trim();
@@ -1251,17 +1209,14 @@
                     }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | BIRTH DATE
-                    |--------------------------------------------------------------------------
-                    */
+                    // =================================================
+                    // BIRTH DATE
+                    // =================================================
 
                     if (birthDate.value) {
 
                         const today =
                             new Date().toISOString().split('T')[0];
-
 
                         if (birthDate.value > today) {
 
@@ -1282,11 +1237,39 @@
                     }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | PRIMARY OTHER
-                    |--------------------------------------------------------------------------
-                    */
+                    // =================================================
+                    // OTHER VEHICLE TYPE
+                    // =================================================
+
+                    if (
+                        vehicleTypeSelect &&
+                        vehicleTypeSelect.value === 'Others'
+                    ) {
+
+                        if (
+                            !otherVehicleTypeInput.value.trim()
+                        ) {
+
+                            otherVehicleTypeInput.classList.add(
+                                'is-invalid'
+                            );
+
+                            valid = false;
+
+                        } else {
+
+                            otherVehicleTypeInput.classList.remove(
+                                'is-invalid'
+                            );
+
+                        }
+
+                    }
+
+
+                    // =================================================
+                    // PRIMARY OTHER
+                    // =================================================
 
                     if (
                         primaryViolation.value === 'other'
@@ -1313,11 +1296,9 @@
                     }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | ADDITIONAL VIOLATIONS
-                    |--------------------------------------------------------------------------
-                    */
+                    // =================================================
+                    // ADDITIONAL VIOLATIONS
+                    // =================================================
 
                     const additionalRows =
                         additionalContainer.querySelectorAll(
@@ -1339,10 +1320,7 @@
                                 );
 
 
-                            /*
-                            | Additional violation is required
-                            */
-
+                            // Additional violation is required
                             if (!select.value) {
 
                                 select.classList.add(
@@ -1360,10 +1338,7 @@
                             }
 
 
-                            /*
-                            | Additional Other requires text
-                            */
-
+                            // Additional Other requires text
                             if (
                                 select.value === 'other'
                             ) {
@@ -1392,11 +1367,9 @@
                     );
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | FILE VALIDATION
-                    |--------------------------------------------------------------------------
-                    */
+                    // =================================================
+                    // FILE VALIDATION
+                    // =================================================
 
                     if (
                         ticketImage &&
@@ -1407,7 +1380,6 @@
                             validateImageFile(
                                 ticketImage.files[0]
                             );
-
 
                         if (error) {
 
@@ -1439,7 +1411,6 @@
                                     evidenceImages.files[i]
                                 );
 
-
                             if (error) {
 
                                 evidenceImageError.textContent =
@@ -1455,7 +1426,6 @@
                                 valid = false;
 
                                 break;
-
                             }
 
                         }
@@ -1463,16 +1433,13 @@
                     }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | STOP SUBMISSION
-                    |--------------------------------------------------------------------------
-                    */
+                    // =================================================
+                    // STOP SUBMISSION
+                    // =================================================
 
                     if (!valid) {
 
                         event.preventDefault();
-
 
                         const firstInvalid =
                             form.querySelector(
@@ -1487,22 +1454,17 @@
                                 block: 'center'
                             });
 
-
                             firstInvalid.focus();
 
                         }
 
-
                         return false;
-
                     }
 
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | PREVENT DOUBLE SUBMISSION
-                    |--------------------------------------------------------------------------
-                    */
+                    // =================================================
+                    // PREVENT DOUBLE SUBMISSION
+                    // =================================================
 
                     saveButton.disabled = true;
 
@@ -1513,11 +1475,9 @@
             );
 
 
-            /*
-            |--------------------------------------------------------------------------
-            | REMOVE INVALID STATE WHEN CORRECTED
-            |--------------------------------------------------------------------------
-            */
+            // =========================================================
+            // REMOVE INVALID STATE WHEN CORRECTED
+            // =========================================================
 
             form.addEventListener(
                 'input',
@@ -1572,5 +1532,194 @@
 
         });
     </script>
+
+
+    {{-- ===============================================================
+     PAGE-SPECIFIC STYLING
+     Matches the Edit Violation page
+     =============================================================== --}}
+    <style>
+        .violation-details-page {
+            padding: 0 4px;
+        }
+
+        .violation-details-page .card {
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .violation-details-page .card-header {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .violation-details-page .card-footer {
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .violation-details-page h1 {
+            font-size: 1.65rem;
+            letter-spacing: -0.02em;
+        }
+
+        .violation-details-page h5 {
+            font-weight: 600;
+        }
+
+        .violation-details-page h6 {
+            font-size: 0.82rem;
+            letter-spacing: 0.04em;
+            color: #374151;
+        }
+
+        .violation-details-page .form-label {
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.4rem;
+        }
+
+        .violation-details-page .form-control,
+        .violation-details-page .form-select {
+            min-height: 42px;
+            border-color: #d1d5db;
+            border-radius: 7px;
+        }
+
+        .violation-details-page textarea.form-control {
+            min-height: auto;
+        }
+
+        .violation-details-page .form-control:focus,
+        .violation-details-page .form-select:focus {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.12);
+        }
+
+        .violation-details-page .text-muted {
+            color: #6b7280 !important;
+        }
+
+        .violation-details-page .border-bottom {
+            border-color: #e5e7eb !important;
+        }
+
+        .violation-details-page .bg-light {
+            background-color: #f8fafc !important;
+        }
+
+        .violation-details-page .additional-violation-row {
+            border-color: #dfe3e8 !important;
+        }
+
+        .violation-details-page .btn {
+            border-radius: 7px;
+        }
+
+        .violation-details-page .btn-primary {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .violation-details-page .badge {
+            font-weight: 500;
+        }
+
+        .violation-details-page .invalid-feedback {
+            font-size: 0.8rem;
+        }
+
+        .violation-details-page small {
+            font-size: 0.78rem;
+        }
+
+        @media (max-width: 767.98px) {
+
+            .violation-details-page {
+                padding: 0;
+            }
+
+            .violation-details-page h1 {
+                font-size: 1.35rem;
+            }
+
+            .violation-details-page .card-body {
+                padding: 1rem !important;
+            }
+
+            .violation-details-page .card-footer {
+                padding: 1rem !important;
+            }
+
+            .violation-details-page .page-header {
+                align-items: flex-start;
+            }
+
+            /* =========================================================
+               VEHICLE INFORMATION
+               ========================================================= */
+
+            .violation-details-page .other-vehicle-type-box {
+                background: #f8fafc;
+                border: 1px solid #e2e8f0;
+                border-radius: 7px;
+                padding: 8px 10px;
+            }
+
+            .violation-details-page .other-vehicle-type-inner {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .violation-details-page .other-vehicle-type-label {
+                flex: 0 0 auto;
+                display: flex;
+                align-items: center;
+                font-size: 0.78rem;
+                font-weight: 600;
+                color: #475569;
+                white-space: nowrap;
+            }
+
+            .violation-details-page .other-vehicle-type-label i {
+                font-size: 0.72rem;
+                color: #64748b;
+            }
+
+            .violation-details-page #other_vehicle_type {
+                flex: 1;
+                min-height: 34px;
+                font-size: 0.85rem;
+                border-radius: 6px;
+            }
+
+            .violation-details-page #other_vehicle_type::placeholder {
+                color: #9ca3af;
+            }
+
+            .violation-details-page #other_vehicle_type:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.12rem rgba(13, 110, 253, 0.10);
+            }
+
+
+            /* =========================================================
+               MOBILE VEHICLE INFORMATION
+               ========================================================= */
+
+            @media (max-width: 575.98px) {
+
+                .violation-details-page .other-vehicle-type-inner {
+                    display: block;
+                }
+
+                .violation-details-page .other-vehicle-type-label {
+                    margin-bottom: 6px;
+                }
+
+            }
+
+        }
+    </style>
 
 @endsection

@@ -222,15 +222,18 @@ class ViolationController extends Controller
      * - Primary Other violation
      * - Additional official violations
      * - Additional Other violations
+     * - Standard vehicle types
+     * - Custom vehicle type through "Others"
+     * - Drivers without a license
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
             /*
-            |--------------------------------------------------------------------------
-            | CITATION
-            |--------------------------------------------------------------------------
-            */
+             * --------------------------------------------------------------------------
+             * CITATION
+             * --------------------------------------------------------------------------
+             */
 
             'ticket_number' => [
                 'required',
@@ -251,10 +254,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | DRIVER
-            |--------------------------------------------------------------------------
-            */
+             * --------------------------------------------------------------------------
+             * DRIVER
+             * --------------------------------------------------------------------------
+             */
 
             'first_name' => [
                 'required',
@@ -290,8 +293,13 @@ class ViolationController extends Controller
                 'regex:/^[0-9+\-\s()]+$/',
             ],
 
+            /*
+             * LICENSE NUMBER IS OPTIONAL.
+             *
+             * NULL means the driver has no driver's license.
+             */
             'license_number' => [
-                'required',
+                'nullable',
                 'string',
                 'max:50',
                 'regex:/^[A-Za-z0-9\s\-]+$/',
@@ -304,10 +312,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | VEHICLE
-            |--------------------------------------------------------------------------
-            */
+             * --------------------------------------------------------------------------
+             * VEHICLE
+             * --------------------------------------------------------------------------
+             */
 
             'plate_number' => [
                 'required',
@@ -322,16 +330,17 @@ class ViolationController extends Controller
                 'max:100',
             ],
 
+            'other_vehicle_type' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
             /*
-            |--------------------------------------------------------------------------
-            | PRIMARY VIOLATION
-            |--------------------------------------------------------------------------
-            |
-            | Can contain:
-            | - Official ViolationType ID
-            | - "other"
-            |
-            */
+             * --------------------------------------------------------------------------
+             * PRIMARY VIOLATION
+             * --------------------------------------------------------------------------
+             */
 
             'violation_type_id' => [
                 'required',
@@ -345,13 +354,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | ADDITIONAL VIOLATIONS
-            |--------------------------------------------------------------------------
-            |
-            | The arrays MUST use the same indexes.
-            |
-            */
+             * --------------------------------------------------------------------------
+             * ADDITIONAL VIOLATIONS
+             * --------------------------------------------------------------------------
+             */
 
             'additional_violation_type_ids' => [
                 'nullable',
@@ -375,10 +381,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | LOCATION
-            |--------------------------------------------------------------------------
-            */
+             * --------------------------------------------------------------------------
+             * LOCATION
+             * --------------------------------------------------------------------------
+             */
 
             'location' => [
                 'required',
@@ -397,10 +403,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | REMARKS
-            |--------------------------------------------------------------------------
-            */
+             * --------------------------------------------------------------------------
+             * REMARKS
+             * --------------------------------------------------------------------------
+             */
 
             'remarks' => [
                 'nullable',
@@ -409,10 +415,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | IMAGES
-            |--------------------------------------------------------------------------
-            */
+             * --------------------------------------------------------------------------
+             * IMAGES
+             * --------------------------------------------------------------------------
+             */
 
             'ticket_image' => [
                 'nullable',
@@ -434,10 +440,10 @@ class ViolationController extends Controller
         ]);
 
         /*
-        |--------------------------------------------------------------------------
-        | NORMALIZE BASIC VALUES
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * NORMALIZE BASIC VALUES
+         * --------------------------------------------------------------------------
+         */
 
         $validated['first_name'] = trim(
             $validated['first_name']
@@ -453,9 +459,14 @@ class ViolationController extends Controller
             $validated['last_name']
         );
 
-        $validated['license_number'] = strtoupper(
-            trim($validated['license_number'])
-        );
+        /*
+         * LICENSE NUMBER:
+         * Blank = NULL.
+         */
+        $validated['license_number'] =
+            !empty($validated['license_number'])
+                ? strtoupper(trim($validated['license_number']))
+                : null;
 
         $validated['plate_number'] = strtoupper(
             trim($validated['plate_number'])
@@ -479,6 +490,41 @@ class ViolationController extends Controller
             );
         }
 
+        /*
+         * --------------------------------------------------------------------------
+         * NORMALIZE OTHER VEHICLE TYPE
+         * --------------------------------------------------------------------------
+         */
+
+        if (isset($validated['other_vehicle_type'])) {
+            $validated['other_vehicle_type'] = trim(
+                $validated['other_vehicle_type']
+            );
+        }
+
+        /*
+         * --------------------------------------------------------------------------
+         * VEHICLE TYPE = OTHERS
+         * --------------------------------------------------------------------------
+         */
+
+        if (
+            isset($validated['vehicle_type']) &&
+            $validated['vehicle_type'] === 'Others'
+        ) {
+            if (
+                !isset($validated['other_vehicle_type']) ||
+                $validated['other_vehicle_type'] === ''
+            ) {
+                return back()
+                    ->withErrors([
+                        'other_vehicle_type' =>
+                            'Please specify the vehicle type when "Others" is selected.',
+                    ])
+                    ->withInput();
+            }
+        }
+
         if (isset($validated['location'])) {
             $validated['location'] = trim(
                 $validated['location']
@@ -490,7 +536,8 @@ class ViolationController extends Controller
             ) {
                 return back()
                     ->withErrors([
-                        'location' => 'Please enter the violation location.',
+                        'location' =>
+                            'Please enter the violation location.',
                     ])
                     ->withInput();
             }
@@ -503,10 +550,10 @@ class ViolationController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | DETERMINE PRIMARY VIOLATION
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * DETERMINE PRIMARY VIOLATION
+         * --------------------------------------------------------------------------
+         */
 
         $primaryViolationTypeId = null;
         $primaryOtherViolation = null;
@@ -518,10 +565,10 @@ class ViolationController extends Controller
         );
 
         /*
-        |--------------------------------------------------------------------------
-        | PRIMARY = OTHER
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * PRIMARY = OTHER
+         * --------------------------------------------------------------------------
+         */
 
         if ($primarySelection === 'other') {
             $primaryOtherViolation = trim(
@@ -534,17 +581,19 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'other_violation' =>
-                        'Please specify the other violation.',
+                            'Please specify the other violation.',
                     ])
                     ->withInput();
             }
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | PRIMARY = OFFICIAL VIOLATION
-        |--------------------------------------------------------------------------
-        */ else {
+         * --------------------------------------------------------------------------
+         * PRIMARY = OFFICIAL VIOLATION
+         * --------------------------------------------------------------------------
+         */
+
+        else {
             if (
                 !ctype_digit(
                     (string) $validated['violation_type_id']
@@ -553,19 +602,19 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                        'The selected violation type is invalid.',
+                            'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
 
             $primaryViolationTypeId = (int)
-            $validated['violation_type_id'];
+                $validated['violation_type_id'];
 
             if ($primaryViolationTypeId <= 0) {
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                        'The selected violation type is invalid.',
+                            'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
@@ -579,25 +628,19 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                        'The selected violation type does not exist.',
+                            'The selected violation type does not exist.',
                     ])
                     ->withInput();
             }
-
-            /*
-            |--------------------------------------------------------------------------
-            | OFFICIAL VIOLATION MUST NOT HAVE OTHER TEXT
-            |--------------------------------------------------------------------------
-            */
 
             $primaryOtherViolation = null;
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | PROCESS ADDITIONAL VIOLATIONS
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * PROCESS ADDITIONAL VIOLATIONS
+         * --------------------------------------------------------------------------
+         */
 
         $officialAdditionalViolationIds = [];
         $additionalOtherViolations = [];
@@ -612,11 +655,8 @@ class ViolationController extends Controller
             $additionalViolationIds as $index => $additionalTypeId
         ) {
             /*
-            |--------------------------------------------------------------------------
-            | IGNORE EMPTY ROW
-            |--------------------------------------------------------------------------
-            */
-
+             * IGNORE EMPTY ROW
+             */
             if (
                 $additionalTypeId === null ||
                 trim((string) $additionalTypeId) === ''
@@ -631,11 +671,8 @@ class ViolationController extends Controller
             );
 
             /*
-            |--------------------------------------------------------------------------
-            | ADDITIONAL = OTHER
-            |--------------------------------------------------------------------------
-            */
-
+             * ADDITIONAL = OTHER
+             */
             if ($normalizedTypeId === 'other') {
                 $otherName = trim(
                     (string) (
@@ -647,7 +684,7 @@ class ViolationController extends Controller
                     return back()
                         ->withErrors([
                             'additional_violation_type_ids' =>
-                            'Please specify every additional "Other" violation.',
+                                'Please specify every additional "Other" violation.',
                         ])
                         ->withInput();
                 }
@@ -658,16 +695,13 @@ class ViolationController extends Controller
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | ADDITIONAL = OFFICIAL VIOLATION
-            |--------------------------------------------------------------------------
-            */
-
+             * ADDITIONAL = OFFICIAL VIOLATION
+             */
             if (!ctype_digit((string) $additionalTypeId)) {
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                        'An invalid additional violation type was selected.',
+                            'An invalid additional violation type was selected.',
                     ])
                     ->withInput();
             }
@@ -678,17 +712,14 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                        'An invalid additional violation type was selected.',
+                            'An invalid additional violation type was selected.',
                     ])
                     ->withInput();
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | CHECK THAT OFFICIAL VIOLATION EXISTS
-            |--------------------------------------------------------------------------
-            */
-
+             * CHECK THAT OFFICIAL VIOLATION EXISTS
+             */
             if (
                 !ViolationType::where(
                     'id',
@@ -698,17 +729,14 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                        'One of the selected violation types is invalid.',
+                            'One of the selected violation types is invalid.',
                     ])
                     ->withInput();
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | DO NOT DUPLICATE PRIMARY OFFICIAL VIOLATION
-            |--------------------------------------------------------------------------
-            */
-
+             * DO NOT DUPLICATE PRIMARY OFFICIAL VIOLATION
+             */
             if (
                 $primaryViolationTypeId !== null &&
                 $additionalTypeId === $primaryViolationTypeId
@@ -717,11 +745,8 @@ class ViolationController extends Controller
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | DO NOT DUPLICATE ADDITIONAL OFFICIAL VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
-
+             * DO NOT DUPLICATE ADDITIONAL OFFICIAL VIOLATIONS
+             */
             if (
                 !in_array(
                     $additionalTypeId,
@@ -735,10 +760,10 @@ class ViolationController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | DATABASE TRANSACTION
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * DATABASE TRANSACTION
+         * --------------------------------------------------------------------------
+         */
 
         $violation = DB::transaction(function () use (
             $request,
@@ -749,42 +774,35 @@ class ViolationController extends Controller
             $additionalOtherViolations
         ) {
             /*
-            |--------------------------------------------------------------------------
-            | DRIVER
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * DRIVER
+             * ----------------------------------------------------------------------
+             *
+             * IMPORTANT:
+             * If a license exists, use it to find an existing driver.
+             *
+             * If the driver has NO LICENSE, do NOT use NULL as the lookup key.
+             * Otherwise every unlicensed driver could be associated with the
+             * same NULL-license driver record.
+             */
 
-            $driver = Driver::firstOrCreate(
-                [
+            if (!empty($validated['license_number'])) {
+                $driver = Driver::firstOrNew([
                     'license_number' =>
-                    $validated['license_number'],
-                ],
-                [
-                    'first_name' =>
-                    $validated['first_name'],
-
-                    'middle_name' =>
-                    $validated['middle_name'] ?? null,
-
-                    'last_name' =>
-                    $validated['last_name'],
-
-                    'address' =>
-                    $validated['address'] ?? null,
-
-                    'contact_number' =>
-                    $validated['contact_number'] ?? null,
-
-                    'birth_date' =>
-                    $validated['birth_date'],
-                ]
-            );
+                        $validated['license_number'],
+                ]);
+            } else {
+                /*
+                 * No license = create a separate driver record.
+                 */
+                $driver = new Driver();
+            }
 
             /*
-            |--------------------------------------------------------------------------
-            | UPDATE DRIVER INFORMATION
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * UPDATE DRIVER INFORMATION
+             * ----------------------------------------------------------------------
+             */
 
             $driver->first_name =
                 $validated['first_name'];
@@ -796,7 +814,7 @@ class ViolationController extends Controller
                 $validated['last_name'];
 
             $driver->license_number =
-                $validated['license_number'];
+                $validated['license_number'] ?? null;
 
             $driver->address =
                 $validated['address'] ?? null;
@@ -810,110 +828,142 @@ class ViolationController extends Controller
             $driver->save();
 
             /*
-            |--------------------------------------------------------------------------
-            | VEHICLE
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * VEHICLE
+             * ----------------------------------------------------------------------
+             *
+             * Determine the actual vehicle type that will be stored.
+             */
+
+            $vehicleTypeToSave = null;
+
+            if (
+                isset($validated['vehicle_type']) &&
+                trim((string) $validated['vehicle_type']) !== ''
+            ) {
+                $selectedVehicleType = trim(
+                    (string) $validated['vehicle_type']
+                );
+
+                if ($selectedVehicleType === 'Others') {
+                    $vehicleTypeToSave = trim(
+                        (string) (
+                            $validated['other_vehicle_type'] ?? ''
+                        )
+                    );
+
+                    if ($vehicleTypeToSave === '') {
+                        throw new \RuntimeException(
+                            'Please specify the vehicle type when "Others" is selected.'
+                        );
+                    }
+                } else {
+                    $vehicleTypeToSave =
+                        $selectedVehicleType;
+                }
+            }
 
             $vehicle = Vehicle::firstOrCreate(
                 [
                     'plate_number' =>
-                    $validated['plate_number'],
+                        $validated['plate_number'],
                 ],
                 [
                     'driver_id' =>
-                    $driver->id,
+                        $driver->id,
 
                     'vehicle_type' =>
-                    $validated['vehicle_type'] ?? null,
+                        $vehicleTypeToSave,
                 ]
             );
 
             $vehicle->driver_id =
                 $driver->id;
 
-            if (
-                !empty($validated['vehicle_type'] ?? null)
-            ) {
+            /*
+             * Always update the vehicle type when
+             * a vehicle type was supplied.
+             */
+            if ($vehicleTypeToSave !== null) {
                 $vehicle->vehicle_type =
-                    $validated['vehicle_type'];
+                    $vehicleTypeToSave;
             }
 
             $vehicle->save();
 
             /*
-            |--------------------------------------------------------------------------
-            | TICKET IMAGE
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * TICKET IMAGE
+             * ----------------------------------------------------------------------
+             */
 
             $ticketImagePath = null;
 
             if ($request->hasFile('ticket_image')) {
                 $ticketImagePath =
                     $request
-                    ->file('ticket_image')
-                    ->store(
-                        'violations/tickets',
-                        'public'
-                    );
+                        ->file('ticket_image')
+                        ->store(
+                            'violations/tickets',
+                            'public'
+                        );
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | CREATE VIOLATION
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * CREATE VIOLATION
+             * ----------------------------------------------------------------------
+             */
 
             $violation = Violation::create([
                 'ticket_number' =>
-                $validated['ticket_number'],
+                    $validated['ticket_number'],
 
                 'driver_id' =>
-                $driver->id,
+                    $driver->id,
 
                 'vehicle_id' =>
-                $vehicle->id,
+                    $vehicle->id,
 
                 'violation_type_id' =>
-                $primaryViolationTypeId,
+                    $primaryViolationTypeId,
 
                 'other_violation' =>
-                $primaryOtherViolation,
+                    $primaryOtherViolation,
 
                 'user_id' =>
-                Auth::id(),
+                    Auth::id(),
 
                 'violation_date' =>
-                $validated['violation_date'],
+                    $validated['violation_date'],
 
                 'violation_time' =>
-                $validated['violation_time'],
+                    $validated['violation_time'],
 
                 'location' =>
-                $validated['location'] ?? null,
+                    $validated['location'] ?? null,
 
                 'latitude' =>
-                $validated['latitude'] ?? null,
+                    $validated['latitude'] ?? null,
 
                 'longitude' =>
-                $validated['longitude'] ?? null,
+                    $validated['longitude'] ?? null,
 
                 'remarks' =>
-                $validated['remarks'] ?? null,
+                    $validated['remarks'] ?? null,
 
                 'ticket_image' =>
-                $ticketImagePath,
+                    $ticketImagePath,
 
                 'status' =>
-                'Pending',
+                    'Pending',
             ]);
 
             /*
-            |--------------------------------------------------------------------------
-            | SAVE ADDITIONAL OFFICIAL VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * SAVE ADDITIONAL OFFICIAL VIOLATIONS
+             * ----------------------------------------------------------------------
+             */
 
             if (
                 !empty($officialAdditionalViolationIds)
@@ -926,10 +976,10 @@ class ViolationController extends Controller
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | SAVE ADDITIONAL OTHER VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * SAVE ADDITIONAL OTHER VIOLATIONS
+             * ----------------------------------------------------------------------
+             */
 
             foreach (
                 $additionalOtherViolations
@@ -937,18 +987,18 @@ class ViolationController extends Controller
             ) {
                 ViolationOtherType::create([
                     'violation_id' =>
-                    $violation->id,
+                        $violation->id,
 
                     'name' =>
-                    $otherName,
+                        $otherName,
                 ]);
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | EVIDENCE IMAGES
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * EVIDENCE IMAGES
+             * ----------------------------------------------------------------------
+             */
 
             if ($request->hasFile('evidence_images')) {
                 foreach (
@@ -963,10 +1013,10 @@ class ViolationController extends Controller
 
                     ViolationImage::create([
                         'violation_id' =>
-                        $violation->id,
+                            $violation->id,
 
                         'image_path' =>
-                        $imagePath,
+                            $imagePath,
                     ]);
                 }
             }
@@ -975,10 +1025,10 @@ class ViolationController extends Controller
         });
 
         /*
-        |--------------------------------------------------------------------------
-        | AUDIT LOG
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * AUDIT LOG
+         * --------------------------------------------------------------------------
+         */
 
         AuditLogger::log(
             'CREATE_VIOLATION',
@@ -989,10 +1039,10 @@ class ViolationController extends Controller
         );
 
         /*
-        |--------------------------------------------------------------------------
-        | REDIRECT
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * REDIRECT
+         * --------------------------------------------------------------------------
+         */
 
         return redirect()
             ->route(
@@ -1065,6 +1115,8 @@ class ViolationController extends Controller
      * - Location
      * - Remarks
      *
+     * License number is optional because a driver may have no license.
+     *
      * Status is intentionally NOT editable here.
      */
     public function update(Request $request, $id)
@@ -1077,17 +1129,17 @@ class ViolationController extends Controller
         ])->findOrFail($id);
 
         /*
-        |--------------------------------------------------------------------------
-        | VALIDATION
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * VALIDATION
+         * --------------------------------------------------------------------------
+         */
 
         $validated = $request->validate([
             /*
-            |--------------------------------------------------------------------------
-            | PRIMARY VIOLATION
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * PRIMARY VIOLATION
+             * ----------------------------------------------------------------------
+             */
 
             'violation_type_id' => [
                 'required',
@@ -1101,10 +1153,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | ADDITIONAL VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * ADDITIONAL VIOLATIONS
+             * ----------------------------------------------------------------------
+             */
 
             'additional_violation_type_ids' => [
                 'nullable',
@@ -1128,10 +1180,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | REMARKS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * REMARKS
+             * ----------------------------------------------------------------------
+             */
 
             'remarks' => [
                 'nullable',
@@ -1140,10 +1192,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | LOCATION
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * LOCATION
+             * ----------------------------------------------------------------------
+             */
 
             'location' => [
                 'nullable',
@@ -1152,10 +1204,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | DRIVER
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * DRIVER
+             * ----------------------------------------------------------------------
+             */
 
             'first_name' => [
                 'required',
@@ -1175,10 +1227,16 @@ class ViolationController extends Controller
                 'max:255',
             ],
 
+            /*
+             * LICENSE NUMBER IS OPTIONAL.
+             *
+             * Blank value will be stored as NULL.
+             */
             'license_number' => [
-                'required',
+                'nullable',
                 'string',
                 'max:255',
+                'regex:/^[A-Za-z0-9\s\-]+$/',
             ],
 
             'birth_date' => [
@@ -1200,10 +1258,10 @@ class ViolationController extends Controller
             ],
 
             /*
-            |--------------------------------------------------------------------------
-            | VEHICLE
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * VEHICLE
+             * ----------------------------------------------------------------------
+             */
 
             'plate_number' => [
                 'nullable',
@@ -1216,29 +1274,39 @@ class ViolationController extends Controller
                 'string',
                 'max:255',
             ],
+
+            'other_vehicle_type' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
         ]);
 
         /*
-        |--------------------------------------------------------------------------
-        | NORMALIZE DRIVER / VEHICLE VALUES
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * NORMALIZE DRIVER / VEHICLE VALUES
+         * --------------------------------------------------------------------------
+         */
 
         $validated['first_name'] =
             trim($validated['first_name']);
 
         $validated['middle_name'] =
             isset($validated['middle_name'])
-            ? trim($validated['middle_name'])
-            : null;
+                ? trim($validated['middle_name'])
+                : null;
 
         $validated['last_name'] =
             trim($validated['last_name']);
 
+        /*
+         * LICENSE NUMBER:
+         * Blank = NULL.
+         */
         $validated['license_number'] =
-            strtoupper(
-                trim($validated['license_number'])
-            );
+            !empty($validated['license_number'])
+                ? strtoupper(trim($validated['license_number']))
+                : null;
 
         if (isset($validated['address'])) {
             $validated['address'] =
@@ -1262,6 +1330,11 @@ class ViolationController extends Controller
                 trim($validated['vehicle_type']);
         }
 
+        if (isset($validated['other_vehicle_type'])) {
+            $validated['other_vehicle_type'] =
+                trim($validated['other_vehicle_type']);
+        }
+
         if (isset($validated['location'])) {
             $validated['location'] =
                 trim($validated['location']);
@@ -1273,22 +1346,18 @@ class ViolationController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | DETERMINE PRIMARY VIOLATION
-        |--------------------------------------------------------------------------
-        |
-        | IMPORTANT:
-        |
-        | Other -> Official:
-        | violation_type_id = official ID
-        | other_violation = NULL
-        |
-        | Official -> Other:
-        | violation_type_id = NULL
-        | other_violation = custom text
-        |
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * DETERMINE PRIMARY VIOLATION
+         * --------------------------------------------------------------------------
+         *
+         * Other -> Official:
+         * violation_type_id = official ID
+         * other_violation = NULL
+         *
+         * Official -> Other:
+         * violation_type_id = NULL
+         * other_violation = custom text
+         */
 
         $primaryViolationTypeId = null;
         $primaryOtherViolation = null;
@@ -1300,10 +1369,10 @@ class ViolationController extends Controller
         );
 
         /*
-        |--------------------------------------------------------------------------
-        | PRIMARY = OTHER
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * PRIMARY = OTHER
+         * --------------------------------------------------------------------------
+         */
 
         if ($primarySelection === 'other') {
             $primaryOtherViolation = trim(
@@ -1316,23 +1385,19 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'other_violation' =>
-                        'Please specify the other violation.',
+                            'Please specify the other violation.',
                     ])
                     ->withInput();
             }
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | PRIMARY = OFFICIAL
-        |--------------------------------------------------------------------------
-        */ else {
-            /*
-            |--------------------------------------------------------------------------
-            | MUST BE A NUMERIC VIOLATION TYPE ID
-            |--------------------------------------------------------------------------
-            */
+         * --------------------------------------------------------------------------
+         * PRIMARY = OFFICIAL
+         * --------------------------------------------------------------------------
+         */
 
+        else {
             if (
                 !ctype_digit(
                     (string) $validated['violation_type_id']
@@ -1341,7 +1406,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                        'The selected violation type is invalid.',
+                            'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
@@ -1353,17 +1418,14 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                        'The selected violation type is invalid.',
+                            'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | CHECK OFFICIAL VIOLATION EXISTS
-            |--------------------------------------------------------------------------
-            */
-
+             * CHECK OFFICIAL VIOLATION EXISTS
+             */
             if (
                 !ViolationType::where(
                     'id',
@@ -1373,27 +1435,23 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                        'The selected violation type is invalid.',
+                            'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | IMPORTANT:
-            | WHEN CHANGING FROM OTHER TO OFFICIAL,
-            | REMOVE THE OLD OTHER TEXT.
-            |--------------------------------------------------------------------------
-            */
-
+             * WHEN CHANGING FROM OTHER TO OFFICIAL,
+             * REMOVE THE OLD OTHER TEXT.
+             */
             $primaryOtherViolation = null;
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | PROCESS ADDITIONAL VIOLATIONS
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * PROCESS ADDITIONAL VIOLATIONS
+         * --------------------------------------------------------------------------
+         */
 
         $officialAdditionalViolationIds = [];
         $additionalOtherViolations = [];
@@ -1408,11 +1466,8 @@ class ViolationController extends Controller
             $additionalViolationIds as $index => $additionalTypeId
         ) {
             /*
-            |--------------------------------------------------------------------------
-            | IGNORE EMPTY ROWS
-            |--------------------------------------------------------------------------
-            */
-
+             * IGNORE EMPTY ROWS
+             */
             if (
                 $additionalTypeId === null ||
                 trim((string) $additionalTypeId) === ''
@@ -1427,11 +1482,8 @@ class ViolationController extends Controller
             );
 
             /*
-            |--------------------------------------------------------------------------
-            | ADDITIONAL = OTHER
-            |--------------------------------------------------------------------------
-            */
-
+             * ADDITIONAL = OTHER
+             */
             if ($normalizedTypeId === 'other') {
                 $otherName = trim(
                     (string) (
@@ -1443,7 +1495,7 @@ class ViolationController extends Controller
                     return back()
                         ->withErrors([
                             'additional_violation_type_ids' =>
-                            'Please specify every additional "Other" violation.',
+                                'Please specify every additional "Other" violation.',
                         ])
                         ->withInput();
                 }
@@ -1455,11 +1507,8 @@ class ViolationController extends Controller
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | ADDITIONAL = OFFICIAL
-            |--------------------------------------------------------------------------
-            */
-
+             * ADDITIONAL = OFFICIAL VIOLATION
+             */
             if (
                 !ctype_digit(
                     (string) $additionalTypeId
@@ -1468,7 +1517,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                        'An invalid additional violation type was selected.',
+                            'An invalid additional violation type was selected.',
                     ])
                     ->withInput();
             }
@@ -1480,17 +1529,14 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                        'An invalid additional violation type was selected.',
+                            'An invalid additional violation type was selected.',
                     ])
                     ->withInput();
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | CHECK OFFICIAL VIOLATION EXISTS
-            |--------------------------------------------------------------------------
-            */
-
+             * CHECK OFFICIAL VIOLATION EXISTS
+             */
             if (
                 !ViolationType::where(
                     'id',
@@ -1500,31 +1546,25 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                        'One of the selected violation types is invalid.',
+                            'One of the selected violation types is invalid.',
                     ])
                     ->withInput();
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | DO NOT DUPLICATE PRIMARY OFFICIAL VIOLATION
-            |--------------------------------------------------------------------------
-            */
-
+             * DO NOT DUPLICATE PRIMARY OFFICIAL VIOLATION
+             */
             if (
                 $primaryViolationTypeId !== null &&
                 $additionalTypeId ===
-                $primaryViolationTypeId
+                    $primaryViolationTypeId
             ) {
                 continue;
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | DO NOT DUPLICATE ADDITIONAL OFFICIAL VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
-
+             * DO NOT DUPLICATE ADDITIONAL OFFICIAL VIOLATIONS
+             */
             if (
                 !in_array(
                     $additionalTypeId,
@@ -1538,10 +1578,10 @@ class ViolationController extends Controller
         }
 
         /*
-        |--------------------------------------------------------------------------
-        | DATABASE TRANSACTION
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * DATABASE TRANSACTION
+         * --------------------------------------------------------------------------
+         */
 
         DB::transaction(function () use (
             $violation,
@@ -1552,10 +1592,10 @@ class ViolationController extends Controller
             $additionalOtherViolations
         ) {
             /*
-            |--------------------------------------------------------------------------
-            | UPDATE DRIVER
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * UPDATE DRIVER
+             * ----------------------------------------------------------------------
+             */
 
             $driver = $violation->driver;
 
@@ -1569,8 +1609,13 @@ class ViolationController extends Controller
                 $driver->last_name =
                     $validated['last_name'];
 
+                /*
+                 * IMPORTANT:
+                 * A driver may have no license.
+                 * Blank license is stored as NULL.
+                 */
                 $driver->license_number =
-                    $validated['license_number'];
+                    $validated['license_number'] ?? null;
 
                 $driver->birth_date =
                     $validated['birth_date'];
@@ -1585,10 +1630,10 @@ class ViolationController extends Controller
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | UPDATE VEHICLE
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * UPDATE VEHICLE
+             * ----------------------------------------------------------------------
+             */
 
             $vehicle = $violation->vehicle;
 
@@ -1612,27 +1657,54 @@ class ViolationController extends Controller
                         $validated
                     )
                 ) {
-                    $vehicle->vehicle_type =
-                        $validated['vehicle_type'] ?? null;
+                    $vehicleType = trim(
+                        (string) (
+                            $validated['vehicle_type'] ?? ''
+                        )
+                    );
+
+                    /*
+                     * VEHICLE TYPE = OTHERS
+                     */
+                    if ($vehicleType === 'Others') {
+                        $otherVehicleType = trim(
+                            (string) (
+                                $validated['other_vehicle_type'] ?? ''
+                            )
+                        );
+
+                        if ($otherVehicleType === '') {
+                            throw new \RuntimeException(
+                                'Please specify the vehicle type when "Others" is selected.'
+                            );
+                        }
+
+                        $vehicle->vehicle_type =
+                            $otherVehicleType;
+                    } else {
+                        $vehicle->vehicle_type =
+                            $vehicleType !== ''
+                                ? $vehicleType
+                                : null;
+                    }
                 }
 
                 $vehicle->save();
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | UPDATE PRIMARY VIOLATION
-            |--------------------------------------------------------------------------
-            |
-            | Official:
-            | violation_type_id = ID
-            | other_violation = NULL
-            |
-            | Other:
-            | violation_type_id = NULL
-            | other_violation = custom text
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * UPDATE PRIMARY VIOLATION
+             * ----------------------------------------------------------------------
+             *
+             * Official:
+             * violation_type_id = ID
+             * other_violation = NULL
+             *
+             * Other:
+             * violation_type_id = NULL
+             * other_violation = custom text
+             */
 
             $violation->violation_type_id =
                 $primaryViolationTypeId;
@@ -1641,10 +1713,10 @@ class ViolationController extends Controller
                 $primaryOtherViolation;
 
             /*
-            |--------------------------------------------------------------------------
-            | UPDATE LOCATION
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * UPDATE LOCATION
+             * ----------------------------------------------------------------------
+             */
 
             if (
                 array_key_exists(
@@ -1657,50 +1729,49 @@ class ViolationController extends Controller
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | UPDATE REMARKS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * UPDATE REMARKS
+             * ----------------------------------------------------------------------
+             */
 
             $violation->remarks =
                 $validated['remarks'] ?? null;
 
             /*
-            |--------------------------------------------------------------------------
-            | STATUS IS NOT UPDATED
-            |--------------------------------------------------------------------------
-            |
-            | Existing Pending/Settled status remains unchanged.
-            |
-            */
+             * ----------------------------------------------------------------------
+             * STATUS IS NOT UPDATED
+             * ----------------------------------------------------------------------
+             *
+             * Existing Pending/Settled status remains unchanged.
+             */
 
             $violation->save();
 
             /*
-            |--------------------------------------------------------------------------
-            | REMOVE OLD ADDITIONAL OFFICIAL VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * REMOVE OLD ADDITIONAL OFFICIAL VIOLATIONS
+             * ----------------------------------------------------------------------
+             */
 
             $violation
                 ->violationTypes()
                 ->sync([]);
 
             /*
-            |--------------------------------------------------------------------------
-            | REMOVE OLD ADDITIONAL OTHER VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * REMOVE OLD ADDITIONAL OTHER VIOLATIONS
+             * ----------------------------------------------------------------------
+             */
 
             $violation
                 ->violationOtherTypes()
                 ->delete();
 
             /*
-            |--------------------------------------------------------------------------
-            | SAVE CURRENT ADDITIONAL OFFICIAL VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * SAVE CURRENT ADDITIONAL OFFICIAL VIOLATIONS
+             * ----------------------------------------------------------------------
+             */
 
             if (
                 !empty($officialAdditionalViolationIds)
@@ -1713,10 +1784,10 @@ class ViolationController extends Controller
             }
 
             /*
-            |--------------------------------------------------------------------------
-            | SAVE CURRENT ADDITIONAL OTHER VIOLATIONS
-            |--------------------------------------------------------------------------
-            */
+             * ----------------------------------------------------------------------
+             * SAVE CURRENT ADDITIONAL OTHER VIOLATIONS
+             * ----------------------------------------------------------------------
+             */
 
             foreach (
                 $additionalOtherViolations
@@ -1724,19 +1795,19 @@ class ViolationController extends Controller
             ) {
                 ViolationOtherType::create([
                     'violation_id' =>
-                    $violation->id,
+                        $violation->id,
 
                     'name' =>
-                    $otherName,
+                        $otherName,
                 ]);
             }
         });
 
         /*
-        |--------------------------------------------------------------------------
-        | AUDIT LOG
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * AUDIT LOG
+         * --------------------------------------------------------------------------
+         */
 
         AuditLogger::log(
             'UPDATE_VIOLATION',
@@ -1747,10 +1818,10 @@ class ViolationController extends Controller
         );
 
         /*
-        |--------------------------------------------------------------------------
-        | REDIRECT
-        |--------------------------------------------------------------------------
-        */
+         * --------------------------------------------------------------------------
+         * REDIRECT
+         * --------------------------------------------------------------------------
+         */
 
         return redirect()
             ->route(
