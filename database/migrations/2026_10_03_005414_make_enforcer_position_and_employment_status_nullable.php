@@ -14,8 +14,8 @@ return new class extends Migration
                 ->change();
 
             $table->enum('employment_status', [
-                'Permanent',
-                'Job Order',
+                'Active',
+                'Inactive',
             ])
                 ->nullable()
                 ->change();
@@ -30,8 +30,8 @@ return new class extends Migration
                 ->change();
 
             $table->enum('employment_status', [
-                'Permanent',
-                'Job Order',
+                'Active',
+                'Inactive',
             ])
                 ->nullable(false)
                 ->change();
