@@ -29,35 +29,76 @@ class EnforcerController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Enforcers
+        | Enforcer Accounts
         |--------------------------------------------------------------------------
+        |
+        | Start from the users table so ALL accounts with role_id = 2
+        | are displayed, even if they do not yet have an Enforcer profile.
+        |
         */
+        $enforcers = User::with('enforcer')
+            ->where('role_id', 2);
 
-        $enforcers = Enforcer::with('user');
-
-        // Search
+        /*
+        |--------------------------------------------------------------------------
+        | Search
+        |--------------------------------------------------------------------------
+        |
+        | Search both the User account information and the Enforcer profile.
+        |
+        */
         if ($search) {
             $enforcers->where(function ($query) use ($search) {
-                $query->where('badge_number', 'like', "%{$search}%")
-                    ->orWhere('first_name', 'like', "%{$search}%")
-                    ->orWhere('middle_name', 'like', "%{$search}%")
-                    ->orWhere('last_name', 'like', "%{$search}%")
-                    ->orWhere('contact_number', 'like', "%{$search}%");
+                $query->where('username', 'like', "%{$search}%")
+                    ->orWhere('name', 'like', "%{$search}%")
+                    ->orWhereHas('enforcer', function ($profileQuery) use ($search) {
+                        $profileQuery
+                            ->where('badge_number', 'like', "%{$search}%")
+                            ->orWhere('first_name', 'like', "%{$search}%")
+                            ->orWhere('middle_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('contact_number', 'like', "%{$search}%");
+                    });
             });
         }
 
-        // Position Filter
+        /*
+        |--------------------------------------------------------------------------
+        | Position Filter
+        |--------------------------------------------------------------------------
+        |
+        | Position only exists in the Enforcer profile.
+        | Therefore, accounts without a profile are excluded when
+        | a specific position is selected.
+        |
+        */
         if ($position) {
-            $enforcers->where('position', $position);
+            $enforcers->whereHas('enforcer', function ($query) use ($position) {
+                $query->where('position', $position);
+            });
         }
 
-        // Employment Status Filter
+        /*
+        |--------------------------------------------------------------------------
+        | Employment Status Filter
+        |--------------------------------------------------------------------------
+        |
+        | Employment status only exists in the Enforcer profile.
+        |
+        */
         if ($status) {
-            $enforcers->where('employment_status', $status);
+            $enforcers->whereHas('enforcer', function ($query) use ($status) {
+                $query->where('employment_status', $status);
+            });
         }
 
+        /*
+        |--------------------------------------------------------------------------
+        | Pagination
+        |--------------------------------------------------------------------------
+        */
         $enforcers = $enforcers
-            ->orderBy('last_name')
+            ->orderBy('name')
             ->paginate(10)
             ->withQueryString();
 
@@ -65,19 +106,36 @@ class EnforcerController extends Controller
         |--------------------------------------------------------------------------
         | Dashboard Summary Cards
         |--------------------------------------------------------------------------
+        |
+        | Total registered POSO enforcer accounts are counted from the
+        | users table because every role_id = 2 account is an enforcer
+        | account, regardless of whether a profile exists.
+        |
         */
+        $totalEnforcers = User::where('role_id', 2)->count();
 
-        // Total registered POSO enforcers
-        $totalEnforcers = Enforcer::count();
+        /*
+        |--------------------------------------------------------------------------
+        | Online Enforcers
+        |--------------------------------------------------------------------------
+        |
+        | An enforcer is considered ONLINE when their last heartbeat
+        | was received within the last 1 minute.
+        |
+        */
+        $onlineEnforcers = User::where('role_id', 2)
+            ->whereNotNull('last_seen_at')
+            ->where('last_seen_at', '>=', now()->subMinute())
+            ->count();
 
-        // An enforcer is considered ONLINE when their
-        // last heartbeat was received within the last 1 minute.
-        $onlineEnforcers = Enforcer::whereHas('user', function ($query) {
-            $query->whereNotNull('last_seen_at')
-                ->where('last_seen_at', '>=', now()->subMinute());
-        })->count();
-
-        // Everyone else is considered OFFLINE.
+        /*
+        |--------------------------------------------------------------------------
+        | Offline Enforcers
+        |--------------------------------------------------------------------------
+        |
+        | Everyone else is considered OFFLINE.
+        |
+        */
         $offlineEnforcers = $totalEnforcers - $onlineEnforcers;
 
         /*
@@ -135,7 +193,6 @@ class EnforcerController extends Controller
             ],
 
             'first_name' => 'required',
-
             'last_name' => 'required',
 
             /*
@@ -155,12 +212,15 @@ class EnforcerController extends Controller
             |--------------------------------------------------------------------------
             | Employment Status
             |--------------------------------------------------------------------------
+            |
+            | These values match the current production database enum.
+            |
             */
             'employment_status' => [
                 'required',
                 Rule::in([
-                    'Permanent',
-                    'Job Order',
+                    'Active',
+                    'Inactive',
                 ]),
             ],
 
@@ -207,7 +267,6 @@ class EnforcerController extends Controller
             | Create POSO Enforcer User Account
             |--------------------------------------------------------------------------
             */
-
             $user = User::create([
                 'role_id' => 2,
                 'name' => $request->first_name . ' ' . $request->last_name,
@@ -222,7 +281,6 @@ class EnforcerController extends Controller
             | Create Enforcer Profile
             |--------------------------------------------------------------------------
             */
-
             Enforcer::create([
                 'user_id' => $user->id,
 
@@ -230,9 +288,7 @@ class EnforcerController extends Controller
                 'badge_number' => $request->badge_number,
 
                 'first_name' => $request->first_name,
-
                 'middle_name' => $request->middle_name,
-
                 'last_name' => $request->last_name,
 
                 // Optional contact number
@@ -244,7 +300,7 @@ class EnforcerController extends Controller
                 // Traffic Enforcer / Traffic Aide
                 'position' => $request->position,
 
-                // Permanent / Job Order
+                // Active / Inactive
                 'employment_status' => $request->employment_status,
             ]);
         });
@@ -295,7 +351,6 @@ class EnforcerController extends Controller
         | Determine Role Name
         |--------------------------------------------------------------------------
         */
-
         $roleName = match ((int) $request->role_id) {
             1 => 'Administrator',
             3 => 'BPLO Personnel',
@@ -307,7 +362,6 @@ class EnforcerController extends Controller
         | Create Account
         |--------------------------------------------------------------------------
         */
-
         User::create([
             'role_id' => $request->role_id,
             'name' => $request->name,
@@ -335,7 +389,6 @@ class EnforcerController extends Controller
         | Only Administrator and BPLO accounts can use this method.
         |--------------------------------------------------------------------------
         */
-
         if (!in_array((int) $user->role_id, [1, 3])) {
             return back()->with(
                 'error',
@@ -371,7 +424,6 @@ class EnforcerController extends Controller
         | Only Administrator and BPLO accounts can be managed here.
         |--------------------------------------------------------------------------
         */
-
         if (!in_array((int) $user->role_id, [1, 3])) {
             return back()->with(
                 'error',
@@ -403,7 +455,6 @@ class EnforcerController extends Controller
         | Only Administrator and BPLO accounts can be managed here.
         |--------------------------------------------------------------------------
         */
-
         if (!in_array((int) $user->role_id, [1, 3])) {
             return back()->with(
                 'error',
@@ -416,7 +467,6 @@ class EnforcerController extends Controller
         | Prevent deleting the currently logged-in administrator
         |--------------------------------------------------------------------------
         */
-
         if (auth()->id() === $user->id) {
             return back()->with(
                 'error',
@@ -482,7 +532,6 @@ class EnforcerController extends Controller
             ],
 
             'first_name' => 'required',
-
             'last_name' => 'required',
 
             /*
@@ -502,12 +551,15 @@ class EnforcerController extends Controller
             |--------------------------------------------------------------------------
             | Employment Status
             |--------------------------------------------------------------------------
+            |
+            | These values match the current production database enum.
+            |
             */
             'employment_status' => [
                 'required',
                 Rule::in([
-                    'Permanent',
-                    'Job Order',
+                    'Active',
+                    'Inactive',
                 ]),
             ],
 
@@ -544,7 +596,6 @@ class EnforcerController extends Controller
         | Update Enforcer Profile
         |--------------------------------------------------------------------------
         */
-
         $enforcer->update([
             'badge_number' => $request->badge_number,
             'first_name' => $request->first_name,
@@ -561,7 +612,6 @@ class EnforcerController extends Controller
         | Update Linked User Account
         |--------------------------------------------------------------------------
         */
-
         if ($enforcer->user) {
             $enforcer->user->update([
                 'name' => $request->first_name . ' ' . $request->last_name,
@@ -589,7 +639,6 @@ class EnforcerController extends Controller
             | Delete linked user account
             |--------------------------------------------------------------------------
             */
-
             if ($enforcer->user) {
                 $enforcer->user->delete();
             }
@@ -599,7 +648,6 @@ class EnforcerController extends Controller
             | Delete enforcer profile
             |--------------------------------------------------------------------------
             */
-
             $enforcer->delete();
         });
 
@@ -631,7 +679,6 @@ class EnforcerController extends Controller
         | Check Linked Account
         |--------------------------------------------------------------------------
         */
-
         if (!$enforcer->user_id) {
             return back()->with(
                 'error',
@@ -653,7 +700,6 @@ class EnforcerController extends Controller
         | Reset Password
         |--------------------------------------------------------------------------
         */
-
         $user->update([
             'password' => Hash::make($request->password),
         ]);
@@ -664,4 +710,3 @@ class EnforcerController extends Controller
         );
     }
 }
-
