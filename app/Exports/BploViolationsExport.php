@@ -147,7 +147,7 @@ class BploViolationsExport implements FromCollection, WithHeadings
             ->orderBy('violation_date', 'desc')
             ->orderBy('violation_time', 'desc')
             ->get()
-            ->map(function ($violation) {
+            ->map(function ($violation, $index) {
 
                 /*
                 |--------------------------------------------------------------------------
@@ -176,10 +176,10 @@ class BploViolationsExport implements FromCollection, WithHeadings
                 |--------------------------------------------------------------------------
                 |
                 | Format:
-                | LAST NAME,FIRST NAME M
+                | LAST NAME, FIRST NAME MIDDLE NAME
                 |
                 | Example:
-                | MENDOZA,REGINA B
+                | REYES, PEDRO SANTOS
                 |
                 */
                 $surname = trim(
@@ -194,31 +194,20 @@ class BploViolationsExport implements FromCollection, WithHeadings
                     $violation->driver->middle_name ?? ''
                 );
 
-                $middleInitial = '';
-
-                if (!empty($middleName)) {
-                    $middleInitial = mb_substr(
+                $givenNames = trim(
+                    implode(' ', array_filter([
+                        $firstName,
                         $middleName,
-                        0,
-                        1
-                    );
-                }
+                    ]))
+                );
 
-                $violatorName = '';
-
-                if (!empty($surname)) {
-                    $violatorName .= $surname . ',';
-                }
-
-                if (!empty($firstName)) {
-                    $violatorName .= $firstName;
-                }
-
-                if (!empty($middleInitial)) {
-                    $violatorName .= ' ' . $middleInitial;
-                }
-
-                if (empty(trim($violatorName, " ,"))) {
+                if (!empty($surname) && !empty($givenNames)) {
+                    $violatorName = $surname . ', ' . $givenNames;
+                } elseif (!empty($surname)) {
+                    $violatorName = $surname;
+                } elseif (!empty($givenNames)) {
+                    $violatorName = $givenNames;
+                } else {
                     $violatorName = 'N/A';
                 }
 
@@ -266,64 +255,63 @@ class BploViolationsExport implements FromCollection, WithHeadings
                 |--------------------------------------------------------------------------
                 | RETURN EXCEL ROW
                 |--------------------------------------------------------------------------
-                |
-                | IMPORTANT:
-                | Every value is converted to UPPERCASE.
-                |
                 */
                 return [
 
-                    // 1. DATE OF APPREHENSION
+                    // 1. NO
+                    $index + 1,
+
+                    // 2. DATE OF APPREHENSION
                     strtoupper(
                         $violation->violation_date ?? 'N/A'
                     ),
 
-                    // 2. TICKET NUMBER
+                    // 3. TCT #
                     strtoupper(
                         $violation->ticket_number ?? 'N/A'
                     ),
 
-                    // 3. VEHICLE TYPE
+                    // 4. VEHICLE TYPE
                     strtoupper(
                         $violation->vehicle->vehicle_type ?? 'N/A'
                     ),
 
-                    // 4. PLATE NUMBER
+                    // 5. PLATE # / BODY #
                     strtoupper(
                         $violation->vehicle->plate_number ?? 'N/A'
                     ),
 
-                    // 5. PLACE OF APPREHENSION
+                    // 6. PLACE OF APPREHENSION
                     strtoupper(
                         $violation->location ?? 'N/A'
                     ),
 
-                    // 6. VIOLATION
+                    // 7. VIOLATION
                     strtoupper(
                         $violationNames
                     ),
 
-                    // 7. NAME
+                    // 8. NAME
                     strtoupper(
                         $violatorName
                     ),
 
-                    // 8. ADDRESS
+                    // 9. ADDRESS
                     strtoupper(
                         $violation->driver->address ?? 'N/A'
                     ),
 
-                    // 9. LICENSE NUMBER
+                    // 10. LICENSE NO.
                     strtoupper(
                         $violation->driver->license_number ?? 'N/A'
                     ),
 
-                    // 10. APPREHENDING OFFICER
+                    // 11. APPREHENDING OFFICER
                     strtoupper(
                         $apprehendingOfficer
                     ),
 
-                    // 11. REMARKS
+                    // 12. REMARKS
                     strtoupper(
                         $violation->remarks ?? 'N/A'
                     ),
@@ -334,17 +322,18 @@ class BploViolationsExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'DATE OF APPREHENSION',
-            'TICKET NUMBER',
-            'VEHICLE TYPE',
-            'PLATE NUMBER',
-            'PLACE OF APPREHENSION',
-            'VIOLATION',
-            'NAME',
-            'ADDRESS',
-            'LICENSE NUMBER',
-            'APPREHENDING OFFICER',
-            'REMARKS',
+            'No',
+            'Date of Apprehension',
+            'TCT #',
+            'Vehicle Type',
+            'Plate # / Body #',
+            'Place of Apprehension',
+            'Violation',
+            'Name',
+            'Address',
+            'LICENSE NO.',
+            'Apprehending Officer',
+            'Remarks',
         ];
     }
 }
