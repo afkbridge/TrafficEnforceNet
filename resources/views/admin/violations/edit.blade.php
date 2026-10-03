@@ -9,14 +9,11 @@
         {{-- ========================================================= --}}
         {{-- PAGE HEADER --}}
         {{-- ========================================================= --}}
-
         <div class="page-header mb-3 d-flex justify-content-between align-items-center">
-
             <div>
                 <h2 class="page-title mb-1">
                     Edit Violation
                 </h2>
-
                 <p class="page-subtitle mb-0">
                     Update the recorded citation and violator information.
                 </p>
@@ -28,18 +25,14 @@
                     Back
                 </a>
             </div>
-
         </div>
 
 
         {{-- ========================================================= --}}
         {{-- VALIDATION ERRORS --}}
         {{-- ========================================================= --}}
-
         @if ($errors->any())
-
             <div class="alert alert-danger edit-alert mb-3">
-
                 <div class="fw-semibold mb-1">
                     <i class="fa-solid fa-circle-exclamation me-1"></i>
                     The violation could not be updated.
@@ -50,28 +43,20 @@
                         <li>{{ $error }}</li>
                     @endforeach
                 </ul>
-
             </div>
-
         @endif
-
 
         @if (session('error'))
             <div class="alert alert-danger edit-alert mb-3">
-
                 <i class="fa-solid fa-circle-exclamation me-1"></i>
                 {{ session('error') }}
-
             </div>
         @endif
 
-
         @if (session('success'))
             <div class="alert alert-success edit-alert mb-3">
-
                 <i class="fa-solid fa-circle-check me-1"></i>
                 {{ session('success') }}
-
             </div>
         @endif
 
@@ -79,9 +64,7 @@
         {{-- ========================================================= --}}
         {{-- FORM --}}
         {{-- ========================================================= --}}
-
-        <form action="{{ route('violations.update', $violation->id) }}" method="POST">
-
+        <form action="{{ route('violations.update', $violation->id) }}" method="POST" id="editViolationForm">
             @csrf
             @method('PUT')
 
@@ -89,13 +72,11 @@
             {{-- ===================================================== --}}
             {{-- TICKET INFORMATION --}}
             {{-- ===================================================== --}}
-
             <div class="detail-card mb-3">
 
                 <div class="ticket-header">
 
                     <div>
-
                         <div class="label-text">
                             Citation Ticket Number
                         </div>
@@ -103,24 +84,19 @@
                         <div class="ticket-number">
                             {{ $violation->ticket_number ?? 'N/A' }}
                         </div>
-
                     </div>
 
-
                     {{-- STATUS DISPLAY ONLY --}}
-
                     <div class="text-end">
-
                         <div class="label-text">
                             Status
                         </div>
 
                         <span
                             class="status-badge
-                        {{ strtolower($violation->status ?? '') === 'settled' ? 'status-settled' : 'status-pending' }}">
+                            {{ strtolower($violation->status ?? '') === 'settled' ? 'status-settled' : 'status-pending' }}">
                             {{ $violation->status ?? 'N/A' }}
                         </span>
-
                     </div>
 
                 </div>
@@ -131,13 +107,10 @@
             {{-- ===================================================== --}}
             {{-- VIOLATOR INFORMATION --}}
             {{-- ===================================================== --}}
-
             <div class="detail-card mb-3">
 
                 <div class="section-header">
-
                     <div>
-
                         <h5 class="section-title mb-0">
                             <i class="fa-solid fa-user me-2"></i>
                             Violator Information
@@ -146,89 +119,71 @@
                         <span class="section-subtitle">
                             Personal and license information of the violator.
                         </span>
-
                     </div>
-
                 </div>
 
 
                 <div class="info-grid">
 
-
                     {{-- LAST NAME --}}
-
                     <div class="form-info-item">
-
                         <label for="last_name" class="info-label">
                             Last Name
                         </label>
 
                         <input type="text" id="last_name" name="last_name" class="form-control"
                             value="{{ old('last_name', $violation->driver->last_name ?? '') }}">
-
                     </div>
 
 
                     {{-- FIRST NAME --}}
-
                     <div class="form-info-item">
-
                         <label for="first_name" class="info-label">
                             First Name
                         </label>
 
                         <input type="text" id="first_name" name="first_name" class="form-control"
                             value="{{ old('first_name', $violation->driver->first_name ?? '') }}">
-
                     </div>
 
 
                     {{-- MIDDLE NAME --}}
-
                     <div class="form-info-item">
-
                         <label for="middle_name" class="info-label">
                             Middle Name
                         </label>
 
                         <input type="text" id="middle_name" name="middle_name" class="form-control"
                             value="{{ old('middle_name', $violation->driver->middle_name ?? '') }}">
-
                     </div>
 
 
                     {{-- LICENSE NUMBER --}}
-
                     <div class="form-info-item">
-
                         <label for="license_number" class="info-label">
                             License Number
+                            <span class="optional-label">(Optional)</span>
                         </label>
 
                         <input type="text" id="license_number" name="license_number" class="form-control license-input"
-                            value="{{ old('license_number', $violation->driver->license_number ?? '') }}">
-
+                            value="{{ old('license_number', $violation->driver->license_number ?? '') }}"
+                            placeholder="Enter license number if available" maxlength="255" autocomplete="off">
                     </div>
 
 
                     {{-- HOME ADDRESS --}}
-
                     <div class="form-info-item info-item-full">
-
                         <label for="address" class="info-label">
                             Home Address
                         </label>
 
                         <input type="text" id="address" name="address" class="form-control"
                             value="{{ old('address', $violation->driver->address ?? '') }}">
-
                     </div>
 
 
                     {{-- BIRTH DATE --}}
-
                     <div class="form-info-item">
-
                         <label for="birth_date" class="info-label">
                             Birth Date
                         </label>
@@ -240,21 +195,17 @@
                                     ? \Carbon\Carbon::parse($violation->driver->birth_date)->format('Y-m-d')
                                     : '',
                             ) }}">
-
                     </div>
 
 
                     {{-- CONTACT NUMBER --}}
-
                     <div class="form-info-item">
-
                         <label for="contact_number" class="info-label">
                             Contact Number
                         </label>
 
                         <input type="text" id="contact_number" name="contact_number" class="form-control"
                             value="{{ old('contact_number', $violation->driver->contact_number ?? '') }}">
-
                     </div>
 
                 </div>
@@ -265,13 +216,10 @@
             {{-- ===================================================== --}}
             {{-- VIOLATION INFORMATION --}}
             {{-- ===================================================== --}}
-
             <div class="detail-card mb-3">
 
                 <div class="section-header">
-
                     <div>
-
                         <h5 class="section-title mb-0">
                             <i class="fa-solid fa-file-circle-exclamation me-2"></i>
                             Violation Information
@@ -280,9 +228,7 @@
                         <span class="section-subtitle">
                             Update the date, time, vehicle and recorded violation/s.
                         </span>
-
                     </div>
-
                 </div>
 
 
@@ -291,7 +237,6 @@
                     /*
                      * Determine the primary violation.
                      */
-
                     $primarySelection = old(
                         'violation_type_id',
                         $violation->violation_type_id ?? (!empty($violation->other_violation) ? 'other' : ''),
@@ -302,7 +247,6 @@
                     /*
                      * Existing official additional violations.
                      */
-
                     $additionalOfficialTypes = $violation->violationTypes
                         ? $violation->violationTypes->filter(function ($type) use ($violation) {
                             return (int) $type->id !== (int) $violation->violation_type_id;
@@ -312,20 +256,60 @@
                     /*
                      * Existing custom Other violations.
                      */
-
                     $additionalOtherTypes = $violation->violationOtherTypes ?? collect();
+
+                    /*
+                     * =====================================================
+                     * VEHICLE TYPE
+                     * =====================================================
+                     *
+                     * Standard values:
+                     * MC
+                     * MTC Private
+                     * MTC For Hire
+                     * PUJ
+                     * Private Vehicle
+                     *
+                     * Any other saved value is treated as "Others".
+                     */
+                    $standardVehicleTypes = ['MC', 'MTC Private', 'MTC For Hire', 'PUJ', 'Private Vehicle'];
+
+                    $currentVehicleType = old('vehicle_type', $violation->vehicle->vehicle_type ?? '');
+
+                    $currentVehicleType = trim((string) $currentVehicleType);
+
+                    /*
+                     * If the existing DB value is not one of the standard
+                     * vehicle types, treat it as Others.
+                     *
+                     * This allows existing values such as:
+                     * - Tricycle
+                     * - Truck
+                     * - Van
+                     * - E-bike
+                     * - Motorcycle with Sidecar
+                     * etc.
+                     *
+                     * to appear under Others.
+                     */
+                    $isOtherVehicleType =
+                        $currentVehicleType !== '' && !in_array($currentVehicleType, $standardVehicleTypes, true);
+
+                    /*
+                     * Value shown in the manual Others input.
+                     */
+                    $otherVehicleType = old('other_vehicle_type', $isOtherVehicleType ? $currentVehicleType : '');
+
                 @endphp
 
 
                 {{-- ================================================= --}}
                 {{-- BASIC VIOLATION INFORMATION --}}
                 {{-- ================================================= --}}
-
                 <div class="info-grid violation-basic-info">
 
 
                     {{-- DATE --}}
-
                     <div class="form-info-item">
 
                         <label for="violation_date" class="info-label">
@@ -339,7 +323,6 @@
 
 
                     {{-- TIME --}}
-
                     <div class="form-info-item">
 
                         <label for="violation_time" class="info-label">
@@ -353,7 +336,6 @@
 
 
                     {{-- PLATE NUMBER --}}
-
                     <div class="form-info-item">
 
                         <label for="plate_number" class="info-label">
@@ -366,274 +348,316 @@
                     </div>
 
 
+                    {{-- ================================================= --}}
                     {{-- VEHICLE TYPE --}}
-
+                    {{-- ================================================= --}}
                     <div class="form-info-item">
 
                         <label for="vehicle_type" class="info-label">
                             Vehicle Type
                         </label>
 
-                        <input type="text" id="vehicle_type" name="vehicle_type" class="form-control"
-                            value="{{ old('vehicle_type', $violation->vehicle->vehicle_type ?? '') }}">
+                        <select id="vehicle_type" name="vehicle_type" class="form-select">
+
+                            <option value="" {{ $currentVehicleType === '' ? 'selected' : '' }}>
+                                Select vehicle type
+                            </option>
+
+                            <option value="MC" {{ $currentVehicleType === 'MC' ? 'selected' : '' }}>
+                                MC
+                            </option>
+
+                            <option value="MTC Private" {{ $currentVehicleType === 'MTC Private' ? 'selected' : '' }}>
+                                MTC Private
+                            </option>
+
+                            <option value="MTC For Hire" {{ $currentVehicleType === 'MTC For Hire' ? 'selected' : '' }}>
+                                MTC For Hire
+                            </option>
+
+                            <option value="PUJ" {{ $currentVehicleType === 'PUJ' ? 'selected' : '' }}>
+                                PUJ
+                            </option>
+
+                            <option value="Private Vehicle"
+                                {{ $currentVehicleType === 'Private Vehicle' ? 'selected' : '' }}>
+                                Private Vehicle
+                            </option>
+
+                            <option value="Others"
+                                {{ $isOtherVehicleType || $currentVehicleType === 'Others' ? 'selected' : '' }}>
+                                Others
+                            </option>
+
+                        </select>
+
+
+                        {{-- ================================================= --}}
+                        {{-- OTHER VEHICLE TYPE --}}
+                        {{-- ================================================= --}}
+                        <div id="otherVehicleTypeContainer" class="other-vehicle-type-container mt-2"
+                            style="{{ $isOtherVehicleType || $currentVehicleType === 'Others' ? '' : 'display: none;' }}">
+
+                            <label for="other_vehicle_type" class="info-label">
+                                Specify Vehicle Type
+                            </label>
+
+                            <input type="text" id="other_vehicle_type" name="other_vehicle_type" class="form-control"
+                                placeholder="Enter vehicle type" maxlength="255" autocomplete="off"
+                                value="{{ $otherVehicleType }}"
+                                {{ $isOtherVehicleType || $currentVehicleType === 'Others' ? '' : 'disabled' }}>
+
+                            <small class="other-vehicle-help">
+                                Please specify the vehicle type when "Others" is selected.
+                            </small>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            {{-- ================================================= --}}
+            {{-- VIOLATIONS --}}
+            {{-- ================================================= --}}
+            <div class="violations-highlight">
+
+                <div class="violations-heading">
+
+                    <div class="violations-icon">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+
+                    <div>
+
+                        <div class="violations-title">
+                            Violation/s
+                        </div>
+
+                        <div class="violations-subtitle">
+                            Select the violation/s recorded on this citation.
+                        </div>
 
                     </div>
 
                 </div>
 
 
-                {{-- ================================================= --}}
-                {{-- VIOLATIONS --}}
-                {{-- ================================================= --}}
-
-                <div class="violations-highlight">
-
-                    <div class="violations-heading">
-
-                        <div class="violations-icon">
-                            <i class="fa-solid fa-triangle-exclamation"></i>
-                        </div>
-
-                        <div>
-
-                            <div class="violations-title">
-                                Violation/s
-                            </div>
-
-                            <div class="violations-subtitle">
-                                Select the violation/s recorded on this citation.
-                            </div>
-
-                        </div>
-
-                    </div>
+                <div id="violationRows">
 
 
-                    <div id="violationRows">
+                    {{-- ================================================= --}}
+                    {{-- PRIMARY VIOLATION --}}
+                    {{-- ================================================= --}}
+                    <div class="violation-edit-item primary-row" data-primary="true">
 
+                        <div class="violation-row-header">
 
-                        {{-- ================================================= --}}
-                        {{-- PRIMARY VIOLATION --}}
-                        {{-- ================================================= --}}
+                            <div>
 
-                        <div class="violation-edit-item primary-row" data-primary="true">
+                                <span class="row-label">
+                                    Primary Violation
+                                </span>
 
-                            <div class="violation-row-header">
-
-                                <div>
-
-                                    <span class="row-label">
-                                        Primary Violation
-                                    </span>
-
-                                    <span class="row-description">
-                                        Main violation recorded on the citation.
-                                    </span>
-
-                                </div>
-
-                                <span class="primary-badge">
-                                    Primary
+                                <span class="row-description">
+                                    Main violation recorded on the citation.
                                 </span>
 
                             </div>
 
-
-                            <select name="violation_type_id" class="form-select violation-type-select"
-                                data-primary-select="true">
-
-                                <option value="">
-                                    Select Violation
-                                </option>
-
-                                @foreach ($violationTypes as $type)
-                                    <option value="{{ $type->id }}"
-                                        {{ !$primaryIsOther && (int) $primarySelection === (int) $type->id ? 'selected' : '' }}>
-                                        {{ $type->name }}
-                                    </option>
-                                @endforeach
-
-                                <option value="other" {{ $primaryIsOther ? 'selected' : '' }}>
-                                    Others
-                                </option>
-
-                            </select>
-
-
-                            {{-- PRIMARY OTHER --}}
-
-                            <div id="primaryOtherContainer" class="other-violation-container"
-                                style="{{ $primaryIsOther ? '' : 'display:none;' }}">
-
-                                <label for="other_violation" class="form-label">
-                                    Specify Other Violation
-                                </label>
-
-                                <input type="text" id="other_violation" name="other_violation" class="form-control"
-                                    placeholder="Enter the violation"
-                                    value="{{ old('other_violation', $violation->other_violation ?? '') }}"
-                                    {{ $primaryIsOther ? '' : 'disabled' }}>
-
-                            </div>
+                            <span class="primary-badge">
+                                Primary
+                            </span>
 
                         </div>
 
 
-                        {{-- ================================================= --}}
-                        {{-- EXISTING ADDITIONAL OFFICIAL VIOLATIONS --}}
-                        {{-- ================================================= --}}
+                        <select name="violation_type_id" class="form-select violation-type-select"
+                            data-primary-select="true">
 
-                        @foreach ($additionalOfficialTypes as $additionalType)
-                            <div class="violation-edit-item additional-row" data-existing="true">
+                            <option value="">
+                                Select Violation
+                            </option>
 
-                                <div class="additional-row-content">
+                            @foreach ($violationTypes as $type)
+                                <option value="{{ $type->id }}"
+                                    {{ !$primaryIsOther && (int) $primarySelection === (int) $type->id ? 'selected' : '' }}>
+                                    {{ $type->name }}
+                                </option>
+                            @endforeach
 
-                                    <div class="flex-grow-1">
+                            <option value="other" {{ $primaryIsOther ? 'selected' : '' }}>
+                                Others
+                            </option>
 
-                                        <label class="form-label">
-                                            Additional Violation
-                                        </label>
-
-
-                                        <select name="additional_violation_type_ids[]"
-                                            class="form-select violation-type-select">
-
-                                            <option value="">
-                                                Select Violation
-                                            </option>
-
-                                            @foreach ($violationTypes as $type)
-                                                <option value="{{ $type->id }}"
-                                                    {{ (int) $additionalType->id === (int) $type->id ? 'selected' : '' }}>
-                                                    {{ $type->name }}
-                                                </option>
-                                            @endforeach
-
-                                            <option value="other">
-                                                Others
-                                            </option>
-
-                                        </select>
+                        </select>
 
 
-                                        <div class="other-violation-container" style="display:none;">
+                        {{-- PRIMARY OTHER --}}
+                        <div id="primaryOtherContainer" class="other-violation-container"
+                            style="{{ $primaryIsOther ? '' : 'display: none;' }}">
 
-                                            <label class="form-label">
-                                                Specify Other Violation
-                                            </label>
+                            <label for="other_violation" class="form-label">
+                                Specify Other Violation
+                            </label>
 
-                                            <input type="text" name="additional_other_violation_names[]"
-                                                class="form-control" placeholder="Enter the violation" value=""
-                                                disabled>
+                            <input type="text" id="other_violation" name="other_violation" class="form-control"
+                                placeholder="Enter the violation"
+                                value="{{ old('other_violation', $violation->other_violation ?? '') }}"
+                                {{ $primaryIsOther ? '' : 'disabled' }}>
 
-                                        </div>
-
-                                    </div>
-
-
-                                    <button type="button" class="btn btn-outline-danger remove-violation">
-
-                                        <i class="fa-solid fa-trash"></i>
-
-                                        <span>
-                                            Remove
-                                        </span>
-
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        @endforeach
-
-
-                        {{-- ================================================= --}}
-                        {{-- EXISTING ADDITIONAL CUSTOM OTHER VIOLATIONS --}}
-                        {{-- ================================================= --}}
-
-                        @foreach ($additionalOtherTypes as $otherType)
-                            <div class="violation-edit-item additional-row" data-existing="true">
-
-                                <div class="additional-row-content">
-
-                                    <div class="flex-grow-1">
-
-                                        <label class="form-label">
-                                            Additional Violation
-                                        </label>
-
-
-                                        <select name="additional_violation_type_ids[]"
-                                            class="form-select violation-type-select">
-
-                                            <option value="">
-                                                Select Violation
-                                            </option>
-
-                                            @foreach ($violationTypes as $type)
-                                                <option value="{{ $type->id }}">
-                                                    {{ $type->name }}
-                                                </option>
-                                            @endforeach
-
-                                            <option value="other" selected>
-                                                Others
-                                            </option>
-
-                                        </select>
-
-
-                                        <div class="other-violation-container">
-
-                                            <label class="form-label">
-                                                Specify Other Violation
-                                            </label>
-
-                                            <input type="text" name="additional_other_violation_names[]"
-                                                class="form-control" placeholder="Enter the violation"
-                                                value="{{ $otherType->name }}">
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <button type="button" class="btn btn-outline-danger remove-violation">
-
-                                        <i class="fa-solid fa-trash"></i>
-
-                                        <span>
-                                            Remove
-                                        </span>
-
-                                    </button>
-
-                                </div>
-
-                            </div>
-                        @endforeach
+                        </div>
 
                     </div>
 
 
                     {{-- ================================================= --}}
-                    {{-- ADD VIOLATION --}}
+                    {{-- EXISTING ADDITIONAL OFFICIAL VIOLATIONS --}}
                     {{-- ================================================= --}}
+                    @foreach ($additionalOfficialTypes as $additionalType)
+                        <div class="violation-edit-item additional-row" data-existing="true">
 
-                    <div class="add-violation-area">
+                            <div class="additional-row-content">
 
-                        <button type="button" id="addViolation" class="btn btn-outline-primary add-btn">
+                                <div class="flex-grow-1">
 
-                            <i class="fa-solid fa-plus me-1"></i>
-                            Add Violation
+                                    <label class="form-label">
+                                        Additional Violation
+                                    </label>
 
-                        </button>
 
-                        <span class="add-hint">
-                            Add another violation only when necessary.
-                        </span>
+                                    <select name="additional_violation_type_ids[]"
+                                        class="form-select violation-type-select">
 
-                    </div>
+                                        <option value="">
+                                            Select Violation
+                                        </option>
+
+                                        @foreach ($violationTypes as $type)
+                                            <option value="{{ $type->id }}"
+                                                {{ (int) $additionalType->id === (int) $type->id ? 'selected' : '' }}>
+                                                {{ $type->name }}
+                                            </option>
+                                        @endforeach
+
+                                        <option value="other">
+                                            Others
+                                        </option>
+
+                                    </select>
+
+
+                                    <div class="other-violation-container" style="display: none;">
+
+                                        <label class="form-label">
+                                            Specify Other Violation
+                                        </label>
+
+                                        <input type="text" name="additional_other_violation_names[]"
+                                            class="form-control" placeholder="Enter the violation" value=""
+                                            disabled>
+
+                                    </div>
+
+                                </div>
+
+
+                                <button type="button" class="btn btn-outline-danger remove-violation">
+                                    <i class="fa-solid fa-trash"></i>
+
+                                    <span>
+                                        Remove
+                                    </span>
+                                </button>
+
+                            </div>
+
+                        </div>
+                    @endforeach
+
+
+                    {{-- ================================================= --}}
+                    {{-- EXISTING ADDITIONAL CUSTOM OTHER VIOLATIONS --}}
+                    {{-- ================================================= --}}
+                    @foreach ($additionalOtherTypes as $otherType)
+                        <div class="violation-edit-item additional-row" data-existing="true">
+
+                            <div class="additional-row-content">
+
+                                <div class="flex-grow-1">
+
+                                    <label class="form-label">
+                                        Additional Violation
+                                    </label>
+
+
+                                    <select name="additional_violation_type_ids[]"
+                                        class="form-select violation-type-select">
+
+                                        <option value="">
+                                            Select Violation
+                                        </option>
+
+                                        @foreach ($violationTypes as $type)
+                                            <option value="{{ $type->id }}">
+                                                {{ $type->name }}
+                                            </option>
+                                        @endforeach
+
+                                        <option value="other" selected>
+                                            Others
+                                        </option>
+
+                                    </select>
+
+
+                                    <div class="other-violation-container">
+
+                                        <label class="form-label">
+                                            Specify Other Violation
+                                        </label>
+
+                                        <input type="text" name="additional_other_violation_names[]"
+                                            class="form-control" placeholder="Enter the violation"
+                                            value="{{ $otherType->name }}">
+
+                                    </div>
+
+                                </div>
+
+
+                                <button type="button" class="btn btn-outline-danger remove-violation">
+                                    <i class="fa-solid fa-trash"></i>
+
+                                    <span>
+                                        Remove
+                                    </span>
+                                </button>
+
+                            </div>
+
+                        </div>
+                    @endforeach
+
+                </div>
+
+
+                {{-- ================================================= --}}
+                {{-- ADD VIOLATION --}}
+                {{-- ================================================= --}}
+                <div class="add-violation-area">
+
+                    <button type="button" id="addViolation" class="btn btn-outline-primary add-btn">
+                        <i class="fa-solid fa-plus me-1"></i>
+                        Add Violation
+                    </button>
+
+                    <span class="add-hint">
+                        Add another violation only when necessary.
+                    </span>
 
                 </div>
 
@@ -643,7 +667,6 @@
             {{-- ===================================================== --}}
             {{-- APPREHENDING OFFICER --}}
             {{-- ===================================================== --}}
-
             <div class="detail-card mb-3">
 
                 <div class="section-header">
@@ -690,7 +713,6 @@
             {{-- ===================================================== --}}
             {{-- REMARKS --}}
             {{-- ===================================================== --}}
-
             <div class="detail-card mb-3">
 
                 <div class="section-header">
@@ -724,18 +746,15 @@
             {{-- ===================================================== --}}
             {{-- ACTION BUTTONS --}}
             {{-- ===================================================== --}}
-
             <div class="form-actions">
 
                 <a href="{{ route('violations.show', $violation->id) }}" class="btn btn-light border">
                     Cancel
                 </a>
 
-                <button type="submit" class="btn btn-primary save-btn">
-
+                <button type="submit" class="btn btn-primary save-btn" id="saveChangesButton">
                     <i class="fa-solid fa-check me-1"></i>
                     Save Changes
-
                 </button>
 
             </div>
@@ -748,7 +767,6 @@
     {{-- ========================================================= --}}
     {{-- JAVASCRIPT --}}
     {{-- ========================================================= --}}
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
@@ -758,9 +776,70 @@
             const addViolationButton =
                 document.getElementById('addViolation');
 
+            const vehicleTypeSelect =
+                document.getElementById('vehicle_type');
 
-            if (!violationRows || !addViolationButton) {
-                return;
+            const otherVehicleTypeContainer =
+                document.getElementById('otherVehicleTypeContainer');
+
+            const otherVehicleTypeInput =
+                document.getElementById('other_vehicle_type');
+
+            const editViolationForm =
+                document.getElementById('editViolationForm');
+
+            const saveChangesButton =
+                document.getElementById('saveChangesButton');
+
+
+            /* =========================================================
+               VEHICLE TYPE - OTHERS
+               ========================================================= */
+
+            function updateOtherVehicleType() {
+
+                if (
+                    !vehicleTypeSelect ||
+                    !otherVehicleTypeContainer ||
+                    !otherVehicleTypeInput
+                ) {
+                    return;
+                }
+
+                if (vehicleTypeSelect.value === 'Others') {
+
+                    otherVehicleTypeContainer.style.display = '';
+
+                    otherVehicleTypeInput.disabled = false;
+                    otherVehicleTypeInput.required = true;
+
+                } else {
+
+                    otherVehicleTypeContainer.style.display = 'none';
+
+                    otherVehicleTypeInput.disabled = true;
+                    otherVehicleTypeInput.required = false;
+
+                    /*
+                     * Clear the manual value when a standard
+                     * vehicle type is selected.
+                     */
+                    otherVehicleTypeInput.value = '';
+                }
+            }
+
+
+            /*
+             * Initialize vehicle type state.
+             */
+            if (vehicleTypeSelect) {
+
+                vehicleTypeSelect.addEventListener(
+                    'change',
+                    updateOtherVehicleType
+                );
+
+                updateOtherVehicleType();
             }
 
 
@@ -771,7 +850,9 @@
             function updatePrimaryOther(select) {
 
                 const container =
-                    document.getElementById('primaryOtherContainer');
+                    document.getElementById(
+                        'primaryOtherContainer'
+                    );
 
                 if (!container) {
                     return;
@@ -782,13 +863,13 @@
                         'input[name="other_violation"]'
                     );
 
-
                 if (select.value === 'other') {
 
                     container.style.display = '';
 
                     if (input) {
                         input.disabled = false;
+                        input.required = true;
                     }
 
                 } else {
@@ -796,14 +877,11 @@
                     container.style.display = 'none';
 
                     if (input) {
-
                         input.disabled = true;
+                        input.required = false;
                         input.value = '';
-
                     }
-
                 }
-
             }
 
 
@@ -820,20 +898,19 @@
                     return;
                 }
 
-
                 const container =
-                    row.querySelector('.other-violation-container');
+                    row.querySelector(
+                        '.other-violation-container'
+                    );
 
                 if (!container) {
                     return;
                 }
 
-
                 const input =
                     container.querySelector(
                         'input[name="additional_other_violation_names[]"]'
                     );
-
 
                 if (select.value === 'other') {
 
@@ -841,6 +918,7 @@
 
                     if (input) {
                         input.disabled = false;
+                        input.required = true;
                     }
 
                 } else {
@@ -848,14 +926,11 @@
                     container.style.display = 'none';
 
                     if (input) {
-
                         input.disabled = true;
+                        input.required = false;
                         input.value = '';
-
                     }
-
                 }
-
             }
 
 
@@ -865,74 +940,22 @@
 
             function setupViolationSelect(select) {
 
-                select.addEventListener('change', function() {
+                select.addEventListener(
+                    'change',
+                    function() {
 
-                    const row =
-                        select.closest('.violation-edit-item');
+                        const row =
+                            select.closest(
+                                '.violation-edit-item'
+                            );
 
-                    if (!row) {
-                        return;
-                    }
+                        if (!row) {
+                            return;
+                        }
 
-
-                    if (row.dataset.primary === 'true') {
-
-                        updatePrimaryOther(select);
-
-                    } else {
-
-                        updateAdditionalOther(select);
-
-                    }
-
-                });
-
-            }
-
-
-            /* =========================================================
-               REMOVE BUTTON
-               ========================================================= */
-
-            function setupRemoveButton(row) {
-
-                const removeButton =
-                    row.querySelector('.remove-violation');
-
-                if (!removeButton) {
-                    return;
-                }
-
-
-                removeButton.addEventListener('click', function() {
-
-                    row.remove();
-
-                });
-
-            }
-
-
-            /* =========================================================
-               SETUP EXISTING ROWS
-               ========================================================= */
-
-            violationRows
-                .querySelectorAll('.violation-edit-item')
-                .forEach(function(row) {
-
-                    const select =
-                        row.querySelector(
-                            '.violation-type-select'
-                        );
-
-
-                    if (select) {
-
-                        setupViolationSelect(select);
-
-
-                        if (row.dataset.primary === 'true') {
+                        if (
+                            row.dataset.primary === 'true'
+                        ) {
 
                             updatePrimaryOther(select);
 
@@ -943,119 +966,253 @@
                         }
 
                     }
+                );
+            }
 
 
-                    setupRemoveButton(row);
+            /* =========================================================
+               REMOVE BUTTON
+               ========================================================= */
 
-                });
+            function setupRemoveButton(row) {
+
+                const removeButton =
+                    row.querySelector(
+                        '.remove-violation'
+                    );
+
+                if (!removeButton) {
+                    return;
+                }
+
+                removeButton.addEventListener(
+                    'click',
+                    function() {
+                        row.remove();
+                    }
+                );
+            }
+
+
+            /* =========================================================
+               SETUP EXISTING ROWS
+               ========================================================= */
+
+            if (violationRows) {
+
+                violationRows
+                    .querySelectorAll(
+                        '.violation-edit-item'
+                    )
+                    .forEach(function(row) {
+
+                        const select =
+                            row.querySelector(
+                                '.violation-type-select'
+                            );
+
+                        if (select) {
+
+                            setupViolationSelect(select);
+
+                            if (
+                                row.dataset.primary === 'true'
+                            ) {
+
+                                updatePrimaryOther(select);
+
+                            } else {
+
+                                updateAdditionalOther(select);
+
+                            }
+
+                        }
+
+                        setupRemoveButton(row);
+
+                    });
+
+            }
 
 
             /* =========================================================
                ADD NEW VIOLATION
                ========================================================= */
 
-            addViolationButton.addEventListener('click', function() {
+            if (
+                violationRows &&
+                addViolationButton
+            ) {
 
-                const row =
-                    document.createElement('div');
+                addViolationButton.addEventListener(
+                    'click',
+                    function() {
 
+                        const row =
+                            document.createElement('div');
 
-                row.className =
-                    'violation-edit-item additional-row';
+                        row.className =
+                            'violation-edit-item additional-row';
 
+                        row.innerHTML = `
+                            <div class="additional-row-content">
 
-                row.innerHTML = `
+                                <div class="flex-grow-1">
 
-            <div class="additional-row-content">
+                                    <label class="form-label">
+                                        Additional Violation
+                                    </label>
 
-                <div class="flex-grow-1">
+                                    <select
+                                        name="additional_violation_type_ids[]"
+                                        class="form-select violation-type-select"
+                                    >
 
-                    <label class="form-label">
-                        Additional Violation
-                    </label>
+                                        <option value="">
+                                            Select Violation
+                                        </option>
 
+                                        @foreach ($violationTypes as $type)
 
-                    <select
-                        name="additional_violation_type_ids[]"
-                        class="form-select violation-type-select"
-                    >
+                                            <option value="{{ $type->id }}">
+                                                {{ $type->name }}
+                                            </option>
 
-                        <option value="">
-                            Select Violation
-                        </option>
+                                        @endforeach
 
-                        @foreach ($violationTypes as $type)
+                                        <option value="other">
+                                            Others
+                                        </option>
 
-                            <option value="{{ $type->id }}">
-                                {{ $type->name }}
-                            </option>
-
-                        @endforeach
-
-                        <option value="other">
-                            Others
-                        </option>
-
-                    </select>
-
-
-                    <div
-                        class="other-violation-container"
-                        style="display:none;"
-                    >
-
-                        <label class="form-label">
-                            Specify Other Violation
-                        </label>
-
-                        <input
-                            type="text"
-                            name="additional_other_violation_names[]"
-                            class="form-control"
-                            placeholder="Enter the violation"
-                            disabled
-                        >
-
-                    </div>
-
-                </div>
+                                    </select>
 
 
-                <button
-                    type="button"
-                    class="btn btn-outline-danger remove-violation"
-                >
+                                    <div
+                                        class="other-violation-container"
+                                        style="display: none;"
+                                    >
 
-                    <i class="fa-solid fa-trash"></i>
+                                        <label class="form-label">
+                                            Specify Other Violation
+                                        </label>
 
-                    <span>
-                        Remove
-                    </span>
+                                        <input
+                                            type="text"
+                                            name="additional_other_violation_names[]"
+                                            class="form-control"
+                                            placeholder="Enter the violation"
+                                            disabled
+                                        >
 
-                </button>
+                                    </div>
 
-            </div>
-
-        `;
-
-
-                violationRows.appendChild(row);
-
-
-                const select =
-                    row.querySelector(
-                        '.violation-type-select'
-                    );
+                                </div>
 
 
-                if (select) {
-                    setupViolationSelect(select);
-                }
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger remove-violation"
+                                >
+
+                                    <i class="fa-solid fa-trash"></i>
+
+                                    <span>
+                                        Remove
+                                    </span>
+
+                                </button>
+
+                            </div>
+                        `;
 
 
-                setupRemoveButton(row);
+                        violationRows.appendChild(row);
 
-            });
+
+                        const select =
+                            row.querySelector(
+                                '.violation-type-select'
+                            );
+
+                        if (select) {
+                            setupViolationSelect(select);
+                        }
+
+                        setupRemoveButton(row);
+
+                    }
+                );
+
+            }
+
+
+            /* =========================================================
+               FORM SUBMISSION
+               ========================================================= */
+
+            if (
+                editViolationForm &&
+                saveChangesButton
+            ) {
+
+                editViolationForm.addEventListener(
+                    'submit',
+                    function(event) {
+
+                        /*
+                         * Validate Others vehicle type before
+                         * allowing the form to submit.
+                         */
+                        if (
+                            vehicleTypeSelect &&
+                            vehicleTypeSelect.value === 'Others'
+                        ) {
+
+                            const value =
+                                otherVehicleTypeInput ?
+                                otherVehicleTypeInput.value.trim() :
+                                '';
+
+                            if (value === '') {
+
+                                event.preventDefault();
+
+                                if (otherVehicleTypeInput) {
+
+                                    otherVehicleTypeInput.disabled = false;
+                                    otherVehicleTypeInput.required = true;
+
+                                    otherVehicleTypeInput.focus();
+                                }
+
+                                alert(
+                                    'Please specify the vehicle type when "Others" is selected.'
+                                );
+
+                                return;
+                            }
+                        }
+
+
+                        /*
+                         * Prevent double submission.
+                         */
+                        saveChangesButton.disabled = true;
+
+                        saveChangesButton.innerHTML = `
+                            <span
+                                class="spinner-border spinner-border-sm me-1"
+                                role="status"
+                                aria-hidden="true"
+                            ></span>
+                            Saving Changes...
+                        `;
+
+                    }
+                );
+
+            }
 
         });
     </script>
@@ -1064,7 +1221,6 @@
     {{-- ========================================================= --}}
     {{-- PAGE STYLING --}}
     {{-- ========================================================= --}}
-
     <style>
         .violation-details-page {
             padding-bottom: 30px;
@@ -1072,8 +1228,8 @@
 
 
         /* =========================================================
-       PAGE HEADER
-       ========================================================= */
+               PAGE HEADER
+               ========================================================= */
 
         .page-header {
             margin-bottom: 18px;
@@ -1097,8 +1253,8 @@
 
 
         /* =========================================================
-       ALERT
-       ========================================================= */
+               ALERT
+               ========================================================= */
 
         .edit-alert {
             border-radius: 8px;
@@ -1108,8 +1264,8 @@
 
 
         /* =========================================================
-       DETAIL CARD
-       ========================================================= */
+               DETAIL CARD
+               ========================================================= */
 
         .detail-card {
             background: #ffffff;
@@ -1120,8 +1276,8 @@
 
 
         /* =========================================================
-       TICKET HEADER
-       ========================================================= */
+               TICKET HEADER
+               ========================================================= */
 
         .ticket-header {
             display: flex;
@@ -1146,8 +1302,8 @@
 
 
         /* =========================================================
-       STATUS
-       ========================================================= */
+               STATUS
+               ========================================================= */
 
         .status-badge {
             display: inline-block;
@@ -1169,8 +1325,8 @@
 
 
         /* =========================================================
-       SECTION HEADER
-       ========================================================= */
+               SECTION HEADER
+               ========================================================= */
 
         .section-header {
             padding-bottom: 12px;
@@ -1198,8 +1354,8 @@
 
 
         /* =========================================================
-       INFORMATION GRID
-       ========================================================= */
+               INFORMATION GRID
+               ========================================================= */
 
         .info-grid {
             display: grid;
@@ -1211,8 +1367,8 @@
 
 
         /* =========================================================
-       FORM INFORMATION
-       ========================================================= */
+               FORM INFORMATION
+               ========================================================= */
 
         .form-info-item {
             padding: 11px 0;
@@ -1232,8 +1388,8 @@
 
 
         /* =========================================================
-       FORM CONTROLS
-       ========================================================= */
+               FORM CONTROLS
+               ========================================================= */
 
         .form-control,
         .form-select {
@@ -1265,8 +1421,32 @@
 
 
         /* =========================================================
-       VIOLATIONS HIGHLIGHT
-       ========================================================= */
+               OTHER VEHICLE TYPE
+               ========================================================= */
+
+        .other-vehicle-type-container {
+            padding: 10px;
+            background: #fffaf0;
+            border: 1px solid #f0dfae;
+            border-radius: 7px;
+        }
+
+        .other-vehicle-type-container .info-label {
+            color: #786527;
+            margin-bottom: 5px;
+        }
+
+        .other-vehicle-help {
+            display: block;
+            margin-top: 5px;
+            font-size: 11px;
+            color: #92754a;
+        }
+
+
+        /* =========================================================
+               VIOLATIONS HIGHLIGHT
+               ========================================================= */
 
         .violations-highlight {
             margin-top: 16px;
@@ -1310,8 +1490,8 @@
 
 
         /* =========================================================
-       VIOLATION EDIT ITEMS
-       ========================================================= */
+               VIOLATION EDIT ITEMS
+               ========================================================= */
 
         .violation-edit-item {
             padding: 13px;
@@ -1359,8 +1539,8 @@
 
 
         /* =========================================================
-       ADDITIONAL ROW
-       ========================================================= */
+               ADDITIONAL ROW
+               ========================================================= */
 
         .additional-row-content {
             display: flex;
@@ -1375,8 +1555,8 @@
 
 
         /* =========================================================
-       OTHER VIOLATION
-       ========================================================= */
+               OTHER VIOLATION
+               ========================================================= */
 
         .other-violation-container {
             margin-top: 8px;
@@ -1395,8 +1575,8 @@
 
 
         /* =========================================================
-       REMOVE BUTTON
-       ========================================================= */
+               REMOVE BUTTON
+               ========================================================= */
 
         .remove-violation {
             min-height: 39px;
@@ -1408,8 +1588,8 @@
 
 
         /* =========================================================
-       ADD VIOLATION
-       ========================================================= */
+               ADD VIOLATION
+               ========================================================= */
 
         .add-violation-area {
             display: flex;
@@ -1432,8 +1612,8 @@
 
 
         /* =========================================================
-       APPREHENDING OFFICER
-       ========================================================= */
+               APPREHENDING OFFICER
+               ========================================================= */
 
         .officer-row {
             display: flex;
@@ -1462,8 +1642,8 @@
 
 
         /* =========================================================
-       REMARKS
-       ========================================================= */
+               REMARKS
+               ========================================================= */
 
         .remarks-body {
             padding-top: 10px;
@@ -1477,8 +1657,8 @@
 
 
         /* =========================================================
-       ACTIONS
-       ========================================================= */
+               ACTIONS
+               ========================================================= */
 
         .form-actions {
             display: flex;
@@ -1500,8 +1680,8 @@
 
 
         /* =========================================================
-       RESPONSIVE
-       ========================================================= */
+               RESPONSIVE
+               ========================================================= */
 
         @media (max-width: 768px) {
 

@@ -40,8 +40,8 @@
         </header>
 
         {{-- =========================================================
-     CONNECTION STATUS
-========================================================= --}}
+             CONNECTION STATUS
+        ========================================================== --}}
         <div class="max-w-7xl mx-auto px-3 sm:px-5 lg:px-8">
 
             <div id="networkStatusNotification"
@@ -251,12 +251,9 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
 
-                        {{-- =================================================
-                             DRIVER'S LICENSE
-                        ================================================== --}}
+                        {{-- DRIVER'S LICENSE --}}
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
 
-                            {{-- HEADER --}}
                             <div class="flex items-center gap-2.5 mb-3">
 
                                 <div
@@ -279,7 +276,6 @@
                             </div>
 
 
-                            {{-- LICENSE PREVIEW --}}
                             <div id="licensePreviewContainer" class="hidden mb-3">
 
                                 <div class="relative">
@@ -298,19 +294,14 @@
                             </div>
 
 
-                            {{-- CAMERA / UPLOAD --}}
                             <div class="grid grid-cols-2 gap-2.5">
 
                                 <button type="button" onclick="openLicenseCamera()"
                                     class="bg-[#005FBF] hover:bg-[#004F9F] active:scale-[0.98] text-white rounded-xl py-2.5 px-2 font-bold flex flex-col items-center justify-center transition">
 
-                                    <span class="text-xl">
-                                        📷
-                                    </span>
+                                    <span class="text-xl">📷</span>
 
-                                    <span class="mt-1 text-xs">
-                                        Take Photo
-                                    </span>
+                                    <span class="mt-1 text-xs">Take Photo</span>
 
                                 </button>
 
@@ -318,13 +309,9 @@
                                 <button type="button" onclick="openLicenseFile()"
                                     class="bg-blue-50 hover:bg-blue-100 active:scale-[0.98] text-blue-700 rounded-xl py-2.5 px-2 font-bold flex flex-col items-center justify-center border border-blue-200 transition">
 
-                                    <span class="text-xl">
-                                        📁
-                                    </span>
+                                    <span class="text-xl">📁</span>
 
-                                    <span class="mt-1 text-xs">
-                                        Upload File
-                                    </span>
+                                    <span class="mt-1 text-xs">Upload File</span>
 
                                 </button>
 
@@ -335,7 +322,6 @@
                                 capture="environment" class="hidden" onchange="processDriverLicense(event)">
 
 
-                            {{-- DRIVER LICENSE OCR STATUS --}}
                             <div id="ocrStatus"
                                 class="mt-3 flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5">
 
@@ -348,9 +334,7 @@
                                     {{-- Kept for existing JavaScript --}}
                                     <span id="ocrIcon" class="hidden"></span>
 
-                                    <span id="ocrTitle" class="hidden">
-                                        Ready
-                                    </span>
+                                    <span id="ocrTitle" class="hidden">Ready</span>
 
                                     <p id="ocrMessage" class="hidden"></p>
 
@@ -366,12 +350,9 @@
                         </div>
 
 
-                        {{-- =================================================
-                             CITATION TICKET
-                        ================================================== --}}
+                        {{-- CITATION TICKET --}}
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
 
-                            {{-- HEADER --}}
                             <div class="flex items-center gap-2.5 mb-3">
 
                                 <div
@@ -394,7 +375,6 @@
                             </div>
 
 
-                            {{-- TICKET PREVIEW --}}
                             <div id="ticketPreviewContainer" class="hidden mb-3">
 
                                 <div class="relative">
@@ -413,19 +393,14 @@
                             </div>
 
 
-                            {{-- CAMERA / UPLOAD --}}
                             <div class="grid grid-cols-2 gap-2.5">
 
                                 <button type="button" onclick="openTicketCamera()"
                                     class="bg-[#005FBF] hover:bg-[#004F9F] active:scale-[0.98] text-white rounded-xl py-2.5 px-2 font-bold flex flex-col items-center justify-center transition">
 
-                                    <span class="text-xl">
-                                        📷
-                                    </span>
+                                    <span class="text-xl">📷</span>
 
-                                    <span class="mt-1 text-xs">
-                                        Take Photo
-                                    </span>
+                                    <span class="mt-1 text-xs">Take Photo</span>
 
                                 </button>
 
@@ -433,13 +408,9 @@
                                 <button type="button" onclick="openTicketFile()"
                                     class="bg-blue-50 hover:bg-blue-100 active:scale-[0.98] text-blue-700 rounded-xl py-2.5 px-2 font-bold flex flex-col items-center justify-center border border-blue-200 transition">
 
-                                    <span class="text-xl">
-                                        📁
-                                    </span>
+                                    <span class="text-xl">📁</span>
 
-                                    <span class="mt-1 text-xs">
-                                        Upload File
-                                    </span>
+                                    <span class="mt-1 text-xs">Upload File</span>
 
                                 </button>
 
@@ -450,7 +421,6 @@
                                 capture="environment" class="hidden" onchange="previewTicket(event)">
 
 
-                            {{-- CITATION TICKET OCR STATUS --}}
                             <div id="ticketOcrStatus"
                                 class="mt-3 flex items-center justify-between gap-2 border-t border-gray-100 pt-2.5">
 
@@ -463,9 +433,7 @@
                                     {{-- Kept for existing JavaScript --}}
                                     <span id="ticketOcrIcon" class="hidden"></span>
 
-                                    <span id="ticketOcrTitle" class="hidden">
-                                        Ready
-                                    </span>
+                                    <span id="ticketOcrTitle" class="hidden">Ready</span>
 
                                     <p id="ticketOcrMessage" class="hidden"></p>
 
@@ -584,7 +552,6 @@
 
                                     <label for="middle_name" class="text-xs font-semibold text-gray-600">
                                         Middle Name
-
                                     </label>
 
                                     <input type="text" id="middle_name" name="middle_name"
@@ -675,16 +642,14 @@
                             </div>
 
 
-                            {{-- BIRTH DATE --}}
+                            {{-- BIRTH DATE (OPTIONAL) --}}
                             <div class="max-w-md">
 
                                 <label for="birth_date" class="text-xs font-semibold text-gray-600">
                                     Birth Date
-                                    <span class="text-red-500">*</span>
                                 </label>
 
                                 <input type="date" id="birth_date" name="birth_date" value="{{ old('birth_date') }}"
-                                    required
                                     class="w-full mt-1 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5">
 
                                 <p class="text-[10px] text-blue-600 mt-1">
@@ -772,12 +737,58 @@
                                         Vehicle Type
                                     </label>
 
-                                    <input type="text" id="vehicle_type" name="vehicle_type"
-                                        value="{{ old('vehicle_type') }}" placeholder="e.g. Motorcycle, Sedan, SUV"
+                                    <select id="vehicle_type" name="vehicle_type"
                                         class="w-full mt-1 rounded-lg bg-blue-50 border-blue-200 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5">
 
-                                    <p class="text-[10px] text-blue-600 mt-1">
-                                        🤖 OCR detected • Editable
+                                        <option value="" disabled {{ old('vehicle_type') ? '' : 'selected' }}>
+                                            Select vehicle type
+                                        </option>
+
+                                        <option value="MC" {{ old('vehicle_type') == 'MC' ? 'selected' : '' }}>
+                                            MC
+                                        </option>
+
+                                        <option value="MTC Private"
+                                            {{ old('vehicle_type') == 'MTC Private' ? 'selected' : '' }}>
+                                            MTC Private
+                                        </option>
+
+                                        <option value="MTC For Hire"
+                                            {{ old('vehicle_type') == 'MTC For Hire' ? 'selected' : '' }}>
+                                            MTC For Hire
+                                        </option>
+
+                                        <option value="PUJ" {{ old('vehicle_type') == 'PUJ' ? 'selected' : '' }}>
+                                            PUJ
+                                        </option>
+
+                                        <option value="Private Vehicle"
+                                            {{ old('vehicle_type') == 'Private Vehicle' ? 'selected' : '' }}>
+                                            Private Vehicle
+                                        </option>
+
+                                        <option value="Others" {{ old('vehicle_type') == 'Others' ? 'selected' : '' }}>
+                                            Others
+                                        </option>
+
+                                    </select>
+
+                                    {{-- OTHER VEHICLE TYPE --}}
+                                    <div id="otherVehicleTypeContainer" class="mt-2"
+                                        style="{{ old('vehicle_type') === 'Others' ? '' : 'display: none;' }}">
+
+                                        <label for="other_vehicle_type" class="text-xs font-semibold text-gray-600">
+                                            Specify Vehicle Type
+                                        </label>
+
+                                        <input type="text" id="other_vehicle_type" name="other_vehicle_type"
+                                            value="{{ old('other_vehicle_type') }}" placeholder="Enter vehicle type"
+                                            class="w-full mt-1 rounded-lg bg-white border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5">
+
+                                    </div>
+
+                                    <p class="text-[10px] text-gray-500 mt-1">
+                                        Select the vehicle classification.
                                     </p>
 
                                 </div>
@@ -925,13 +936,9 @@
                         <button type="button" id="addViolationButton"
                             class="mt-3 inline-flex items-center justify-center gap-1.5 rounded-lg border border-blue-600 px-3 py-2 text-xs font-semibold text-blue-600 hover:bg-blue-50 transition">
 
-                            <span class="text-base leading-none">
-                                +
-                            </span>
+                            <span class="text-base leading-none">+</span>
 
-                            <span>
-                                Add More Traffic Violation
-                            </span>
+                            <span>Add More Traffic Violation</span>
 
                         </button>
 
@@ -995,7 +1002,7 @@
 
                                     <input type="text" name="additional_other_violation_names[]"
                                         class="additional-other-violation w-full mt-1 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm py-2.5"
-                                        placeholder="Enter violation">
+                                        placeholder="Enter violation" maxlength="150">
 
                                 </div>
 
@@ -1032,7 +1039,7 @@
                                 Remarks
                             </label>
 
-                            <textarea id="remarks" name="remarks" rows="3" placeholder="Enter additional notes"
+                            <textarea id="remarks" name="remarks" rows="3" maxlength="500" placeholder="Enter additional notes"
                                 class="w-full mt-1 rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-sm">{{ old('remarks') }}</textarea>
 
                         </div>
@@ -1044,6 +1051,7 @@
 
                 {{-- =================================================
                      EVIDENCE PHOTO
+                     (preview/remove logic is handled by issue-ticket.js)
                 ================================================== --}}
                 <section>
 
@@ -1071,7 +1079,6 @@
                         </div>
 
 
-                        {{-- EVIDENCE PHOTO INPUT --}}
                         <label
                             class="border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 rounded-2xl min-h-[150px] flex flex-col items-center justify-center cursor-pointer transition p-4 text-center">
 
@@ -1101,21 +1108,11 @@
                         {{-- SELECTED EVIDENCE PREVIEW --}}
                         <div id="evidencePreviewContainer" class="hidden mt-3">
 
-                            <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs font-semibold text-gray-600 mb-2">
+                                Selected Evidence
+                            </p>
 
-                                <p class="text-xs font-semibold text-gray-600">
-                                    Selected Evidence
-                                </p>
-
-                                <p id="evidenceCount" class="text-[10px] text-gray-400">
-                                    0 photos
-                                </p>
-
-                            </div>
-
-
-                            <div id="evidencePreview" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                            </div>
+                            <div id="evidencePreview" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5"></div>
 
                         </div>
 
@@ -1150,12 +1147,9 @@
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
 
-                        {{-- =================================================
-                             GPS LOCATION
-                        ================================================== --}}
+                        {{-- GPS LOCATION --}}
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
 
-                            {{-- LOCATION HEADER --}}
                             <div class="flex items-center justify-between gap-2.5 mb-3">
 
                                 <div class="flex items-center gap-2.5 min-w-0">
@@ -1180,7 +1174,6 @@
                                 </div>
 
 
-                                {{-- STATUS + MANUAL BUTTON --}}
                                 <div class="flex items-center gap-1.5 shrink-0">
 
                                     <div id="gpsStatusBadge"
@@ -1198,9 +1191,7 @@
                             </div>
 
 
-                            {{-- =================================================
-                                 GPS LOCATION FIELD
-                            ================================================== --}}
+                            {{-- GPS LOCATION FIELD --}}
                             <div id="gpsLocationContainer">
 
                                 <label for="location" class="text-xs font-semibold text-gray-600">
@@ -1223,9 +1214,7 @@
                             </div>
 
 
-                            {{-- =================================================
-                                 MANUAL LOCATION FORM
-                            ================================================== --}}
+                            {{-- MANUAL LOCATION FORM --}}
                             <div id="manualLocationContainer" class="hidden mt-3">
 
                                 <div class="flex items-center justify-between mb-2">
@@ -1251,7 +1240,6 @@
                                 </div>
 
 
-                                {{-- STREET --}}
                                 <div>
 
                                     <label for="manualStreet" class="text-xs font-semibold text-gray-600">
@@ -1265,7 +1253,6 @@
                                 </div>
 
 
-                                {{-- CITY --}}
                                 <div class="mt-2.5">
 
                                     <label for="manualCity" class="text-xs font-semibold text-gray-600">
@@ -1280,14 +1267,13 @@
                             </div>
 
 
-                            {{-- VALIDATION MESSAGE --}}
                             <p id="locationValidationMessage" class="hidden text-[10px] text-red-600 mt-1">
                                 Violation location is required. Please allow GPS/location access or enter the place of
                                 violation manually.
                             </p>
 
 
-                            {{-- EXISTING GPS COORDINATES --}}
+                            {{-- GPS COORDINATES --}}
                             <input type="hidden" name="latitude" id="latitude" value="{{ old('latitude') }}">
 
                             <input type="hidden" name="longitude" id="longitude" value="{{ old('longitude') }}">
@@ -1305,9 +1291,7 @@
                         </div>
 
 
-                        {{-- =================================================
-                             DATE AND TIME
-                        ================================================== --}}
+                        {{-- DATE AND TIME --}}
                         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4">
 
                             <div class="flex items-center gap-2.5 mb-3">
@@ -1376,13 +1360,9 @@
                     <button type="submit" id="submitCitationButton"
                         class="w-full bg-[#005FBF] hover:bg-[#004F9F] active:scale-[0.99] text-white rounded-xl py-3.5 px-5 font-bold text-sm shadow-md transition flex items-center justify-center gap-2">
 
-                        <span class="text-base">
-                            ✓
-                        </span>
+                        <span class="text-base">✓</span>
 
-                        <span>
-                            Review & Submit Citation
-                        </span>
+                        <span>Review & Submit Citation</span>
 
                     </button>
 
@@ -1402,72 +1382,38 @@
     {{-- ===========================================================
          ADD MORE VIOLATION UI
     ============================================================ --}}
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            const addViolationButton =
-                document.getElementById('addViolationButton');
+            const addViolationButton = document.getElementById('addViolationButton');
+            const violationRows = document.getElementById('violationRows');
+            const additionalViolationTemplate = document.getElementById('additionalViolationTemplate');
 
-            const violationRows =
-                document.getElementById('violationRows');
-
-            const additionalViolationTemplate =
-                document.getElementById('additionalViolationTemplate');
-
-
-            if (
-                !addViolationButton ||
-                !violationRows ||
-                !additionalViolationTemplate
-            ) {
+            if (!addViolationButton || !violationRows || !additionalViolationTemplate) {
                 return;
             }
 
-
             function updateViolationNumbers() {
-
-                const rows =
-                    violationRows.querySelectorAll('.violation-row');
+                const rows = violationRows.querySelectorAll('.violation-row');
 
                 rows.forEach(function(row, index) {
-
-                    const numberLabel =
-                        row.querySelector('.violation-number');
+                    const numberLabel = row.querySelector('.violation-number');
 
                     if (numberLabel) {
-
-                        numberLabel.textContent =
-                            'Violation ' + (index + 1);
-
+                        numberLabel.textContent = 'Violation ' + (index + 1);
                     }
-
                 });
-
             }
 
-
             function setupAdditionalViolation(row) {
-
-                const select =
-                    row.querySelector('.additional-violation-select');
-
-                const otherContainer =
-                    row.querySelector('.additional-other-violation-container');
-
-                const otherInput =
-                    row.querySelector('.additional-other-violation');
-
-                const removeButton =
-                    row.querySelector('.remove-violation-button');
-
+                const select = row.querySelector('.additional-violation-select');
+                const otherContainer = row.querySelector('.additional-other-violation-container');
+                const otherInput = row.querySelector('.additional-other-violation');
+                const removeButton = row.querySelector('.remove-violation-button');
 
                 if (select) {
-
                     select.addEventListener('change', function() {
-
                         if (this.value === 'other') {
-
                             if (otherContainer) {
                                 otherContainer.classList.remove('hidden');
                             }
@@ -1475,49 +1421,30 @@
                             if (otherInput) {
                                 otherInput.required = true;
                             }
-
                         } else {
-
                             if (otherContainer) {
                                 otherContainer.classList.add('hidden');
                             }
 
                             if (otherInput) {
-
                                 otherInput.required = false;
                                 otherInput.value = '';
-
                             }
-
                         }
-
                     });
-
                 }
-
 
                 if (removeButton) {
-
                     removeButton.addEventListener('click', function() {
-
                         row.remove();
-
                         updateViolationNumbers();
-
                     });
-
                 }
-
             }
 
-
             addViolationButton.addEventListener('click', function() {
-
-                const clone =
-                    additionalViolationTemplate.content.cloneNode(true);
-
-                const newRow =
-                    clone.querySelector('.additional-violation-row');
+                const clone = additionalViolationTemplate.content.cloneNode(true);
+                const newRow = clone.querySelector('.additional-violation-row');
 
                 violationRows.appendChild(clone);
 
@@ -1526,341 +1453,30 @@
                 }
 
                 updateViolationNumbers();
-
             });
 
-
             // Restore primary "Other" state after validation failure.
-            const primaryViolation =
-                document.getElementById('violation_type_id');
+            const primaryViolation = document.getElementById('violation_type_id');
+            const primaryOtherContainer = document.getElementById('otherViolationContainer');
+            const primaryOtherInput = document.getElementById('other_violation');
 
-            const primaryOtherContainer =
-                document.getElementById('otherViolationContainer');
-
-            const primaryOtherInput =
-                document.getElementById('other_violation');
-
-
-            if (
-                primaryViolation &&
-                primaryOtherContainer &&
-                primaryOtherInput
-            ) {
-
+            if (primaryViolation && primaryOtherContainer && primaryOtherInput) {
                 if (primaryViolation.value === 'other') {
-
                     primaryOtherContainer.classList.remove('hidden');
-
                     primaryOtherInput.required = true;
-
                 }
-
 
                 primaryViolation.addEventListener('change', function() {
-
                     if (this.value === 'other') {
-
                         primaryOtherContainer.classList.remove('hidden');
-
                         primaryOtherInput.required = true;
-
                     } else {
-
                         primaryOtherContainer.classList.add('hidden');
-
                         primaryOtherInput.required = false;
-
                         primaryOtherInput.value = '';
-
                     }
-
                 });
-
             }
-
-        });
-    </script>
-
-
-    {{-- ===========================================================
-         EVIDENCE PHOTO PREVIEW
-    ============================================================ --}}
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-
-            const evidenceInput =
-                document.getElementById('evidence_images');
-
-            const evidencePreviewContainer =
-                document.getElementById('evidencePreviewContainer');
-
-            const evidencePreview =
-                document.getElementById('evidencePreview');
-
-            const evidenceCount =
-                document.getElementById('evidenceCount');
-
-
-            if (!evidenceInput) {
-                return;
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | MASTER FILE LIST
-            |--------------------------------------------------------------------------
-            */
-
-            let evidenceFiles = [];
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE REAL FILE INPUT
-            |--------------------------------------------------------------------------
-            */
-
-            function syncFileInput() {
-
-                const dataTransfer =
-                    new DataTransfer();
-
-                evidenceFiles.forEach(function(file) {
-                    dataTransfer.items.add(file);
-                });
-
-                evidenceInput.files =
-                    dataTransfer.files;
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | CREATE UNIQUE FILE KEY
-            |--------------------------------------------------------------------------
-            */
-
-            function getFileKey(file) {
-
-                return [
-                    file.name,
-                    file.size,
-                    file.lastModified,
-                    file.type
-                ].join('|');
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | CHECK IF FILE ALREADY EXISTS
-            |--------------------------------------------------------------------------
-            */
-
-            function fileExists(file) {
-
-                const newFileKey =
-                    getFileKey(file);
-
-                return evidenceFiles.some(function(existingFile) {
-
-                    return getFileKey(existingFile) === newFileKey;
-
-                });
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | RENDER PREVIEWS
-            |--------------------------------------------------------------------------
-            */
-
-            function renderEvidencePreviews() {
-
-                evidencePreview.innerHTML = '';
-
-
-                if (evidenceFiles.length === 0) {
-
-                    evidencePreviewContainer.classList.add('hidden');
-
-                    evidenceCount.textContent =
-                        '0 photos';
-
-                    return;
-                }
-
-
-                evidencePreviewContainer.classList.remove('hidden');
-
-
-                evidenceCount.textContent =
-                    evidenceFiles.length +
-                    (
-                        evidenceFiles.length === 1 ?
-                        ' photo' :
-                        ' photos'
-                    );
-
-
-                evidenceFiles.forEach(function(file, index) {
-
-                    const wrapper =
-                        document.createElement('div');
-
-                    wrapper.className =
-                        'relative rounded-xl overflow-hidden border border-gray-200 bg-white shadow-sm';
-
-
-                    /*
-                    | IMAGE
-                    */
-                    const image =
-                        document.createElement('img');
-
-                    const previewUrl =
-                        URL.createObjectURL(file);
-
-                    image.src =
-                        previewUrl;
-
-                    image.alt =
-                        'Evidence photo ' + (index + 1);
-
-                    image.className =
-                        'w-full h-32 object-cover';
-
-
-                    /*
-                    | DELETE BUTTON
-                    */
-                    const removeButton =
-                        document.createElement('button');
-
-                    removeButton.type =
-                        'button';
-
-                    removeButton.innerHTML =
-                        '&times;';
-
-                    removeButton.title =
-                        'Remove this photo';
-
-                    removeButton.setAttribute(
-                        'aria-label',
-                        'Remove evidence photo ' + (index + 1)
-                    );
-
-                    removeButton.className =
-                        'absolute top-2 right-2 w-8 h-8 rounded-full bg-black/70 hover:bg-red-600 text-white flex items-center justify-center text-lg font-bold leading-none shadow-md transition';
-
-
-                    /*
-                    | REMOVE PHOTO
-                    */
-                    removeButton.addEventListener(
-                        'click',
-                        function(event) {
-
-                            event.preventDefault();
-
-                            event.stopPropagation();
-
-
-                            evidenceFiles.splice(
-                                index,
-                                1
-                            );
-
-
-                            syncFileInput();
-
-                            renderEvidencePreviews();
-
-                        }
-                    );
-
-
-                    /*
-                    | FILE NAME
-                    */
-                    const fileName =
-                        document.createElement('div');
-
-                    fileName.className =
-                        'px-2.5 py-1.5 bg-white text-[10px] text-gray-600 truncate';
-
-                    fileName.textContent =
-                        file.name;
-
-
-                    /*
-                    | BUILD CARD
-                    */
-                    wrapper.appendChild(image);
-
-                    wrapper.appendChild(removeButton);
-
-                    wrapper.appendChild(fileName);
-
-                    evidencePreview.appendChild(wrapper);
-
-                });
-
-            }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | NEW FILE SELECTION
-            |--------------------------------------------------------------------------
-            */
-
-            evidenceInput.addEventListener(
-                'change',
-                function() {
-
-                    const newlySelectedFiles =
-                        Array.from(
-                            evidenceInput.files || []
-                        );
-
-
-                    newlySelectedFiles.forEach(
-                        function(file) {
-
-                            if (
-                                !file.type ||
-                                !file.type.startsWith('image/')
-                            ) {
-                                return;
-                            }
-
-
-                            if (fileExists(file)) {
-                                return;
-                            }
-
-
-                            evidenceFiles.push(file);
-
-                        }
-                    );
-
-
-                    evidenceInput.value = '';
-
-                    syncFileInput();
-
-                    renderEvidencePreviews();
-
-                }
-            );
 
         });
     </script>
@@ -1869,46 +1485,21 @@
     {{-- ===========================================================
          MANUAL LOCATION TOGGLE
     ============================================================ --}}
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            const manualLocationButton =
-                document.getElementById('manualLocationButton');
-
-            const useGpsButton =
-                document.getElementById('useGpsButton');
-
-            const manualLocationContainer =
-                document.getElementById('manualLocationContainer');
-
-            const gpsLocationContainer =
-                document.getElementById('gpsLocationContainer');
-
-            const manualStreet =
-                document.getElementById('manualStreet');
-
-            const manualCity =
-                document.getElementById('manualCity');
-
-            const locationInput =
-                document.getElementById('location');
-
-            const locationValidationMessage =
-                document.getElementById('locationValidationMessage');
-
-            const gpsStatusBadge =
-                document.getElementById('gpsStatusBadge');
-
-            const latitude =
-                document.getElementById('latitude');
-
-            const longitude =
-                document.getElementById('longitude');
-
-            const form =
-                document.getElementById('issueTicketForm');
-
+            const manualLocationButton = document.getElementById('manualLocationButton');
+            const useGpsButton = document.getElementById('useGpsButton');
+            const manualLocationContainer = document.getElementById('manualLocationContainer');
+            const gpsLocationContainer = document.getElementById('gpsLocationContainer');
+            const manualStreet = document.getElementById('manualStreet');
+            const manualCity = document.getElementById('manualCity');
+            const locationInput = document.getElementById('location');
+            const locationValidationMessage = document.getElementById('locationValidationMessage');
+            const gpsStatusBadge = document.getElementById('gpsStatusBadge');
+            const latitude = document.getElementById('latitude');
+            const longitude = document.getElementById('longitude');
+            const form = document.getElementById('issueTicketForm');
 
             if (
                 !manualLocationButton ||
@@ -1922,214 +1513,99 @@
                 return;
             }
 
+            // ENTER MANUAL LOCATION
+            manualLocationButton.addEventListener('click', function() {
+                gpsLocationContainer.classList.add('hidden');
+                manualLocationContainer.classList.remove('hidden');
+                manualLocationButton.classList.add('hidden');
 
-            /*
-            |--------------------------------------------------------------------------
-            | ENTER MANUAL LOCATION
-            |--------------------------------------------------------------------------
-            */
-
-            manualLocationButton.addEventListener(
-                'click',
-                function() {
-
-                    gpsLocationContainer.classList.add('hidden');
-
-                    manualLocationContainer.classList.remove('hidden');
-
-                    manualLocationButton.classList.add('hidden');
-
-
-                    if (gpsStatusBadge) {
-
-                        gpsStatusBadge.textContent =
-                            'Manual';
-
-                        gpsStatusBadge.className =
-                            'text-[10px] font-semibold px-2 py-1 rounded-full bg-blue-50 text-blue-700 shrink-0';
-
-                    }
-
-
-                    if (locationValidationMessage) {
-
-                        locationValidationMessage.classList.add(
-                            'hidden'
-                        );
-
-                    }
-
-
-                    manualStreet.focus();
-
+                if (gpsStatusBadge) {
+                    gpsStatusBadge.textContent = 'Manual';
+                    gpsStatusBadge.className =
+                        'text-[10px] font-semibold px-2 py-1 rounded-full bg-blue-50 text-blue-700 shrink-0';
                 }
-            );
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | USE GPS AGAIN
-            |--------------------------------------------------------------------------
-            */
-
-            useGpsButton.addEventListener(
-                'click',
-                function() {
-
-                    manualLocationContainer.classList.add('hidden');
-
-                    gpsLocationContainer.classList.remove('hidden');
-
-                    manualLocationButton.classList.remove('hidden');
-
-
-                    /*
-                    | Clear manual street.
-                    */
-                    manualStreet.value = '';
-
-
-                    /*
-                    | Clear coordinates so the
-                    | existing GPS logic can recapture them.
-                    */
-                    if (latitude) {
-                        latitude.value = '';
-                    }
-
-                    if (longitude) {
-                        longitude.value = '';
-                    }
-
-
-                    /*
-                    | Clear location so the existing
-                    | GPS script can populate it again.
-                    */
-                    locationInput.value = '';
-
-                    locationInput.placeholder =
-                        'Detecting current location...';
-
-                    locationInput.readOnly =
-                        true;
-
-
-                    if (gpsStatusBadge) {
-
-                        gpsStatusBadge.textContent =
-                            'Detecting';
-
-                        gpsStatusBadge.className =
-                            'text-[10px] font-semibold px-2 py-1 rounded-full bg-yellow-50 text-yellow-700 shrink-0';
-
-                    }
-
+                if (locationValidationMessage) {
+                    locationValidationMessage.classList.add('hidden');
                 }
-            );
 
+                manualStreet.focus();
+            });
 
-            /*
-            |--------------------------------------------------------------------------
-            | UPDATE ACTUAL LOCATION FIELD
-            |--------------------------------------------------------------------------
-            |
-            | Manual input is stored in the existing
-            | "location" field.
-            |
-            | Example:
-            |
-            | Macabulos Drive, Tarlac City
-            |
-            */
+            // USE GPS AGAIN
+            useGpsButton.addEventListener('click', function() {
+                manualLocationContainer.classList.add('hidden');
+                gpsLocationContainer.classList.remove('hidden');
+                manualLocationButton.classList.remove('hidden');
 
-            manualStreet.addEventListener(
-                'input',
-                function() {
+                // Clear manual street.
+                manualStreet.value = '';
 
-                    const street =
-                        manualStreet.value.trim();
-
-                    const city =
-                        manualCity.value.trim();
-
-
-                    if (street) {
-
-                        locationInput.value =
-                            street + ', ' + city;
-
-                    } else {
-
-                        locationInput.value = '';
-
-                    }
-
+                // Clear coordinates so the existing GPS logic can recapture them.
+                if (latitude) {
+                    latitude.value = '';
                 }
-            );
 
+                if (longitude) {
+                    longitude.value = '';
+                }
 
-            /*
-            |--------------------------------------------------------------------------
-            | VALIDATE MANUAL LOCATION BEFORE SUBMIT
-            |--------------------------------------------------------------------------
-            */
+                // Clear location so the existing GPS script can populate it again.
+                locationInput.value = '';
+                locationInput.placeholder = 'Detecting current location...';
+                locationInput.readOnly = true;
 
+                if (gpsStatusBadge) {
+                    gpsStatusBadge.textContent = 'Detecting';
+                    gpsStatusBadge.className =
+                        'text-[10px] font-semibold px-2 py-1 rounded-full bg-yellow-50 text-yellow-700 shrink-0';
+                }
+            });
+
+            // Manual input is stored in the existing "location" field.
+            // Example: Macabulos Drive, Tarlac City
+            // The street is cleaned FIRST (this listener runs before the JS file's),
+            // then copied into the "location" field.
+            manualStreet.maxLength = 100;
+
+            manualStreet.addEventListener('input', function() {
+                manualStreet.value = manualStreet.value
+                    .replace(/[^\p{L}\p{N}\s,.\-#\/'()]/gu, '')
+                    .replace(/\s{2,}/g, ' ')
+                    .replace(/^\s+/, '');
+
+                const street = manualStreet.value.trim();
+                const city = manualCity.value.trim();
+
+                locationInput.value = street ? street + ', ' + city : '';
+            });
+
+            // VALIDATE MANUAL LOCATION BEFORE SUBMIT
             if (form) {
+                form.addEventListener('submit', function(event) {
+                    // Only validate the street when manual mode is active.
+                    if (!manualLocationContainer.classList.contains('hidden')) {
+                        const street = manualStreet.value.trim();
 
-                form.addEventListener(
-                    'submit',
-                    function(event) {
+                        if (!street) {
+                            event.preventDefault();
 
-                        /*
-                        | Only validate the street
-                        | when manual mode is active.
-                        */
-                        if (
-                            !manualLocationContainer.classList.contains(
-                                'hidden'
-                            )
-                        ) {
+                            manualStreet.focus();
 
-                            const street =
-                                manualStreet.value.trim();
+                            locationValidationMessage.classList.remove('hidden');
 
-
-                            if (!street) {
-
-                                event.preventDefault();
-
-                                manualStreet.focus();
-
-                                locationValidationMessage.classList.remove(
-                                    'hidden'
-                                );
-
-                                return;
-
-                            }
-
-
-                            /*
-                            | Ensure the actual submitted
-                            | location field contains:
-                            |
-                            | Street, Tarlac City
-                            */
-                            locationInput.value =
-                                street +
-                                ', ' +
-                                manualCity.value.trim();
-
+                            return;
                         }
 
+                        // Ensure the submitted location field contains: Street, Tarlac City
+                        locationInput.value = street + ', ' + manualCity.value.trim();
                     }
-                );
-
+                });
             }
 
         });
     </script>
+
 
     {{-- =========================================================
          NETWORK STATUS NOTIFICATION
@@ -2137,127 +1613,48 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
 
-            const notification =
-                document.getElementById('networkStatusNotification');
+            const notification = document.getElementById('networkStatusNotification');
+            const dot = document.getElementById('networkStatusDot');
+            const title = document.getElementById('networkStatusTitle');
+            const message = document.getElementById('networkStatusMessage');
+            const icon = document.getElementById('networkStatusIcon');
 
-            const dot =
-                document.getElementById('networkStatusDot');
-
-            const title =
-                document.getElementById('networkStatusTitle');
-
-            const message =
-                document.getElementById('networkStatusMessage');
-
-            const icon =
-                document.getElementById('networkStatusIcon');
-
-
-            if (
-                !notification ||
-                !dot ||
-                !title ||
-                !message ||
-                !icon
-            ) {
+            if (!notification || !dot || !title || !message || !icon) {
                 return;
             }
 
-
             function updateNetworkStatus() {
-
                 if (navigator.onLine) {
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | ONLINE
-                    |--------------------------------------------------------------------------
-                    */
 
                     notification.className =
                         'mt-2.5 flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2';
-
-                    dot.className =
-                        'w-2 h-2 rounded-full bg-green-500 flex-shrink-0';
-
-                    title.className =
-                        'text-[11px] font-semibold text-green-700';
-
-                    title.textContent =
-                        'Online';
-
-                    message.className =
-                        'text-[10px] text-green-600 truncate';
-
-                    message.textContent =
-                        'Internet connection is available.';
-
-                    icon.className =
-                        'text-sm text-green-600 flex-shrink-0';
-
-                    icon.textContent =
-                        '✓';
+                    dot.className = 'w-2 h-2 rounded-full bg-green-500 flex-shrink-0';
+                    title.className = 'text-[11px] font-semibold text-green-700';
+                    title.textContent = 'Online';
+                    message.className = 'text-[10px] text-green-600 truncate';
+                    message.textContent = 'Internet connection is available.';
+                    icon.className = 'text-sm text-green-600 flex-shrink-0';
+                    icon.textContent = '✓';
 
                 } else {
 
-                    /*
-                    |--------------------------------------------------------------------------
-                    | OFFLINE
-                    |--------------------------------------------------------------------------
-                    */
-
                     notification.className =
                         'mt-2.5 flex items-center justify-between gap-3 rounded-lg border border-orange-200 bg-orange-50 px-3 py-2';
-
-                    dot.className =
-                        'w-2 h-2 rounded-full bg-orange-500 flex-shrink-0';
-
-                    title.className =
-                        'text-[11px] font-semibold text-orange-700';
-
-                    title.textContent =
-                        'Offline';
-
-                    message.className =
-                        'text-[10px] text-orange-600 truncate';
-
-                    message.textContent =
-                        'No internet connection. You can continue working offline.';
-
-                    icon.className =
-                        'text-sm text-orange-600 flex-shrink-0';
-
-                    icon.textContent =
-                        '⚠';
+                    dot.className = 'w-2 h-2 rounded-full bg-orange-500 flex-shrink-0';
+                    title.className = 'text-[11px] font-semibold text-orange-700';
+                    title.textContent = 'Offline';
+                    message.className = 'text-[10px] text-orange-600 truncate';
+                    message.textContent = 'No internet connection. You can continue working offline.';
+                    icon.className = 'text-sm text-orange-600 flex-shrink-0';
+                    icon.textContent = '⚠';
 
                 }
-
             }
-
-
-            /*
-            |--------------------------------------------------------------------------
-            | CHECK INITIAL STATUS
-            |--------------------------------------------------------------------------
-            */
 
             updateNetworkStatus();
 
-
-            /*
-            |--------------------------------------------------------------------------
-            | DETECT CONNECTION CHANGES
-            |--------------------------------------------------------------------------
-            */
-
-            window.addEventListener('online', function() {
-                updateNetworkStatus();
-            });
-
-
-            window.addEventListener('offline', function() {
-                updateNetworkStatus();
-            });
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
 
         });
     </script>

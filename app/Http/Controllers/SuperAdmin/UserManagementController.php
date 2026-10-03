@@ -5,8 +5,10 @@ namespace App\Http\Controllers\SuperAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\Role;
 use App\Models\User;
+use App\Models\Enforcer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -26,7 +28,10 @@ class UserManagementController extends Controller
             ->orderBy('id')
             ->get();
 
-        return view('superadmin.users.index', compact('users', 'roles'));
+        return view(
+            'superadmin.users.index',
+            compact('users', 'roles')
+        );
     }
 
     /**
@@ -46,7 +51,7 @@ class UserManagementController extends Controller
                     'required',
                     'string',
                     'max:100',
-                    'regex:/^[A-Za-z0-9._-]+$/',
+                    'regex:/^[A-Za-z0-9.\_-]+$/',
                     'unique:users,username',
                 ],
 
@@ -87,29 +92,106 @@ class UserManagementController extends Controller
             ]
         );
 
-        User::create([
-            'name' => $validated['name'],
-            'username' => $validated['username'],
-            'password' => Hash::make($validated['password']),
-            'role_id' => $validated['role_id'],
-            'account_status' => $validated['account_status'],
-        ]);
+        DB::transaction(function () use ($validated) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create User Account
+            |--------------------------------------------------------------------------
+            */
+
+            $user = User::create([
+                'name' => $validated['name'],
+                'username' => $validated['username'],
+                'password' => Hash::make($validated['password']),
+                'role_id' => $validated['role_id'],
+                'account_status' => $validated['account_status'],
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Create Linked Enforcer Profile
+            |--------------------------------------------------------------------------
+            |
+            | Role 2 = POSO Enforcer
+            |
+            | The Super Administrator only provides the basic account
+            | information. Additional personnel information can be
+            | completed later by the POSO Administrator.
+            |
+            */
+
+            if ((int) $validated['role_id'] === 2) {
+
+                $nameParts = preg_split(
+                    '/\s+/',
+                    trim($validated['name'])
+                );
+
+                $firstName = $nameParts[0] ?? '';
+
+                $lastName = count($nameParts) > 1
+                    ? $nameParts[count($nameParts) - 1]
+                    : $firstName;
+
+                $middleName = null;
+
+                if (count($nameParts) > 2) {
+                    $middleName = implode(
+                        ' ',
+                        array_slice($nameParts, 1, -1)
+                    );
+                }
+
+                Enforcer::create([
+                    'user_id' => $user->id,
+
+                    // Optional
+                    'badge_number' => null,
+
+                    'first_name' => $firstName,
+
+                    'middle_name' => $middleName,
+
+                    'last_name' => $lastName,
+
+                    // Optional
+                    'contact_number' => null,
+
+                    // Email is not used
+                    'email' => null,
+
+                    // Can be completed by POSO Admin
+                    'position' => null,
+
+                    // Can be completed by POSO Admin
+                    'employment_status' => null,
+                ]);
+            }
+        });
 
         return redirect()
             ->route('super-admin.users')
-            ->with('success', 'User account created successfully.');
+            ->with(
+                'success',
+                'User account created successfully.'
+            );
     }
 
     /**
      * Update an existing system user.
      */
-    public function update(Request $request, User $user): RedirectResponse
-    {
+    public function update(
+        Request $request,
+        User $user
+    ): RedirectResponse {
+
         /*
         |--------------------------------------------------------------------------
         | Prevent modification of Super Administrator accounts
         |--------------------------------------------------------------------------
         */
+
         if ((int) $user->role_id === 4) {
             return redirect()
                 ->route('super-admin.users')
@@ -131,8 +213,9 @@ class UserManagementController extends Controller
                     'required',
                     'string',
                     'max:100',
-                    'regex:/^[A-Za-z0-9._-]+$/',
-                    Rule::unique('users', 'username')->ignore($user->id),
+                    'regex:/^[A-Za-z0-9.\_-]+$/',
+                    Rule::unique('users', 'username')
+                        ->ignore($user->id),
                 ],
 
                 'role_id' => [
@@ -159,16 +242,94 @@ class UserManagementController extends Controller
             ]
         );
 
-        $user->update([
-            'name' => $validated['name'],
-            'username' => $validated['username'],
-            'role_id' => $validated['role_id'],
-            'account_status' => $validated['account_status'],
-        ]);
+        DB::transaction(function () use (
+            $validated,
+            $user
+        ) {
+
+            /*
+            |--------------------------------------------------------------------------
+            | Update User Account
+            |--------------------------------------------------------------------------
+            */
+
+            $user->update([
+                'name' => $validated['name'],
+                'username' => $validated['username'],
+                'role_id' => $validated['role_id'],
+                'account_status' => $validated['account_status'],
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Ensure POSO Enforcer Has an Enforcer Profile
+            |--------------------------------------------------------------------------
+            |
+            | Role 2 = POSO Enforcer
+            |
+            | If this account is changed to role 2 and does not yet have
+            | an Enforcer profile, create one automatically.
+            |
+            */
+
+            if ((int) $validated['role_id'] === 2) {
+
+                $existingEnforcer = Enforcer::where(
+                    'user_id',
+                    $user->id
+                )->first();
+
+                if (!$existingEnforcer) {
+
+                    $nameParts = preg_split(
+                        '/\s+/',
+                        trim($validated['name'])
+                    );
+
+                    $firstName = $nameParts[0] ?? '';
+
+                    $lastName = count($nameParts) > 1
+                        ? $nameParts[count($nameParts) - 1]
+                        : $firstName;
+
+                    $middleName = null;
+
+                    if (count($nameParts) > 2) {
+                        $middleName = implode(
+                            ' ',
+                            array_slice($nameParts, 1, -1)
+                        );
+                    }
+
+                    Enforcer::create([
+                        'user_id' => $user->id,
+
+                        'badge_number' => null,
+
+                        'first_name' => $firstName,
+
+                        'middle_name' => $middleName,
+
+                        'last_name' => $lastName,
+
+                        'contact_number' => null,
+
+                        'email' => null,
+
+                        'position' => null,
+
+                        'employment_status' => null,
+                    ]);
+                }
+            }
+        });
 
         return redirect()
             ->route('super-admin.users')
-            ->with('success', 'User account updated successfully.');
+            ->with(
+                'success',
+                'User account updated successfully.'
+            );
     }
 
     /**
@@ -178,11 +339,13 @@ class UserManagementController extends Controller
         Request $request,
         User $user
     ): RedirectResponse {
+
         /*
         |--------------------------------------------------------------------------
         | Prevent password reset of Super Administrator accounts
         |--------------------------------------------------------------------------
         */
+
         if ((int) $user->role_id === 4) {
             return redirect()
                 ->route('super-admin.users')
@@ -197,6 +360,7 @@ class UserManagementController extends Controller
         | Generate temporary password
         |--------------------------------------------------------------------------
         */
+
         $temporaryPassword = $this->generateTemporaryPassword();
 
         $user->update([
@@ -218,11 +382,13 @@ class UserManagementController extends Controller
         Request $request,
         User $user
     ): RedirectResponse {
+
         /*
         |--------------------------------------------------------------------------
         | Prevent modification of Super Administrator accounts
         |--------------------------------------------------------------------------
         */
+
         if ((int) $user->role_id === 4) {
             return redirect()
                 ->route('super-admin.users')
@@ -238,6 +404,7 @@ class UserManagementController extends Controller
         | from disabling their own account.
         |--------------------------------------------------------------------------
         */
+
         if (auth()->id() === $user->id) {
             return redirect()
                 ->route('super-admin.users')
@@ -263,7 +430,10 @@ class UserManagementController extends Controller
 
         return redirect()
             ->route('super-admin.users')
-            ->with('success', $message);
+            ->with(
+                'success',
+                $message
+            );
     }
 
     /**
@@ -273,11 +443,13 @@ class UserManagementController extends Controller
         Request $request,
         User $user
     ): RedirectResponse {
+
         /*
         |--------------------------------------------------------------------------
         | Prevent deletion of Super Administrator accounts
         |--------------------------------------------------------------------------
         */
+
         if ((int) $user->role_id === 4) {
             return redirect()
                 ->route('super-admin.users')
@@ -292,6 +464,7 @@ class UserManagementController extends Controller
         | Prevent self-deletion
         |--------------------------------------------------------------------------
         */
+
         if (auth()->id() === $user->id) {
             return redirect()
                 ->route('super-admin.users')
@@ -302,6 +475,17 @@ class UserManagementController extends Controller
         }
 
         $userName = $user->name;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Delete User
+        |--------------------------------------------------------------------------
+        |
+        | The enforcers.user_id foreign key uses cascadeOnDelete(),
+        | so a linked Enforcer profile will also be removed when
+        | the corresponding user account is deleted.
+        |
+        */
 
         $user->delete();
 
@@ -321,3 +505,4 @@ class UserManagementController extends Controller
         return Str::random(12);
     }
 }
+
