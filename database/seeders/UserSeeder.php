@@ -48,7 +48,6 @@ class UserSeeder extends Seeder
                 'first_name' => 'Juan',
                 'last_name' => 'Dela Cruz',
                 'position' => 'Traffic Enforcer',
-                'employment_status' => 'Active',
             ]
         );
     }
