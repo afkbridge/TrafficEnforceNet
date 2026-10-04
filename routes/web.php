@@ -132,6 +132,7 @@ Route::middleware(['auth', 'role:Super Administrator', 'prevent-back'])->group(f
 
     Route::put('/super-admin/profile/password', [SAProfileController::class, 'updatePassword'])
         ->name('super-admin.profile.password');
+
 });
 
 
@@ -173,6 +174,7 @@ Route::middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])->group(functi
 
     Route::put('/bplo/settings/password', [BPLOSettingsController::class, 'updatePassword'])
         ->name('bplo.settings.password');
+
 });
 
 
@@ -378,34 +380,18 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     | Enforcer Management
     |--------------------------------------------------------------------------
-    */
-
-    /*
-    |--------------------------------------------------------------------------
-    | Create Enforcer Profile for Existing User
-    |--------------------------------------------------------------------------
     |
-    | These routes do NOT create a new user account.
-    | They create an Enforcer profile linked to an existing
-    | POSO Enforcer user account.
+    | The standard resource routes handle both:
     |
-    */
-
-    Route::get(
-        '/enforcers/{user}/profile/create',
-        [EnforcerController::class, 'createProfile']
-    )->name('enforcers.profile.create');
-
-
-    Route::post(
-        '/enforcers/{user}/profile',
-        [EnforcerController::class, 'storeProfile']
-    )->name('enforcers.profile.store');
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Standard Enforcer Resource Routes
+    | 1. Creating a completely new Enforcer account + profile
+    |    through create.blade.php.
+    |
+    | 2. Editing an existing Enforcer profile.
+    |
+    | 3. Completing the profile of an existing POSO Enforcer
+    |    account created by Super Administrator.
+    |
+    | No separate create-profile route is used.
     |--------------------------------------------------------------------------
     */
 
@@ -612,6 +598,7 @@ Route::middleware('auth')->group(function () {
             '/enforcer/profile/password',
             [EnforcerProfileController::class, 'updatePassword']
         )->name('enforcer.password.update');
+
     });
 
 
@@ -631,6 +618,7 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+
 });
 
 
