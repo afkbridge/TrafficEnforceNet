@@ -6,7 +6,7 @@
 
 <div class="container-fluid px-4 py-4">
 
-```
+
 {{-- Header --}}
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
     <div>
@@ -210,7 +210,7 @@
 
     </div>
 </div>
-```
+
 
 </div>
 
