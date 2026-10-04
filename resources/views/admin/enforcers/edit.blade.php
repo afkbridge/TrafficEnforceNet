@@ -1,4 +1,3 @@
-
 @extends('layouts.admin')
 
 @section('title', 'Edit Enforcer')
@@ -10,9 +9,13 @@
     {{-- ===================================================== --}}
     {{-- Alerts --}}
     {{-- ===================================================== --}}
+
     @if (session('success'))
+
         <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4">
+
             <i class="fas fa-check-circle me-2"></i>
+
             {{ session('success') }}
 
             <button
@@ -20,20 +23,32 @@
                 class="btn-close"
                 data-bs-dismiss="alert">
             </button>
+
         </div>
+
     @endif
 
+
     @if ($errors->any())
+
         <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4">
+
             <div class="fw-semibold mb-1">
+
                 <i class="fas fa-exclamation-circle me-2"></i>
+
                 Please fix the following errors:
+
             </div>
 
             <ul class="mb-0 mt-2">
+
                 @foreach ($errors->all() as $error)
+
                     <li>{{ $error }}</li>
+
                 @endforeach
+
             </ul>
 
             <button
@@ -41,17 +56,22 @@
                 class="btn-close"
                 data-bs-dismiss="alert">
             </button>
+
         </div>
+
     @endif
 
 
     {{-- ===================================================== --}}
     {{-- Page Header --}}
     {{-- ===================================================== --}}
+
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
+
             <div class="d-flex align-items-center mb-1">
+
                 <div
                     class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 me-3"
                     style="width: 44px; height: 44px;"
@@ -62,12 +82,15 @@
                 <h2 class="fw-bold mb-0">
                     Edit Enforcer
                 </h2>
+
             </div>
 
             <p class="text-muted mb-0 ms-1">
-                Update the enforcer's personal, employment, and account information.
+                Update the enforcer's personal, position, and account information.
             </p>
+
         </div>
+
 
         <a
             href="{{ route('enforcers.index') }}"
@@ -83,9 +106,11 @@
     {{-- ===================================================== --}}
     {{-- Main Profile Card --}}
     {{-- ===================================================== --}}
+
     <div class="card border-0 shadow-sm rounded-4 mb-4">
 
         {{-- Card Header --}}
+
         <div class="card-header bg-white border-bottom py-3 px-4">
 
             <div class="d-flex align-items-center">
@@ -98,13 +123,15 @@
                 </div>
 
                 <div>
+
                     <h5 class="fw-bold mb-0">
                         Enforcer Profile
                     </h5>
 
                     <small class="text-muted">
-                        Personal and employment details
+                        Personal and position details
                     </small>
+
                 </div>
 
             </div>
@@ -120,12 +147,14 @@
             >
 
                 @csrf
+
                 @method('PUT')
 
 
                 {{-- ================================================= --}}
                 {{-- Personal Information --}}
                 {{-- ================================================= --}}
+
                 <div class="mb-4">
 
                     <div class="d-flex align-items-center mb-3">
@@ -138,6 +167,7 @@
                         </div>
 
                         <div>
+
                             <h6 class="fw-bold mb-0">
                                 Personal Information
                             </h6>
@@ -145,6 +175,7 @@
                             <small class="text-muted">
                                 Basic information of the enforcer
                             </small>
+
                         </div>
 
                     </div>
@@ -153,11 +184,15 @@
                     <div class="row g-3">
 
                         {{-- First Name --}}
+
                         <div class="col-md-4">
 
                             <label class="form-label fw-semibold">
+
                                 First Name
+
                                 <span class="text-danger">*</span>
+
                             </label>
 
                             <input
@@ -173,11 +208,17 @@
 
 
                         {{-- Middle Name --}}
+
                         <div class="col-md-4">
 
                             <label class="form-label fw-semibold">
+
                                 Middle Name
-                                <span class="text-muted fw-normal">(Optional)</span>
+
+                                <span class="text-muted fw-normal">
+                                    (Optional)
+                                </span>
+
                             </label>
 
                             <input
@@ -192,11 +233,15 @@
 
 
                         {{-- Last Name --}}
+
                         <div class="col-md-4">
 
                             <label class="form-label fw-semibold">
+
                                 Last Name
+
                                 <span class="text-danger">*</span>
+
                             </label>
 
                             <input
@@ -212,11 +257,17 @@
 
 
                         {{-- Contact Number --}}
+
                         <div class="col-md-6">
 
                             <label class="form-label fw-semibold">
+
                                 Contact Number
-                                <span class="text-muted fw-normal">(Optional)</span>
+
+                                <span class="text-muted fw-normal">
+                                    (Optional)
+                                </span>
+
                             </label>
 
                             <input
@@ -231,11 +282,17 @@
 
 
                         {{-- Badge Number --}}
+
                         <div class="col-md-6">
 
                             <label class="form-label fw-semibold">
+
                                 Badge Number
-                                <span class="text-muted fw-normal">(Optional)</span>
+
+                                <span class="text-muted fw-normal">
+                                    (Optional)
+                                </span>
+
                             </label>
 
                             <input
@@ -254,12 +311,14 @@
 
 
                 {{-- Section Divider --}}
+
                 <hr class="my-4">
 
 
                 {{-- ================================================= --}}
-                {{-- Employment Information --}}
+                {{-- Enforcer Details --}}
                 {{-- ================================================= --}}
+
                 <div class="mb-4">
 
                     <div class="d-flex align-items-center mb-3">
@@ -268,17 +327,19 @@
                             class="d-flex align-items-center justify-content-center bg-light text-primary rounded-circle me-2"
                             style="width: 34px; height: 34px;"
                         >
-                            <i class="fas fa-briefcase"></i>
+                            <i class="fas fa-id-badge"></i>
                         </div>
 
                         <div>
+
                             <h6 class="fw-bold mb-0">
-                                Employment Information
+                                Enforcer Details
                             </h6>
 
                             <small class="text-muted">
-                                Position and employment classification
+                                Assigned position of the enforcer
                             </small>
+
                         </div>
 
                     </div>
@@ -287,11 +348,15 @@
                     <div class="row g-3">
 
                         {{-- Position --}}
+
                         <div class="col-md-6">
 
                             <label class="form-label fw-semibold">
+
                                 Position
+
                                 <span class="text-danger">*</span>
+
                             </label>
 
                             <select
@@ -326,59 +391,20 @@
 
                         </div>
 
-
-                        {{-- Employment Status --}}
-                        <div class="col-md-6">
-
-                            <label class="form-label fw-semibold">
-                                Employment Status
-                                <span class="text-danger">*</span>
-                            </label>
-
-                            <select
-                                name="employment_status"
-                                class="form-select rounded-3"
-                                required
-                            >
-
-                                <option value="">
-                                    Select Employment Status
-                                </option>
-
-                                <option
-                                    value="Permanent"
-                                    {{ old('employment_status', $enforcer->employment_status) === 'Permanent' ? 'selected' : '' }}
-                                >
-                                    Permanent
-                                </option>
-
-                                <option
-                                    value="Job Order"
-                                    {{ old('employment_status', $enforcer->employment_status) === 'Job Order' ? 'selected' : '' }}
-                                >
-                                    Job Order
-                                </option>
-
-                            </select>
-
-                            <small class="text-muted">
-                                Select the enforcer's employment classification.
-                            </small>
-
-                        </div>
-
                     </div>
 
                 </div>
 
 
                 {{-- Section Divider --}}
+
                 <hr class="my-4">
 
 
                 {{-- ================================================= --}}
                 {{-- Account Information --}}
                 {{-- ================================================= --}}
+
                 <div class="mb-2">
 
                     <div class="d-flex align-items-center mb-3">
@@ -391,6 +417,7 @@
                         </div>
 
                         <div>
+
                             <h6 class="fw-bold mb-0">
                                 Account Information
                             </h6>
@@ -398,6 +425,7 @@
                             <small class="text-muted">
                                 Login credentials and account status
                             </small>
+
                         </div>
 
                     </div>
@@ -406,11 +434,15 @@
                     <div class="row g-3">
 
                         {{-- Username --}}
+
                         <div class="col-md-6">
 
                             <label class="form-label fw-semibold">
+
                                 Username
+
                                 <span class="text-danger">*</span>
+
                             </label>
 
                             <input
@@ -431,6 +463,7 @@
 
 
                         {{-- Account Status --}}
+
                         <div class="col-md-6">
 
                             <label class="form-label fw-semibold">
@@ -457,7 +490,7 @@
                                         class="badge rounded-pill bg-danger px-3 py-2"
                                     >
                                         <i class="fas fa-times-circle me-1"></i>
-                                        Inactive
+                                        Disabled
                                     </span>
 
                                 @else
@@ -474,7 +507,7 @@
                             </div>
 
                             <small class="text-muted">
-                                Account status is managed separately from employment status.
+                                Account status is managed separately.
                             </small>
 
                         </div>
@@ -487,7 +520,10 @@
                 {{-- ================================================= --}}
                 {{-- Form Actions --}}
                 {{-- ================================================= --}}
-                <div class="d-flex justify-content-end align-items-center gap-2 border-top mt-4 pt-4">
+
+                <div
+                    class="d-flex justify-content-end align-items-center gap-2 border-top mt-4 pt-4"
+                >
 
                     <a
                         href="{{ route('enforcers.index') }}"
@@ -516,6 +552,7 @@
     {{-- ===================================================== --}}
     {{-- Reset Password --}}
     {{-- ===================================================== --}}
+
     <div class="card border-0 shadow-sm rounded-4 mb-4">
 
         <div class="card-header bg-white border-bottom py-3 px-4">
@@ -530,6 +567,7 @@
                 </div>
 
                 <div>
+
                     <h5 class="fw-bold mb-0">
                         Reset Password
                     </h5>
@@ -537,6 +575,7 @@
                     <small class="text-muted">
                         Change the login password for this enforcer.
                     </small>
+
                 </div>
 
             </div>
@@ -552,11 +591,13 @@
             >
 
                 @csrf
+
                 @method('PUT')
 
                 <div class="row g-3">
 
                     {{-- New Password --}}
+
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
@@ -575,6 +616,7 @@
 
 
                     {{-- Confirm Password --}}
+
                     <div class="col-md-6">
 
                         <label class="form-label fw-semibold">
@@ -616,6 +658,7 @@
     {{-- ===================================================== --}}
     {{-- Danger Zone --}}
     {{-- ===================================================== --}}
+
     <div class="card border-0 shadow-sm rounded-4 mb-4">
 
         <div class="card-header bg-white border-bottom py-3 px-4">
@@ -630,6 +673,7 @@
                 </div>
 
                 <div>
+
                     <h5 class="fw-bold mb-0 text-danger">
                         Danger Zone
                     </h5>
@@ -637,6 +681,7 @@
                     <small class="text-muted">
                         Permanent account actions
                     </small>
+
                 </div>
 
             </div>
@@ -671,6 +716,7 @@
                     >
 
                         @csrf
+
                         @method('DELETE')
 
                         <button
@@ -695,6 +741,7 @@
     {{-- ===================================================== --}}
     {{-- Security Information --}}
     {{-- ===================================================== --}}
+
     <div class="card border-0 shadow-sm rounded-4 mb-4">
 
         <div class="card-header bg-white border-bottom py-3 px-4">
@@ -709,6 +756,7 @@
                 </div>
 
                 <div>
+
                     <h5 class="fw-bold mb-0">
                         Security Information
                     </h5>
@@ -716,6 +764,7 @@
                     <small class="text-muted">
                         Account and security notes
                     </small>
+
                 </div>
 
             </div>
@@ -734,6 +783,7 @@
                         <i class="fas fa-lock text-success me-3 mt-1"></i>
 
                         <div>
+
                             <div class="fw-semibold">
                                 Password Protection
                             </div>
@@ -741,6 +791,7 @@
                             <small class="text-muted">
                                 Passwords are encrypted securely.
                             </small>
+
                         </div>
 
                     </div>
@@ -755,6 +806,7 @@
                         <i class="fas fa-user-shield text-primary me-3 mt-1"></i>
 
                         <div>
+
                             <div class="fw-semibold">
                                 Access Control
                             </div>
@@ -762,6 +814,7 @@
                             <small class="text-muted">
                                 Only administrators can manage accounts.
                             </small>
+
                         </div>
 
                     </div>
@@ -776,6 +829,7 @@
                         <i class="fas fa-history text-warning me-3 mt-1"></i>
 
                         <div>
+
                             <div class="fw-semibold">
                                 Activity Tracking
                             </div>
@@ -783,6 +837,7 @@
                             <small class="text-muted">
                                 Future login activities can be tracked.
                             </small>
+
                         </div>
 
                     </div>
@@ -798,4 +853,3 @@
 </div>
 
 @endsection
-

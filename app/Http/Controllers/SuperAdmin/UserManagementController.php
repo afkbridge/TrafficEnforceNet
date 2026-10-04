@@ -51,7 +51,7 @@ class UserManagementController extends Controller
                     'required',
                     'string',
                     'max:100',
-                    'regex:/^[A-Za-z0-9.\_-]+$/',
+                    'regex:/^[A-Za-z0-9.\_\-]+$/',
                     'unique:users,username',
                 ],
 
@@ -150,9 +150,7 @@ class UserManagementController extends Controller
                     'badge_number' => null,
 
                     'first_name' => $firstName,
-
                     'middle_name' => $middleName,
-
                     'last_name' => $lastName,
 
                     // Optional
@@ -163,9 +161,6 @@ class UserManagementController extends Controller
 
                     // Can be completed by POSO Admin
                     'position' => null,
-
-                    // Can be completed by POSO Admin
-                    'employment_status' => null,
                 ]);
             }
         });
@@ -213,7 +208,7 @@ class UserManagementController extends Controller
                     'required',
                     'string',
                     'max:100',
-                    'regex:/^[A-Za-z0-9.\_-]+$/',
+                    'regex:/^[A-Za-z0-9.\_\-]+$/',
                     Rule::unique('users', 'username')
                         ->ignore($user->id),
                 ],
@@ -307,9 +302,7 @@ class UserManagementController extends Controller
                         'badge_number' => null,
 
                         'first_name' => $firstName,
-
                         'middle_name' => $middleName,
-
                         'last_name' => $lastName,
 
                         'contact_number' => null,
@@ -317,8 +310,6 @@ class UserManagementController extends Controller
                         'email' => null,
 
                         'position' => null,
-
-                        'employment_status' => null,
                     ]);
                 }
             }
@@ -505,4 +496,3 @@ class UserManagementController extends Controller
         return Str::random(12);
     }
 }
-

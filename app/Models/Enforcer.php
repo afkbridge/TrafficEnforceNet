@@ -16,8 +16,8 @@ class Enforcer extends Model
         'contact_number',
         'email',
         'position',
-        'employment_status',
     ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
