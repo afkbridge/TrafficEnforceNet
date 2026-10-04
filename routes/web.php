@@ -52,6 +52,7 @@ Route::get('/', function (Request $request) {
     }
 
     return view('landing', compact('violation'));
+
 })->name('landing');
 
 
@@ -66,7 +67,6 @@ Route::get('/check-ticket', [SearchController::class, 'check'])
 */
 
 Route::get('/office', function () {
-
     return view('office.index');
 })->name('office.portal');
 
@@ -132,8 +132,8 @@ Route::middleware(['auth', 'role:Super Administrator', 'prevent-back'])->group(f
 
     Route::put('/super-admin/profile/password', [SAProfileController::class, 'updatePassword'])
         ->name('super-admin.profile.password');
-
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -173,8 +173,8 @@ Route::middleware(['auth', 'role:BPLO Personnel', 'prevent-back'])->group(functi
 
     Route::put('/bplo/settings/password', [BPLOSettingsController::class, 'updatePassword'])
         ->name('bplo.settings.password');
-
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -247,6 +247,7 @@ Route::get('/dashboard', function () {
     }
 
     return redirect('/');
+
 })->middleware('auth')->name('dashboard');
 
 
@@ -327,7 +328,6 @@ Route::middleware('auth')->group(function () {
     */
 
     Route::get('/admin/settings', function () {
-
         return view('admin.settings.index');
     })->name('admin.settings');
 
@@ -380,14 +380,55 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Create Enforcer Profile for Existing User
+    |--------------------------------------------------------------------------
+    |
+    | These routes do NOT create a new user account.
+    | They create an Enforcer profile linked to an existing
+    | POSO Enforcer user account.
+    |
+    */
+
+    Route::get(
+        '/enforcers/{user}/profile/create',
+        [EnforcerController::class, 'createProfile']
+    )->name('enforcers.profile.create');
+
+
+    Route::post(
+        '/enforcers/{user}/profile',
+        [EnforcerController::class, 'storeProfile']
+    )->name('enforcers.profile.store');
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Standard Enforcer Resource Routes
+    |--------------------------------------------------------------------------
+    */
+
     Route::resource('enforcers', EnforcerController::class);
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enforcer Account
+    |--------------------------------------------------------------------------
+    */
 
     Route::get(
         '/enforcers/{enforcer}/account',
         [EnforcerController::class, 'account']
     )->name('enforcers.account');
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enforcer Password Reset
+    |--------------------------------------------------------------------------
+    */
 
     Route::put(
         '/enforcers/{enforcer}/reset-password',
@@ -545,6 +586,7 @@ Route::middleware('auth')->group(function () {
             return response()->json([
                 'success' => true,
             ]);
+
         })->name('enforcer.heartbeat');
 
 
@@ -554,8 +596,10 @@ Route::middleware('auth')->group(function () {
         |--------------------------------------------------------------------------
         */
 
-        Route::get('/enforcer/profile', [EnforcerProfileController::class, 'show'])
-            ->name('enforcer.profile');
+        Route::get(
+            '/enforcer/profile',
+            [EnforcerProfileController::class, 'show']
+        )->name('enforcer.profile');
 
 
         /*

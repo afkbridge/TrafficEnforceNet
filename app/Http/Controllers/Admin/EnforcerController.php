@@ -50,9 +50,11 @@ class EnforcerController extends Controller
 
         if ($search) {
             $enforcers->where(function ($query) use ($search) {
+
                 $query->where('username', 'like', "%{$search}%")
                     ->orWhere('name', 'like', "%{$search}%")
                     ->orWhereHas('enforcer', function ($profileQuery) use ($search) {
+
                         $profileQuery
                             ->where('badge_number', 'like', "%{$search}%")
                             ->orWhere('first_name', 'like', "%{$search}%")
@@ -161,7 +163,8 @@ class EnforcerController extends Controller
     */
 
     /**
-     * Show the form for creating a new enforcer.
+     * Show the form for creating a completely new Enforcer
+     * and User account.
      */
     public function create()
     {
@@ -175,7 +178,13 @@ class EnforcerController extends Controller
     */
 
     /**
-     * Store a newly created enforcer and user account.
+     * Store a newly created Enforcer and User account.
+     *
+     * This method is ONLY for creating a completely new
+     * Enforcer account from the Create Enforcer page.
+     *
+     * Existing POSO accounts without profiles are handled
+     * through the normal edit/update workflow.
      */
     public function store(Request $request)
     {
@@ -192,11 +201,35 @@ class EnforcerController extends Controller
                 'unique:enforcers,badge_number',
             ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | First Name
+            |--------------------------------------------------------------------------
+            */
+
             'first_name' => [
                 'required',
                 'string',
                 'max:255',
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Middle Name - OPTIONAL
+            |--------------------------------------------------------------------------
+            */
+
+            'middle_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Last Name
+            |--------------------------------------------------------------------------
+            */
 
             'last_name' => [
                 'required',
@@ -254,18 +287,6 @@ class EnforcerController extends Controller
                 'string',
                 'max:255',
             ],
-
-            /*
-            |--------------------------------------------------------------------------
-            | Email - OPTIONAL
-            |--------------------------------------------------------------------------
-            */
-
-            'email' => [
-                'nullable',
-                'email',
-                'max:255',
-            ],
         ]);
 
         DB::transaction(function () use ($request) {
@@ -278,12 +299,19 @@ class EnforcerController extends Controller
 
             $user = User::create([
                 'role_id' => 2,
+
                 'name' => trim(
                     $request->first_name . ' ' . $request->last_name
                 ),
+
                 'username' => $request->username,
+
                 'email' => null,
-                'password' => Hash::make($request->password),
+
+                'password' => Hash::make(
+                    $request->password
+                ),
+
                 'account_status' => 'Active',
             ]);
 
@@ -296,20 +324,18 @@ class EnforcerController extends Controller
             Enforcer::create([
                 'user_id' => $user->id,
 
-                // Optional badge number
                 'badge_number' => $request->badge_number,
 
                 'first_name' => $request->first_name,
+
                 'middle_name' => $request->middle_name,
+
                 'last_name' => $request->last_name,
 
-                // Optional contact number
                 'contact_number' => $request->contact_number,
 
-                // Email is no longer collected
                 'email' => null,
 
-                // Traffic Enforcer / Traffic Aide
                 'position' => $request->position,
             ]);
         });
@@ -379,10 +405,17 @@ class EnforcerController extends Controller
 
         User::create([
             'role_id' => $request->role_id,
+
             'name' => $request->name,
+
             'username' => $request->username,
+
             'email' => null,
-            'password' => Hash::make($request->password),
+
+            'password' => Hash::make(
+                $request->password
+            ),
+
             'account_status' => 'Active',
         ]);
 
@@ -417,7 +450,9 @@ class EnforcerController extends Controller
         ]);
 
         $user->update([
-            'password' => Hash::make($request->password),
+            'password' => Hash::make(
+                $request->password
+            ),
         ]);
 
         return back()->with(
@@ -488,7 +523,7 @@ class EnforcerController extends Controller
     */
 
     /**
-     * Show the form for viewing an enforcer.
+     * Show the form for viewing an Enforcer.
      */
     public function show(Enforcer $enforcer)
     {
@@ -501,20 +536,122 @@ class EnforcerController extends Controller
     }
 
     /**
-     * Show the form for editing an enforcer.
+     * Show the Enforcer edit page.
+     *
+     * IMPORTANT:
+     *
+     * This method handles BOTH:
+     *
+     * 1. Existing Enforcer profiles
+     * 2. Existing POSO Enforcer User accounts that do not
+     *    yet have an Enforcer profile
+     *
+     * Both use the SAME:
+     *
+     *     admin.enforcers.edit
+     *
+     * There is NO create-profile.blade.php.
      */
-    public function edit(Enforcer $enforcer)
+    public function edit($enforcer)
     {
-        $enforcer->load('user');
+        /*
+        |--------------------------------------------------------------------------
+        | Existing POSO User Without Enforcer Profile
+        |--------------------------------------------------------------------------
+        |
+        | Example:
+        |
+        | /enforcers/user-15/edit
+        |
+        */
+
+        if (
+            is_string($enforcer) &&
+            str_starts_with($enforcer, 'user-')
+        ) {
+            $userId = (int) substr($enforcer, 5);
+
+            $user = User::findOrFail($userId);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Verify POSO Enforcer Role
+            |--------------------------------------------------------------------------
+            */
+
+            if ((int) $user->role_id !== 2) {
+                return redirect()
+                    ->route('enforcers.index')
+                    ->with(
+                        'error',
+                        'This account is not a POSO Enforcer account.'
+                    );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | If Profile Already Exists
+            |--------------------------------------------------------------------------
+            |
+            | Redirect to the normal Enforcer edit route.
+            |
+            */
+
+            if ($user->enforcer) {
+                return redirect()->route(
+                    'enforcers.edit',
+                    $user->enforcer->id
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Existing User - No Enforcer Profile
+            |--------------------------------------------------------------------------
+            |
+            | IMPORTANT:
+            |
+            | Use the NORMAL edit.blade.php.
+            |
+            | We are NOT creating another User account.
+            |
+            | The edit page will collect the missing Enforcer
+            | profile information.
+            |
+            */
+
+            return view(
+                'admin.enforcers.edit',
+                [
+                    'enforcer' => null,
+                    'user' => $user,
+                    'creatingProfileForExistingUser' => true,
+                ]
+            );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Existing Enforcer Profile
+        |--------------------------------------------------------------------------
+        */
+
+        $enforcerModel = Enforcer::findOrFail($enforcer);
+
+        $enforcerModel->load('user');
 
         return view(
             'admin.enforcers.edit',
-            compact('enforcer')
+            [
+                'enforcer' => $enforcerModel,
+                'user' => $enforcerModel->user,
+                'creatingProfileForExistingUser' => false,
+            ]
         );
     }
 
     /**
-     * Show the enforcer account information.
+     * Show the Enforcer account information.
      */
     public function account(Enforcer $enforcer)
     {
@@ -526,13 +663,36 @@ class EnforcerController extends Controller
         );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Update Enforcer
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Update an enforcer and their linked user account.
+     * Update an existing Enforcer profile.
+     *
+     * This method also creates the missing Enforcer profile when
+     * an existing POSO Enforcer User account does not yet have
+     * one.
+     *
+     * IMPORTANT:
+     *
+     * No new User account is created here.
      */
     public function update(
         Request $request,
         Enforcer $enforcer
     ) {
+        /*
+        |--------------------------------------------------------------------------
+        | Existing Enforcer Profile
+        |--------------------------------------------------------------------------
+        |
+        | Normal update request.
+        |
+        */
+
         $request->validate([
             /*
             |--------------------------------------------------------------------------
@@ -546,11 +706,35 @@ class EnforcerController extends Controller
                 'unique:enforcers,badge_number,' . $enforcer->id,
             ],
 
+            /*
+            |--------------------------------------------------------------------------
+            | First Name
+            |--------------------------------------------------------------------------
+            */
+
             'first_name' => [
                 'required',
                 'string',
                 'max:255',
             ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Middle Name - OPTIONAL
+            |--------------------------------------------------------------------------
+            */
+
+            'middle_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            /*
+            |--------------------------------------------------------------------------
+            | Last Name
+            |--------------------------------------------------------------------------
+            */
 
             'last_name' => [
                 'required',
@@ -598,46 +782,48 @@ class EnforcerController extends Controller
                 'string',
                 'max:255',
             ],
+        ]);
+
+        DB::transaction(function () use ($request, $enforcer) {
 
             /*
             |--------------------------------------------------------------------------
-            | Email - OPTIONAL
+            | Update Enforcer Profile
             |--------------------------------------------------------------------------
             */
 
-            'email' => 'nullable|email|max:255',
-        ]);
+            $enforcer->update([
+                'badge_number' => $request->badge_number,
 
-        /*
-        |--------------------------------------------------------------------------
-        | Update Enforcer Profile
-        |--------------------------------------------------------------------------
-        */
+                'first_name' => $request->first_name,
 
-        $enforcer->update([
-            'badge_number' => $request->badge_number,
-            'first_name' => $request->first_name,
-            'middle_name' => $request->middle_name,
-            'last_name' => $request->last_name,
-            'contact_number' => $request->contact_number,
-            'email' => null,
-            'position' => $request->position,
-        ]);
+                'middle_name' => $request->middle_name,
 
-        /*
-        |--------------------------------------------------------------------------
-        | Update Linked User Account
-        |--------------------------------------------------------------------------
-        */
+                'last_name' => $request->last_name,
 
-        if ($enforcer->user) {
-            $enforcer->user->update([
-                'name' => trim(
-                    $request->first_name . ' ' . $request->last_name
-                ),
-                'username' => $request->username,
+                'contact_number' => $request->contact_number,
+
+                'email' => null,
+
+                'position' => $request->position,
             ]);
-        }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Update Linked User Account
+            |--------------------------------------------------------------------------
+            */
+
+            if ($enforcer->user) {
+                $enforcer->user->update([
+                    'name' => trim(
+                        $request->first_name . ' ' . $request->last_name
+                    ),
+
+                    'username' => $request->username,
+                ]);
+            }
+        });
 
         return redirect()
             ->route('enforcers.index')
@@ -647,8 +833,180 @@ class EnforcerController extends Controller
             );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Complete Existing POSO User Profile
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Delete an enforcer and their linked user account.
+     * Create the missing Enforcer profile for an existing
+     * POSO Enforcer User account.
+     *
+     * IMPORTANT:
+     *
+     * This uses the SAME edit.blade.php page.
+     *
+     * No new User account is created.
+     *
+     * The existing users.id becomes enforcers.user_id.
+     */
+    public function updateExistingUserProfile(
+        Request $request,
+        User $user
+    ) {
+        /*
+        |--------------------------------------------------------------------------
+        | Verify POSO Enforcer Role
+        |--------------------------------------------------------------------------
+        */
+
+        if ((int) $user->role_id !== 2) {
+            return redirect()
+                ->route('enforcers.index')
+                ->with(
+                    'error',
+                    'This account is not a POSO Enforcer account.'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Prevent Duplicate Profile
+        |--------------------------------------------------------------------------
+        */
+
+        if ($user->enforcer) {
+            return redirect()
+                ->route(
+                    'enforcers.edit',
+                    $user->enforcer->id
+                )
+                ->with(
+                    'error',
+                    'This user already has an Enforcer profile.'
+                );
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Validate Profile Information
+        |--------------------------------------------------------------------------
+        */
+
+        $request->validate([
+            'badge_number' => [
+                'nullable',
+                'string',
+                'unique:enforcers,badge_number',
+            ],
+
+            'first_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'middle_name' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+
+            'last_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
+            'position' => [
+                'required',
+                Rule::in([
+                    'Traffic Enforcer',
+                    'Traffic Aide',
+                ]),
+            ],
+
+            'username' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('users', 'username')->ignore(
+                    $user->id
+                ),
+            ],
+
+            'contact_number' => [
+                'nullable',
+                'string',
+                'max:255',
+            ],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Create Missing Enforcer Profile
+        |--------------------------------------------------------------------------
+        */
+
+        DB::transaction(function () use ($request, $user) {
+
+            Enforcer::create([
+                /*
+                |--------------------------------------------------------------------------
+                | IMPORTANT:
+                | Link the profile to the EXISTING User account.
+                |--------------------------------------------------------------------------
+                */
+
+                'user_id' => $user->id,
+
+                'badge_number' => $request->badge_number,
+
+                'first_name' => $request->first_name,
+
+                'middle_name' => $request->middle_name,
+
+                'last_name' => $request->last_name,
+
+                'contact_number' => $request->contact_number,
+
+                'email' => null,
+
+                'position' => $request->position,
+            ]);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Update Existing User Account
+            |--------------------------------------------------------------------------
+            */
+
+            $user->update([
+                'name' => trim(
+                    $request->first_name . ' ' . $request->last_name
+                ),
+
+                'username' => $request->username,
+            ]);
+        });
+
+        return redirect()
+            ->route('enforcers.index')
+            ->with(
+                'success',
+                'Enforcer profile completed successfully.'
+            );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Delete Enforcer
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Delete an Enforcer and their linked User account.
      */
     public function destroy(Enforcer $enforcer)
     {
@@ -666,7 +1024,7 @@ class EnforcerController extends Controller
 
             /*
             |--------------------------------------------------------------------------
-            | Delete enforcer profile
+            | Delete Enforcer profile
             |--------------------------------------------------------------------------
             */
 
@@ -681,8 +1039,14 @@ class EnforcerController extends Controller
             );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Enforcer Password Management
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Reset the password of an enforcer's account.
+     * Reset the password of an Enforcer's account.
      */
     public function resetPassword(
         Request $request,
@@ -725,7 +1089,9 @@ class EnforcerController extends Controller
         */
 
         $user->update([
-            'password' => Hash::make($request->password),
+            'password' => Hash::make(
+                $request->password
+            ),
         ]);
 
         return back()->with(

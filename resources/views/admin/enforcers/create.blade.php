@@ -9,24 +9,30 @@
     {{-- ===================================================== --}}
     {{-- Page Header --}}
     {{-- ===================================================== --}}
+
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <div>
+
             <h1 class="h3 mb-1 fw-bold">
                 Add Enforcer
             </h1>
 
             <p class="text-muted mb-0">
-                Create an enforcer profile and login account.
+                Create a new enforcer profile and login account.
             </p>
+
         </div>
 
         <a
             href="{{ route('enforcers.index') }}"
             class="btn btn-outline-secondary rounded-pill px-4"
         >
+
             <i class="fas fa-arrow-left me-2"></i>
+
             Back
+
         </a>
 
     </div>
@@ -35,6 +41,7 @@
     {{-- ===================================================== --}}
     {{-- Validation Errors --}}
     {{-- ===================================================== --}}
+
     @if ($errors->any())
 
         <div class="alert alert-danger rounded-3 shadow-sm">
@@ -46,7 +53,9 @@
             <ul class="mb-0 mt-2">
 
                 @foreach ($errors->all() as $error)
+
                     <li>{{ $error }}</li>
+
                 @endforeach
 
             </ul>
@@ -59,6 +68,7 @@
     {{-- ===================================================== --}}
     {{-- Main Card --}}
     {{-- ===================================================== --}}
+
     <div class="card shadow-sm border-0 rounded-4">
 
         <div class="card-body p-4">
@@ -74,6 +84,7 @@
                 {{-- ================================================= --}}
                 {{-- PERSONAL INFORMATION --}}
                 {{-- ================================================= --}}
+
                 <div class="d-flex align-items-center mb-3">
 
                     <div
@@ -85,7 +96,9 @@
                             color: #1d5fbf;
                         "
                     >
+
                         <i class="fas fa-user"></i>
+
                     </div>
 
                     <div>
@@ -106,6 +119,7 @@
                 <div class="row">
 
                     {{-- First Name --}}
+
                     <div class="col-md-4 mb-3">
 
                         <label class="form-label fw-semibold">
@@ -121,6 +135,7 @@
                             name="first_name"
                             class="form-control rounded-3"
                             value="{{ old('first_name') }}"
+                            placeholder="Enter first name"
                             required
                         >
 
@@ -128,10 +143,17 @@
 
 
                     {{-- Middle Name --}}
+
                     <div class="col-md-4 mb-3">
 
                         <label class="form-label fw-semibold">
+
                             Middle Name
+
+                            <span class="text-muted fw-normal">
+                                (Optional)
+                            </span>
+
                         </label>
 
                         <input
@@ -139,13 +161,14 @@
                             name="middle_name"
                             class="form-control rounded-3"
                             value="{{ old('middle_name') }}"
-                            placeholder="Optional"
+                            placeholder="Enter middle name"
                         >
 
                     </div>
 
 
                     {{-- Last Name --}}
+
                     <div class="col-md-4 mb-3">
 
                         <label class="form-label fw-semibold">
@@ -161,6 +184,7 @@
                             name="last_name"
                             class="form-control rounded-3"
                             value="{{ old('last_name') }}"
+                            placeholder="Enter last name"
                             required
                         >
 
@@ -168,6 +192,7 @@
 
 
                     {{-- Contact Number --}}
+
                     <div class="col-md-6 mb-3">
 
                         <label class="form-label fw-semibold">
@@ -199,6 +224,7 @@
                 {{-- ================================================= --}}
                 {{-- ENFORCER DETAILS --}}
                 {{-- ================================================= --}}
+
                 <div class="d-flex align-items-center mb-3">
 
                     <div
@@ -210,7 +236,9 @@
                             color: #946200;
                         "
                     >
+
                         <i class="fas fa-id-badge"></i>
+
                     </div>
 
                     <div>
@@ -231,6 +259,7 @@
                 <div class="row">
 
                     {{-- Badge Number --}}
+
                     <div class="col-md-6 mb-3">
 
                         <label class="form-label fw-semibold">
@@ -255,6 +284,7 @@
 
 
                     {{-- Position --}}
+
                     <div class="col-md-6 mb-3">
 
                         <label class="form-label fw-semibold">
@@ -302,6 +332,7 @@
                 {{-- ================================================= --}}
                 {{-- ACCOUNT CREDENTIALS --}}
                 {{-- ================================================= --}}
+
                 <div class="d-flex align-items-center mb-3">
 
                     <div
@@ -313,7 +344,9 @@
                             color: #198754;
                         "
                     >
+
                         <i class="fas fa-user-lock"></i>
+
                     </div>
 
                     <div>
@@ -334,6 +367,7 @@
                 <div class="row">
 
                     {{-- Username --}}
+
                     <div class="col-md-6 mb-3">
 
                         <label class="form-label fw-semibold">
@@ -354,10 +388,15 @@
                             required
                         >
 
+                        <small class="text-muted">
+                            This will be used to log in to TrafficEnforceNet.
+                        </small>
+
                     </div>
 
 
                     {{-- Password --}}
+
                     <div class="col-md-6 mb-3">
 
                         <label class="form-label fw-semibold">
@@ -381,6 +420,7 @@
 
 
                     {{-- Confirm Password --}}
+
                     <div class="col-md-6 mb-3">
 
                         <label class="form-label fw-semibold">
@@ -408,6 +448,7 @@
                 {{-- ================================================= --}}
                 {{-- ACTIONS --}}
                 {{-- ================================================= --}}
+
                 <hr class="my-4">
 
                 <div class="d-flex justify-content-end gap-2">
@@ -423,8 +464,11 @@
                         type="submit"
                         class="btn btn-primary rounded-pill px-4"
                     >
+
                         <i class="fas fa-save me-2"></i>
-                        Save Enforcer
+
+                        Create Enforcer
+
                     </button>
 
                 </div>

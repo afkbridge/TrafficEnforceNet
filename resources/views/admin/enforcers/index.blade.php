@@ -5,16 +5,37 @@
 @section('content')
 
 {{-- Success Message --}}
+
 @if (session('success'))
-    <div class="alert alert-success alert-dismissible fade show">
-        <i class="fas fa-check-circle me-2"></i>
-        {{ session('success') }}
-        <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="alert"
-        ></button>
-    </div>
+
+<div class="alert alert-success alert-dismissible fade show">
+    <i class="fas fa-check-circle me-2"></i>
+    {{ session('success') }}
+
+    <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+    ></button>
+</div>
+
+@endif
+
+{{-- Error Message --}}
+
+@if (session('error'))
+
+<div class="alert alert-danger alert-dismissible fade show">
+    <i class="fas fa-exclamation-circle me-2"></i>
+    {{ session('error') }}
+
+    <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+    ></button>
+</div>
+
 @endif
 
 <div class="container-fluid">
@@ -22,11 +43,14 @@
     {{-- ===================================================== --}}
     {{-- Page Header --}}
     {{-- ===================================================== --}}
+
     <div class="d-flex justify-content-between align-items-center mb-4">
+
         <div>
             <h2 class="mb-1 fw-bold">
                 Enforcers
             </h2>
+
             <p class="text-muted mb-0">
                 Manage POSO traffic enforcers and their assigned accounts.
             </p>
@@ -39,20 +63,25 @@
             <i class="fas fa-plus me-1"></i>
             Add Enforcer
         </a>
+
     </div>
 
 
     {{-- ===================================================== --}}
     {{-- Summary Cards --}}
     {{-- ===================================================== --}}
+
     <div class="d-flex justify-content-center mb-4">
+
         <div
             class="row g-3 w-100"
             style="max-width: 900px;"
         >
 
             {{-- Total Enforcers --}}
+
             <div class="col-md-4">
+
                 <div
                     class="card border-0 h-100"
                     style="
@@ -60,7 +89,9 @@
                         box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
                     "
                 >
+
                     <div class="card-body py-3 px-4">
+
                         <div class="d-flex align-items-center justify-content-center">
 
                             <div
@@ -78,6 +109,7 @@
                             </div>
 
                             <div>
+
                                 <div class="text-muted small fw-medium">
                                     Total Enforcers
                                 </div>
@@ -91,16 +123,22 @@
                                 >
                                     {{ $totalEnforcers }}
                                 </div>
+
                             </div>
 
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
 
 
             {{-- Online Enforcers --}}
+
             <div class="col-md-4">
+
                 <div
                     class="card border-0 h-100"
                     style="
@@ -108,7 +146,9 @@
                         box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
                     "
                 >
+
                     <div class="card-body py-3 px-4">
+
                         <div class="d-flex align-items-center justify-content-center">
 
                             <div
@@ -126,6 +166,7 @@
                             </div>
 
                             <div>
+
                                 <div class="text-muted small fw-medium">
                                     Online Enforcers
                                 </div>
@@ -139,16 +180,22 @@
                                 >
                                     {{ $onlineEnforcers }}
                                 </div>
+
                             </div>
 
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
 
 
             {{-- Offline Enforcers --}}
+
             <div class="col-md-4">
+
                 <div
                     class="card border-0 h-100"
                     style="
@@ -156,7 +203,9 @@
                         box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
                     "
                 >
+
                     <div class="card-body py-3 px-4">
+
                         <div class="d-flex align-items-center justify-content-center">
 
                             <div
@@ -174,6 +223,7 @@
                             </div>
 
                             <div>
+
                                 <div class="text-muted small fw-medium">
                                     Offline Enforcers
                                 </div>
@@ -187,20 +237,26 @@
                                 >
                                     {{ $offlineEnforcers }}
                                 </div>
+
                             </div>
 
                         </div>
+
                     </div>
+
                 </div>
+
             </div>
 
         </div>
+
     </div>
 
 
     {{-- ===================================================== --}}
     {{-- Search & Filters --}}
     {{-- ===================================================== --}}
+
     <div class="card border-0 shadow-sm mb-4">
 
         <div class="card-header bg-white border-bottom py-3">
@@ -218,6 +274,7 @@
                 </div>
 
                 <div>
+
                     <h5 class="mb-0 fw-bold">
                         Search & Filters
                     </h5>
@@ -225,6 +282,7 @@
                     <small class="text-muted">
                         Search for an enforcer or filter the list by position.
                     </small>
+
                 </div>
 
             </div>
@@ -242,6 +300,7 @@
                 <div class="row g-3 align-items-end">
 
                     {{-- Search --}}
+
                     <div class="col-lg-9">
 
                         <label
@@ -272,6 +331,7 @@
 
 
                     {{-- Position Filter --}}
+
                     <div class="col-lg-3">
 
                         <label
@@ -311,6 +371,7 @@
 
 
                     {{-- Buttons --}}
+
                     <div class="col-12">
 
                         <div class="d-flex justify-content-end gap-2 pt-2">
@@ -347,6 +408,7 @@
     {{-- ===================================================== --}}
     {{-- Enforcers Table --}}
     {{-- ===================================================== --}}
+
     <div class="card border-0 shadow-sm">
 
         <div class="card-body p-0">
@@ -373,7 +435,7 @@
 
                             <th
                                 class="py-3 text-center"
-                                width="150"
+                                width="180"
                             >
                                 Actions
                             </th>
@@ -388,6 +450,7 @@
                         @forelse($enforcers as $enforcer)
 
                             @php
+
                                 /*
                                 |--------------------------------------------------------------------------
                                 | User is the main account record.
@@ -402,6 +465,7 @@
                                     $enforcer->last_seen_at &&
                                     \Carbon\Carbon::parse($enforcer->last_seen_at)
                                         ->gte(now()->subMinute());
+
                             @endphp
 
 
@@ -410,6 +474,7 @@
                                 {{-- ================================================= --}}
                                 {{-- Full Name --}}
                                 {{-- ================================================= --}}
+
                                 <td class="px-3">
 
                                     @if ($profile)
@@ -482,6 +547,7 @@
                                 {{-- ================================================= --}}
                                 {{-- Account Status --}}
                                 {{-- ================================================= --}}
+
                                 <td>
 
                                     @if ($enforcer->account_status === 'Active')
@@ -510,6 +576,7 @@
                                 {{-- ================================================= --}}
                                 {{-- Online Status --}}
                                 {{-- ================================================= --}}
+
                                 <td>
 
                                     @if ($isOnline)
@@ -517,12 +584,14 @@
                                         <span
                                             class="badge rounded-pill bg-success bg-opacity-10 text-success px-3 py-2"
                                         >
+
                                             <i
                                                 class="fas fa-circle me-1"
                                                 style="font-size: 7px;"
                                             ></i>
 
                                             Online
+
                                         </span>
 
                                     @else
@@ -530,12 +599,14 @@
                                         <span
                                             class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary px-3 py-2"
                                         >
+
                                             <i
                                                 class="fas fa-circle me-1"
                                                 style="font-size: 7px;"
                                             ></i>
 
                                             Offline
+
                                         </span>
 
                                     @endif
@@ -546,6 +617,7 @@
                                 {{-- ================================================= --}}
                                 {{-- Actions --}}
                                 {{-- ================================================= --}}
+
                                 <td>
 
                                     <div class="d-flex justify-content-center gap-1">
@@ -553,6 +625,7 @@
                                         @if ($profile)
 
                                             {{-- View --}}
+
                                             <a
                                                 href="{{ route('enforcers.show', $profile->id) }}"
                                                 class="btn btn-sm btn-outline-primary"
@@ -563,6 +636,7 @@
 
 
                                             {{-- Edit --}}
+
                                             <a
                                                 href="{{ route('enforcers.edit', $profile->id) }}"
                                                 class="btn btn-sm btn-outline-secondary"
@@ -573,6 +647,7 @@
 
 
                                             {{-- Delete --}}
+
                                             <form
                                                 action="{{ route('enforcers.destroy', $profile->id) }}"
                                                 method="POST"
@@ -600,13 +675,26 @@
                                             {{-- Account exists but Enforcer profile does not --}}
                                             {{-- ================================================= --}}
 
-                                            <span
-                                                class="badge rounded-pill bg-warning bg-opacity-10 text-warning border px-3 py-2"
-                                                title="This POSO Enforcer account does not have an Enforcer profile yet."
+                                            {{-- Add Profile --}}
+
+                                            <a
+                                                href="{{ route('enforcers.profile.create', $enforcer) }}"
+                                                class="btn btn-sm btn-outline-primary"
+                                                title="Add Enforcer Profile"
                                             >
-                                                <i class="fas fa-user-plus me-1"></i>
-                                                Profile Required
-                                            </span>
+                                                <i class="fas fa-user-plus"></i>
+                                            </a>
+
+
+                                            {{-- Edit --}}
+
+                                            <a
+                                                href="{{ route('enforcers.edit', ['enforcer' => 'user-' . $enforcer->id]) }}"
+                                                class="btn btn-sm btn-outline-secondary"
+                                                title="Edit Enforcer Account"
+                                            >
+                                                <i class="fas fa-edit"></i>
+                                            </a>
 
                                         @endif
 
@@ -653,7 +741,9 @@
             {{-- ===================================================== --}}
 
             <div class="p-3">
+
                 {{ $enforcers->links() }}
+
             </div>
 
         </div>
