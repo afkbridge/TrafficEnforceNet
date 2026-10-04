@@ -9,22 +9,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
     // FIELD INPUT RULES (single source of truth)
     // strip = characters that are NOT allowed
+    // upper = force CAPITAL LETTERS
     // ===================================================
 
     const NAME_STRIP = /[^\p{L}\s.'\-]/gu;
     const OTHER_TEXT_STRIP = /[^\p{L}\p{N}\s,.\-\/()'&]/gu;
 
     const FIELD_RULES = {
-        first_name: { label: "First name", strip: NAME_STRIP, min: 2, max: 50, letter: true, hint: "letters, spaces, . ' - only" },
-        middle_name: { label: "Middle name", strip: NAME_STRIP, min: 1, max: 50, letter: true, hint: "letters, spaces, . ' - only" },
-        last_name: { label: "Last name", strip: NAME_STRIP, min: 2, max: 50, letter: true, hint: "letters, spaces, . ' - only" },
-        owner_name: { label: "Vehicle owner", strip: /[^\p{L}\s.,'&\-]/gu, min: 2, max: 100, letter: true, hint: "letters, spaces, . , ' & - only" },
+        first_name: { label: "First name", strip: NAME_STRIP, upper: true, min: 2, max: 50, letter: true, hint: "letters, spaces, . ' - only" },
+        middle_name: { label: "Middle name", strip: NAME_STRIP, upper: true, min: 1, max: 50, letter: true, hint: "letters, spaces, . ' - only" },
+        last_name: { label: "Last name", strip: NAME_STRIP, upper: true, min: 2, max: 50, letter: true, hint: "letters, spaces, . ' - only" },
+        owner_name: { label: "Vehicle owner", strip: /[^\p{L}\s.,'&\-]/gu, upper: true, min: 2, max: 100, letter: true, hint: "letters, spaces, . , ' & - only" },
         license_number: { label: "License number", strip: /[^A-Za-z0-9\-]/g, upper: true, min: 5, max: 20, hint: "letters, numbers and - only" },
-        address: { label: "Address", strip: /[^\p{L}\p{N}\s,.\-#\/'()]/gu, min: 5, max: 255, letter: true, hint: "letters, numbers and , . - # / ' ( ) only" },
+        address: { label: "Address", strip: /[^\p{L}\p{N}\s,.\-#\/'()]/gu, upper: true, min: 5, max: 255, letter: true, hint: "letters, numbers and , . - # / ' ( ) only" },
         plate_number: { label: "Plate number", strip: /[^A-Za-z0-9 \-]/g, upper: true, min: 3, max: 10, hint: "letters, numbers, space and - only" },
         region_number: { label: "Region number", strip: /[^A-Za-z0-9\-]/g, upper: true, min: 1, max: 20, hint: "letters, numbers and - only" },
-        other_vehicle_type: { label: "Vehicle type", strip: /[^\p{L}\p{N}\s.\-\/]/gu, min: 2, max: 50, letter: true, hint: "letters, numbers and . - / only" },
-        other_violation: { label: "Violation", strip: OTHER_TEXT_STRIP, min: 3, max: 150, letter: true, hint: "letters, numbers and , . - / ( ) ' & only" },
+        other_vehicle_type: { label: "Vehicle type", strip: /[^\p{L}\p{N}\s.\-\/]/gu, upper: true, min: 2, max: 50, letter: true, hint: "letters, numbers and . - / only" },
+        other_violation: { label: "Violation", strip: OTHER_TEXT_STRIP, upper: true, min: 3, max: 150, letter: true, hint: "letters, numbers and , . - / ( ) ' & only" },
     };
 
     // Dynamic "additional other violation" inputs use the same rule
@@ -36,6 +37,27 @@ document.addEventListener("DOMContentLoaded", function () {
         if (rule.upper) v = v.toUpperCase();
         if (rule.max) v = v.slice(0, rule.max);
         return v;
+    }
+
+    // Cleans the field value while keeping the caret where the user is typing
+    function applyRuleKeepCaret(field, rule) {
+        const cleaned = sanitizeByRule(rule, field.value);
+
+        if (cleaned === field.value) {
+            return;
+        }
+
+        const pos = field.selectionStart;
+        const removed = Math.max(0, field.value.length - cleaned.length);
+
+        field.value = cleaned;
+
+        try {
+            const newPos = Math.max(0, (pos ?? cleaned.length) - removed);
+            field.setSelectionRange(newPos, newPos);
+        } catch (e) {
+            // some input types do not support selection
+        }
     }
 
     // Returns an error message, or "" if the value is fine
@@ -57,8 +79,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (rule.max) field.maxLength = rule.max;
 
         field.addEventListener("input", function () {
-            const cleaned = sanitizeByRule(rule, field.value);
-            if (cleaned !== field.value) field.value = cleaned;
+            applyRuleKeepCaret(field, rule);
         });
 
         field.addEventListener("blur", function () {
@@ -175,13 +196,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (t.matches && t.matches(ADDITIONAL_OTHER_SELECTOR)) {
                 t.maxLength = FIELD_RULES.other_violation.max;
-
-                const cleaned = sanitizeByRule(
-                    FIELD_RULES.other_violation,
-                    t.value
-                );
-
-                if (cleaned !== t.value) t.value = cleaned;
+                applyRuleKeepCaret(t, FIELD_RULES.other_violation);
             }
         });
     }
@@ -202,11 +217,27 @@ document.addEventListener("DOMContentLoaded", function () {
         birthDateInput.min = "1900-01-01";
     }
 
-    // Remarks length
+    // Remarks: max length + force CAPITAL LETTERS
     const remarksInput = getElement("remarks");
 
     if (remarksInput) {
         remarksInput.maxLength = 500;
+
+        remarksInput.addEventListener("input", function () {
+            const upper = remarksInput.value.toUpperCase();
+
+            if (upper !== remarksInput.value) {
+                const pos = remarksInput.selectionStart;
+
+                remarksInput.value = upper;
+
+                try {
+                    remarksInput.setSelectionRange(pos, pos);
+                } catch (e) {
+                    // ignore
+                }
+            }
+        });
     }
 
     // ===================================================
@@ -714,6 +745,150 @@ document.addEventListener("DOMContentLoaded", function () {
     let evidencePreviewUrls = [];
 
     // ===================================================
+    // EVIDENCE PHOTO COMPRESSION (MAX 5 MB)
+    //
+    // Photos already at or under 5 MB are kept untouched.
+    // Larger photos are re-encoded as JPEG: quality is
+    // lowered first, then the dimensions, until the file
+    // fits under the limit.
+    // ===================================================
+
+    const EVIDENCE_MAX_BYTES = 5 * 1024 * 1024;
+    const EVIDENCE_TARGET_BYTES = 4.8 * 1024 * 1024; // small safety margin
+    const EVIDENCE_MAX_SIDE = 3000;
+
+    function evidenceSignature(file) {
+        return `${file.name}|${file.size}|${file.lastModified}`;
+    }
+
+    async function decodeImageForCompression(file) {
+        if (window.createImageBitmap) {
+            try {
+                const bitmap = await createImageBitmap(file, {
+                    imageOrientation: "from-image",
+                });
+
+                return {
+                    source: bitmap,
+                    width: bitmap.width,
+                    height: bitmap.height,
+                };
+            } catch (e) {
+                // fall back to the <img> decoder below
+            }
+        }
+
+        return new Promise(function (resolve, reject) {
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+
+            img.onload = function () {
+                URL.revokeObjectURL(url);
+
+                resolve({
+                    source: img,
+                    width: img.naturalWidth,
+                    height: img.naturalHeight,
+                });
+            };
+
+            img.onerror = function () {
+                URL.revokeObjectURL(url);
+                reject(new Error("Unable to read the evidence photo."));
+            };
+
+            img.src = url;
+        });
+    }
+
+    // Returns the (possibly compressed) File, or null if it
+    // could not be brought under the limit.
+    async function compressEvidenceImage(file) {
+        // Already small enough: keep original quality
+        if (file.size <= EVIDENCE_MAX_BYTES) {
+            return file;
+        }
+
+        try {
+            const loaded = await decodeImageForCompression(file);
+
+            if (!loaded.width || !loaded.height) {
+                throw new Error("Invalid image dimensions.");
+            }
+
+            let scale = Math.min(
+                1,
+                EVIDENCE_MAX_SIDE / loaded.width,
+                EVIDENCE_MAX_SIDE / loaded.height
+            );
+
+            let quality = 0.9;
+            let blob = null;
+
+            for (let attempt = 0; attempt < 12; attempt++) {
+                const canvas = document.createElement("canvas");
+
+                canvas.width = Math.max(1, Math.round(loaded.width * scale));
+                canvas.height = Math.max(1, Math.round(loaded.height * scale));
+
+                const ctx = canvas.getContext("2d");
+
+                if (!ctx) {
+                    throw new Error("Canvas is not supported.");
+                }
+
+                // White background (for transparent PNGs)
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(loaded.source, 0, 0, canvas.width, canvas.height);
+
+                blob = await new Promise(function (resolve) {
+                    canvas.toBlob(resolve, "image/jpeg", quality);
+                });
+
+                if (blob && blob.size <= EVIDENCE_TARGET_BYTES) {
+                    break;
+                }
+
+                if (quality > 0.55) {
+                    quality -= 0.1; // lower quality first
+                } else {
+                    scale *= 0.85; // then shrink dimensions
+                }
+            }
+
+            if (loaded.source && typeof loaded.source.close === "function") {
+                loaded.source.close();
+            }
+
+            if (!blob || blob.size > EVIDENCE_MAX_BYTES) {
+                throw new Error("Unable to compress the photo below 5 MB.");
+            }
+
+            const baseName = (file.name || "evidence").replace(/\.[^.]+$/, "");
+
+            const compressed = new File([blob], `${baseName}.jpg`, {
+                type: "image/jpeg",
+                lastModified: file.lastModified || Date.now(),
+            });
+
+            // Remember the original so duplicate detection still works
+            compressed.originSignature = evidenceSignature(file);
+
+            console.log("Evidence photo compressed:", {
+                name: file.name,
+                originalSize: file.size,
+                compressedSize: compressed.size,
+            });
+
+            return compressed;
+        } catch (error) {
+            console.warn("Evidence compression failed:", error);
+            return null;
+        }
+    }
+
+    // ===================================================
     // CLEAR PREVIEW URLS
     // ===================================================
 
@@ -870,7 +1045,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // ===================================================
 
     if (evidenceInput) {
-        evidenceInput.addEventListener("change", function () {
+        evidenceInput.addEventListener("change", async function () {
             const newFiles = this.files ? Array.from(this.files) : [];
 
             console.log("New evidence files selected:", newFiles);
@@ -879,32 +1054,53 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
-            newFiles.forEach(function (file) {
-                if (!file || !file.type || !file.type.startsWith("image/")) {
-                    console.warn("Skipped non-image evidence file:", file?.name);
-                    return;
+            // Block submission while photos are being optimized
+            showTicketProcessing(
+                "Preparing Evidence Photos",
+                "Please wait while the photos are being optimized...",
+                "Compressing photos larger than 5 MB..."
+            );
+
+            try {
+                for (const file of newFiles) {
+                    if (!file || !file.type || !file.type.startsWith("image/")) {
+                        console.warn("Skipped non-image evidence file:", file?.name);
+                        continue;
+                    }
+
+                    const signature = evidenceSignature(file);
+
+                    const alreadyExists = selectedEvidenceFiles.some(function (
+                        existingFile
+                    ) {
+                        return (
+                            (existingFile.originSignature ||
+                                evidenceSignature(existingFile)) === signature
+                        );
+                    });
+
+                    if (alreadyExists) {
+                        console.log("Duplicate evidence photo skipped:", file.name);
+                        continue;
+                    }
+
+                    const finalFile = await compressEvidenceImage(file);
+
+                    if (!finalFile) {
+                        alert(
+                            `"${file.name}" is over 5 MB and could not be compressed. Please choose another photo.`
+                        );
+                        continue;
+                    }
+
+                    selectedEvidenceFiles.push(finalFile);
                 }
+            } finally {
+                updateEvidenceInput();
+                displayEvidencePreview();
 
-                const alreadyExists = selectedEvidenceFiles.some(function (
-                    existingFile
-                ) {
-                    return (
-                        existingFile.name === file.name &&
-                        existingFile.size === file.size &&
-                        existingFile.lastModified === file.lastModified
-                    );
-                });
-
-                if (alreadyExists) {
-                    console.log("Duplicate evidence photo skipped:", file.name);
-                    return;
-                }
-
-                selectedEvidenceFiles.push(file);
-            });
-
-            updateEvidenceInput();
-            displayEvidencePreview();
+                hideTicketProcessingOverlay();
+            }
 
             console.log("Total evidence photos:", selectedEvidenceFiles.length);
             console.log(
@@ -1635,9 +1831,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (remarks) {
-            const detectedText = detected.join("; ");
+            const detectedText = detected.join("; ").toUpperCase();
             const existingRemarks = remarks.value.trim();
-            const label = "OCR Detected Violations: ";
+            const label = "OCR DETECTED VIOLATIONS: ";
 
             if (!existingRemarks.includes(label)) {
                 remarks.value = existingRemarks
@@ -1649,7 +1845,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Detected violations:", detected);
     }
 
-        // ===================================================
+    // ===================================================
     // VIOLATION TYPE - OTHER
     // ===================================================
 
@@ -3185,7 +3381,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         );
 
                         // ===================================================
-                        // ADD ONLY THE ORIGINAL SELECTED EVIDENCE FILES
+                        // ADD ONLY THE SELECTED (COMPRESSED) EVIDENCE FILES
                         // ===================================================
 
                         selectedEvidenceFiles.forEach(
@@ -3929,9 +4125,11 @@ document.addEventListener("DOMContentLoaded", function () {
                         .join(", ");
 
                     if (locationInput) {
-                        locationInput.value =
+                        // CAPITAL LETTERS
+                        locationInput.value = (
                             formattedAddress ||
-                            "Address unavailable";
+                            "Address unavailable"
+                        ).toUpperCase();
                     }
 
                     if (locationIcon) {

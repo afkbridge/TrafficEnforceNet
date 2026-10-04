@@ -220,23 +220,57 @@ class ViolationController extends Controller
         // BIRTH DATE
         // ===================================================
 
-        if (
-            preg_match(
-                '/Date\s+of\s+Birth\s*\n\s*(\d{4}\/\d{2}\/\d{2})/i',
-                $fullText,
-                $match
-            )
-        ) {
-            $birthDate = trim($match[1]);
+        $birthDatePatterns = [
+            // Date of Birth: YYYY/MM/DD
+            '/Date\s+of\s+Birth\s*:?\s*(\d{4}\/\d{1,2}\/\d{1,2})/i',
 
-            $date = \DateTime::createFromFormat(
-                'Y/m/d',
-                $birthDate
-            );
+            // Date of Birth: YYYY-MM-DD
+            '/Date\s+of\s+Birth\s*:?\s*(\d{4}-\d{1,2}-\d{1,2})/i',
 
-            if ($date) {
-                $result['birth_date'] =
-                    $date->format('Y-m-d');
+            // Date of Birth: MM/DD/YYYY
+            '/Date\s+of\s+Birth\s*:?\s*(\d{1,2}\/\d{1,2}\/\d{4})/i',
+
+            // Date of Birth: MM-DD-YYYY
+            '/Date\s+of\s+Birth\s*:?\s*(\d{1,2}-\d{1,2}-\d{4})/i',
+        ];
+
+        foreach ($birthDatePatterns as $pattern) {
+            if (
+                preg_match(
+                    $pattern,
+                    $fullText,
+                    $match
+                )
+            ) {
+                $birthDate = trim($match[1]);
+
+                $formats = [
+                    'Y/m/d',
+                    'Y/n/j',
+                    'Y-m-d',
+                    'Y-n-j',
+                    'm/d/Y',
+                    'n/j/Y',
+                    'm-d-Y',
+                    'n-j-Y',
+                ];
+
+                foreach ($formats as $format) {
+                    $date = \DateTime::createFromFormat(
+                        $format,
+                        $birthDate
+                    );
+
+                    if (
+                        $date &&
+                        $date->format($format) === $birthDate
+                    ) {
+                        $result['birth_date'] =
+                            $date->format('Y-m-d');
+
+                        break 2;
+                    }
+                }
             }
         }
 
@@ -843,48 +877,71 @@ class ViolationController extends Controller
         // BIRTH DATE
         // ===================================================
 
-        if (
-            preg_match(
-                '/BIRTH\s+DATE\s+(\d{1,2}\/\d{1,2}\/\d{4})/i',
-                $fullText,
-                $match
-            )
-        ) {
-            $birthDate =
-                trim($match[1]);
+        $birthDatePatterns = [
+            // BIRTH DATE YYYY/MM/DD
+            '/BIRTH\s+DATE\s*:?\s*(\d{4}\/\d{1,2}\/\d{1,2})/i',
 
-            $date =
-                \DateTime::createFromFormat(
+            // BIRTH DATE YYYY-MM-DD
+            '/BIRTH\s+DATE\s*:?\s*(\d{4}-\d{1,2}-\d{1,2})/i',
+
+            // BIRTH DATE MM/DD/YYYY
+            '/BIRTH\s+DATE\s*:?\s*(\d{1,2}\/\d{1,2}\/\d{4})/i',
+
+            // BIRTH DATE MM-DD-YYYY
+            '/BIRTH\s+DATE\s*:?\s*(\d{1,2}-\d{1,2}-\d{4})/i',
+
+            // Fallback YYYY/MM/DD
+            '/\b(\d{4}\/\d{1,2}\/\d{1,2})\b/',
+
+            // Fallback YYYY-MM-DD
+            '/\b(\d{4}-\d{1,2}-\d{1,2})\b/',
+
+            // Fallback MM/DD/YYYY
+            '/\b(\d{1,2}\/\d{1,2}\/\d{4})\b/',
+
+            // Fallback MM-DD-YYYY
+            '/\b(\d{1,2}-\d{1,2}-\d{4})\b/',
+        ];
+
+        foreach ($birthDatePatterns as $pattern) {
+            if (
+                preg_match(
+                    $pattern,
+                    $fullText,
+                    $match
+                )
+            ) {
+                $birthDate =
+                    trim($match[1]);
+
+                $formats = [
+                    'Y/m/d',
+                    'Y/n/j',
+                    'Y-m-d',
+                    'Y-n-j',
                     'm/d/Y',
-                    $birthDate
-                );
+                    'n/j/Y',
+                    'm-d-Y',
+                    'n-j-Y',
+                ];
 
-            if ($date) {
-                $result['birth_date'] =
-                    $date->format('Y-m-d');
-            }
-        }
+                foreach ($formats as $format) {
+                    $date =
+                        \DateTime::createFromFormat(
+                            $format,
+                            $birthDate
+                        );
 
-        if (
-            $result['birth_date'] === '' &&
-            preg_match(
-                '/\b(\d{1,2}\/\d{1,2}\/\d{4})\b/',
-                $fullText,
-                $match
-            )
-        ) {
-            $birthDate =
-                trim($match[1]);
+                    if (
+                        $date &&
+                        $date->format($format) === $birthDate
+                    ) {
+                        $result['birth_date'] =
+                            $date->format('Y-m-d');
 
-            $date =
-                \DateTime::createFromFormat(
-                    'm/d/Y',
-                    $birthDate
-                );
-
-            if ($date) {
-                $result['birth_date'] =
-                    $date->format('Y-m-d');
+                        break 2;
+                    }
+                }
             }
         }
 
@@ -1201,6 +1258,9 @@ class ViolationController extends Controller
 
     public function store(Request $request)
     {
+        // Force CAPITAL LETTERS on all free-text inputs
+        $this->normalizeToUppercase($request);
+
         // ===================================================
         // BACKEND VALIDATION
         // ===================================================
@@ -1253,13 +1313,6 @@ class ViolationController extends Controller
             // ---------------------------------------------------
             // NO LICENSE SUPPORT
             // ---------------------------------------------------
-            //
-            // If has_no_license = 1:
-            //     license_number may be NULL.
-            //
-            // Otherwise:
-            //     license_number is required.
-            // ---------------------------------------------------
 
             'has_no_license' => [
                 'nullable',
@@ -1293,17 +1346,6 @@ class ViolationController extends Controller
             // ===================================================
             // VEHICLE INFORMATION
             // ===================================================
-
-            // ---------------------------------------------------
-            // NO PLATE SUPPORT
-            // ---------------------------------------------------
-            //
-            // If has_no_plate = 1:
-            //     plate_number may be NULL.
-            //
-            // Otherwise:
-            //     plate_number is required.
-            // ---------------------------------------------------
 
             'has_no_plate' => [
                 'nullable',
@@ -1622,12 +1664,14 @@ class ViolationController extends Controller
         $additionalOtherViolations = [];
 
         /*
-         * The "Others" text inputs only exist for rows
-         * where Others is selected. Therefore their indexes
-         * may not match the violation type indexes.
+         * Every additional violation row submits its own
+         * "additional_other_violation_names[]" input (it is
+         * only hidden when the row is not "Others").
+         *
+         * Therefore both arrays have the SAME order and the
+         * SAME length, and the row index can be used to find
+         * the matching "Others" text.
          */
-
-        $otherNameCursor = 0;
 
         foreach (
             $additionalViolationIds
@@ -1655,13 +1699,9 @@ class ViolationController extends Controller
                 $otherName =
                     trim(
                         (string) (
-                            $additionalOtherNames[
-                                $otherNameCursor
-                            ] ?? ''
+                            $additionalOtherNames[$index] ?? ''
                         )
                     );
-
-                $otherNameCursor++;
 
                 if ($otherName === '') {
                     return back()
@@ -1716,7 +1756,6 @@ class ViolationController extends Controller
             }
 
             // Prevent duplicate official violations.
-
             if (
                 !in_array(
                     $additionalTypeId,
@@ -1775,13 +1814,11 @@ class ViolationController extends Controller
             $driver = Driver::create([
                 'license_number' => null,
                 'has_no_license' => true,
-
                 'first_name' => trim(
                     (string) $request->input(
                         'first_name'
                     )
                 ),
-
                 'middle_name' => $request->filled(
                     'middle_name'
                 )
@@ -1791,23 +1828,19 @@ class ViolationController extends Controller
                         )
                     )
                     : null,
-
                 'last_name' => trim(
                     (string) $request->input(
                         'last_name'
                     )
                 ),
-
                 'birth_date' =>
                     $request->birth_date,
-
                 'address' =>
                     trim(
                         (string) $request->input(
                             'address'
                         )
                     ),
-
                 'contact_number' => null,
                 'license_type' => null,
                 'license_expiration' => null,
@@ -1820,28 +1853,20 @@ class ViolationController extends Controller
                 ],
                 [
                     'has_no_license' => false,
-
                     'first_name' =>
                         $request->first_name,
-
                     'middle_name' =>
                         $request->middle_name,
-
                     'last_name' =>
                         $request->last_name,
-
                     'address' =>
                         $request->address,
-
                     'birth_date' =>
                         $request->birth_date,
-
                     'contact_number' =>
                         null,
-
                     'license_type' =>
                         null,
-
                     'license_expiration' =>
                         null,
                 ]
@@ -1879,19 +1904,14 @@ class ViolationController extends Controller
             $vehicle = Vehicle::create([
                 'driver_id' =>
                     $driver->id,
-
                 'plate_number' =>
                     null,
-
                 'has_no_plate' =>
                     true,
-
                 'vehicle_type' =>
                     $vehicleTypeValue,
-
                 'region_number' =>
                     $request->region_number,
-
                 'owner_name' =>
                     $request->owner_name,
             ]);
@@ -1904,16 +1924,12 @@ class ViolationController extends Controller
                 [
                     'driver_id' =>
                         $driver->id,
-
                     'has_no_plate' =>
                         false,
-
                     'vehicle_type' =>
                         $vehicleTypeValue,
-
                     'region_number' =>
                         $request->region_number,
-
                     'owner_name' =>
                         $request->owner_name,
                 ]
@@ -2040,7 +2056,6 @@ class ViolationController extends Controller
             ViolationOtherType::create([
                 'violation_id' =>
                     $violation->id,
-
                 'name' =>
                     $otherName,
             ]);
@@ -2064,7 +2079,6 @@ class ViolationController extends Controller
                 ViolationImage::create([
                     'violation_id' =>
                         $violation->id,
-
                     'image_path' =>
                         $imagePath,
                 ]);
@@ -2092,6 +2106,62 @@ class ViolationController extends Controller
                 'success',
                 'Traffic citation successfully recorded.'
             );
+    }
+
+    // =======================================================
+    // NORMALIZE TEXT INPUTS TO UPPERCASE
+    // =======================================================
+
+    private function normalizeToUppercase(Request $request): void
+    {
+        $fields = [
+            'first_name',
+            'middle_name',
+            'last_name',
+            'address',
+            'license_number',
+            'plate_number',
+            'region_number',
+            'owner_name',
+            'other_vehicle_type',
+            'other_violation',
+            'location',
+            'remarks',
+        ];
+
+        $merge = [];
+
+        foreach ($fields as $field) {
+            $value = $request->input($field);
+
+            if (is_string($value) && $value !== '') {
+                $merge[$field] =
+                    mb_strtoupper(
+                        trim($value),
+                        'UTF-8'
+                    );
+            }
+        }
+
+        $additionalOthers =
+            $request->input(
+                'additional_other_violation_names'
+            );
+
+        if (is_array($additionalOthers)) {
+            $merge['additional_other_violation_names'] =
+                array_map(
+                    fn ($value) => is_string($value)
+                        ? mb_strtoupper(
+                            trim($value),
+                            'UTF-8'
+                        )
+                        : $value,
+                    $additionalOthers
+                );
+        }
+
+        $request->merge($merge);
     }
 
     // =======================================================
