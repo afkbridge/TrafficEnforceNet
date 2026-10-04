@@ -7,10 +7,14 @@
 @php
     /*
     |--------------------------------------------------------------------------
-    | Determine whether this is:
-    | 1. An existing Enforcer profile, or
-    | 2. An existing POSO Enforcer user account without a profile
+    | Determine Current Enforcer / User
     |--------------------------------------------------------------------------
+    |
+    | This page handles BOTH:
+    |
+    | 1. Existing Enforcer profile
+    | 2. Existing POSO Enforcer User account without a profile
+    |
     */
 
     $hasEnforcerProfile = isset($enforcer) && $enforcer !== null;
@@ -19,25 +23,171 @@
         ? $enforcer->user
         : ($user ?? null);
 
+
     /*
     |--------------------------------------------------------------------------
-    | Form target
+    | Existing Values
     |--------------------------------------------------------------------------
     |
-    | Existing profile:
+    | IMPORTANT:
+    |
+    | If an Enforcer profile already exists, ALL profile values come
+    | directly from the Enforcer model.
+    |
+    | If there is no profile yet, the existing User account name is
+    | used to populate the name fields.
+    |
+    */
+
+    if ($hasEnforcerProfile) {
+
+        $existingFirstName = $enforcer->first_name ?? '';
+        $existingMiddleName = $enforcer->middle_name ?? '';
+        $existingLastName = $enforcer->last_name ?? '';
+
+        $existingContactNumber = $enforcer->contact_number ?? '';
+        $existingBadgeNumber = $enforcer->badge_number ?? '';
+        $existingPosition = $enforcer->position ?? '';
+
+    } else {
+
+        $existingFirstName = '';
+        $existingMiddleName = '';
+        $existingLastName = '';
+
+        $existingContactNumber = '';
+        $existingBadgeNumber = '';
+        $existingPosition = '';
+
+        /*
+        |--------------------------------------------------------------------------
+        | Existing User Without Enforcer Profile
+        |--------------------------------------------------------------------------
+        |
+        | Example:
+        |
+        | User name = "Juan Dela Cruz"
+        |
+        | First Name  = Juan
+        | Middle Name = Dela
+        | Last Name   = Cruz
+        |
+        */
+
+        if ($currentUser && !empty($currentUser->name)) {
+
+            $userNameParts = preg_split(
+                '/\s+/',
+                trim($currentUser->name)
+            );
+
+            if (count($userNameParts) >= 2) {
+
+                $existingFirstName = $userNameParts[0];
+
+                $existingLastName = array_pop($userNameParts);
+
+                if (count($userNameParts) > 0) {
+
+                    $existingMiddleName = implode(
+                        ' ',
+                        $userNameParts
+                    );
+                }
+
+            } elseif (count($userNameParts) === 1) {
+
+                $existingFirstName = $userNameParts[0];
+            }
+        }
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Existing Username
+    |--------------------------------------------------------------------------
+    */
+
+    $existingUsername = $currentUser
+        ? ($currentUser->username ?? '')
+        : '';
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Form Target
+    |--------------------------------------------------------------------------
+    |
+    | Existing Enforcer:
     |     /enforcers/{enforcer_id}
     |
-    | Existing user without profile:
+    | Existing User without profile:
     |     /enforcers/user-{user_id}
-    |
-    | Both use the SAME edit.blade.php and SAME update action.
     |
     */
 
     $formTarget = $hasEnforcerProfile
         ? $enforcer->id
         : ($currentUser ? 'user-' . $currentUser->id : null);
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Determine Whether Laravel Has Old Form Input
+    |--------------------------------------------------------------------------
+    |
+    | This is important.
+    |
+    | We only use old() values after an actual validation redirect.
+    | Otherwise, the database values are used directly.
+    |
+    */
+
+    $hasOldInput = session()->hasOldInput();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Final Form Values
+    |--------------------------------------------------------------------------
+    |
+    | Existing database values are the default.
+    |
+    | old() only takes priority when Laravel actually flashed old input.
+    |
+    */
+
+    $firstNameValue = $hasOldInput
+        ? old('first_name', $existingFirstName)
+        : $existingFirstName;
+
+    $middleNameValue = $hasOldInput
+        ? old('middle_name', $existingMiddleName)
+        : $existingMiddleName;
+
+    $lastNameValue = $hasOldInput
+        ? old('last_name', $existingLastName)
+        : $existingLastName;
+
+    $contactNumberValue = $hasOldInput
+        ? old('contact_number', $existingContactNumber)
+        : $existingContactNumber;
+
+    $badgeNumberValue = $hasOldInput
+        ? old('badge_number', $existingBadgeNumber)
+        : $existingBadgeNumber;
+
+    $positionValue = $hasOldInput
+        ? old('position', $existingPosition)
+        : $existingPosition;
+
+    $usernameValue = $hasOldInput
+        ? old('username', $existingUsername)
+        : $existingUsername;
+
 @endphp
+
 
 <div class="container-fluid">
 
@@ -46,9 +196,7 @@
     {{-- ===================================================== --}}
 
     @if (session('success'))
-
         <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm mb-4">
-
             <i class="fas fa-check-circle me-2"></i>
 
             {{ session('success') }}
@@ -58,30 +206,22 @@
                 class="btn-close"
                 data-bs-dismiss="alert">
             </button>
-
         </div>
-
     @endif
 
 
     @if ($errors->any())
-
         <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4">
 
             <div class="fw-semibold mb-1">
-
                 <i class="fas fa-exclamation-circle me-2"></i>
-
                 Please fix the following errors:
-
             </div>
 
             <ul class="mb-0 mt-2">
 
                 @foreach ($errors->all() as $error)
-
                     <li>{{ $error }}</li>
-
                 @endforeach
 
             </ul>
@@ -93,7 +233,6 @@
             </button>
 
         </div>
-
     @endif
 
 
@@ -127,9 +266,7 @@
                         class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 me-3"
                         style="width: 44px; height: 44px;"
                     >
-
                         <i class="fas fa-user-edit"></i>
-
                     </div>
 
                     <h2 class="fw-bold mb-0">
@@ -159,11 +296,8 @@
                 href="{{ route('enforcers.index') }}"
                 class="btn btn-outline-secondary rounded-3 px-4"
             >
-
                 <i class="fas fa-arrow-left me-2"></i>
-
                 Back to Enforcers
-
             </a>
 
         </div>
@@ -194,7 +328,6 @@
                             Complete the profile information below.
 
                             Saving this form will attach the profile to the
-
                             <strong>existing account</strong>.
 
                             No new user account will be created.
@@ -216,8 +349,6 @@
 
         <div class="card border-0 shadow-sm rounded-4 mb-4">
 
-            {{-- Card Header --}}
-
             <div class="card-header bg-white border-bottom py-3 px-4">
 
                 <div class="d-flex align-items-center">
@@ -226,9 +357,7 @@
                         class="d-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-3 me-3"
                         style="width: 42px; height: 42px;"
                     >
-
                         <i class="fas fa-id-card"></i>
-
                     </div>
 
                     <div>
@@ -238,9 +367,7 @@
                         </h5>
 
                         <small class="text-muted">
-
                             Personal and position details
-
                         </small>
 
                     </div>
@@ -274,9 +401,7 @@
                                 class="d-flex align-items-center justify-content-center bg-light text-primary rounded-circle me-2"
                                 style="width: 34px; height: 34px;"
                             >
-
                                 <i class="fas fa-user"></i>
-
                             </div>
 
                             <div>
@@ -312,7 +437,7 @@
                                     type="text"
                                     name="first_name"
                                     class="form-control rounded-3"
-                                    value="{{ old('first_name', $enforcer->first_name ?? '') }}"
+                                    value="{{ $firstNameValue }}"
                                     placeholder="Enter first name"
                                     required
                                 >
@@ -338,7 +463,7 @@
                                     type="text"
                                     name="middle_name"
                                     class="form-control rounded-3"
-                                    value="{{ old('middle_name', $enforcer->middle_name ?? '') }}"
+                                    value="{{ $middleNameValue }}"
                                     placeholder="Enter middle name"
                                 >
 
@@ -361,7 +486,7 @@
                                     type="text"
                                     name="last_name"
                                     class="form-control rounded-3"
-                                    value="{{ old('last_name', $enforcer->last_name ?? '') }}"
+                                    value="{{ $lastNameValue }}"
                                     placeholder="Enter last name"
                                     required
                                 >
@@ -387,7 +512,7 @@
                                     type="text"
                                     name="contact_number"
                                     class="form-control rounded-3"
-                                    value="{{ old('contact_number', $enforcer->contact_number ?? '') }}"
+                                    value="{{ $contactNumberValue }}"
                                     placeholder="Enter contact number"
                                 >
 
@@ -412,7 +537,7 @@
                                     type="text"
                                     name="badge_number"
                                     class="form-control rounded-3"
-                                    value="{{ old('badge_number', $enforcer->badge_number ?? '') }}"
+                                    value="{{ $badgeNumberValue }}"
                                     placeholder="Enter badge number"
                                 >
 
@@ -440,9 +565,7 @@
                                 class="d-flex align-items-center justify-content-center bg-light text-primary rounded-circle me-2"
                                 style="width: 34px; height: 34px;"
                             >
-
                                 <i class="fas fa-id-badge"></i>
-
                             </div>
 
                             <div>
@@ -486,14 +609,14 @@
 
                                     <option
                                         value="Traffic Enforcer"
-                                        {{ old('position', $enforcer->position ?? '') === 'Traffic Enforcer' ? 'selected' : '' }}
+                                        {{ $positionValue === 'Traffic Enforcer' ? 'selected' : '' }}
                                     >
                                         Traffic Enforcer
                                     </option>
 
                                     <option
                                         value="Traffic Aide"
-                                        {{ old('position', $enforcer->position ?? '') === 'Traffic Aide' ? 'selected' : '' }}
+                                        {{ $positionValue === 'Traffic Aide' ? 'selected' : '' }}
                                     >
                                         Traffic Aide
                                     </option>
@@ -528,9 +651,7 @@
                                 class="d-flex align-items-center justify-content-center bg-light text-primary rounded-circle me-2"
                                 style="width: 34px; height: 34px;"
                             >
-
                                 <i class="fas fa-user-cog"></i>
-
                             </div>
 
                             <div>
@@ -566,7 +687,7 @@
                                     type="text"
                                     name="username"
                                     class="form-control rounded-3"
-                                    value="{{ old('username', $currentUser->username ?? '') }}"
+                                    value="{{ $usernameValue }}"
                                     autocomplete="username"
                                     placeholder="Enter username"
                                     required
@@ -599,23 +720,17 @@
                                         <span
                                             class="badge rounded-pill bg-success px-3 py-2"
                                         >
-
                                             <i class="fas fa-check-circle me-1"></i>
-
                                             Active
-
                                         </span>
 
-                                    @elseif ($currentUser)
+                                    @elseif ($currentUser->account_status)
 
                                         <span
                                             class="badge rounded-pill bg-danger px-3 py-2"
                                         >
-
                                             <i class="fas fa-times-circle me-1"></i>
-
                                             Disabled
-
                                         </span>
 
                                     @else
@@ -623,11 +738,8 @@
                                         <span
                                             class="badge rounded-pill bg-secondary px-3 py-2"
                                         >
-
                                             <i class="fas fa-question-circle me-1"></i>
-
                                             Not Set
-
                                         </span>
 
                                     @endif
@@ -635,9 +747,7 @@
                                 </div>
 
                                 <small class="text-muted">
-
                                     Account status is managed separately.
-
                                 </small>
 
                             </div>
@@ -659,9 +769,7 @@
                             href="{{ route('enforcers.index') }}"
                             class="btn btn-light border rounded-3 px-4"
                         >
-
                             Cancel
-
                         </a>
 
                         <button
@@ -672,13 +780,9 @@
                             <i class="fas fa-save me-2"></i>
 
                             @if ($hasEnforcerProfile)
-
                                 Save Changes
-
                             @else
-
                                 Save Enforcer Profile
-
                             @endif
 
                         </button>
@@ -712,9 +816,7 @@
                             class="d-flex align-items-center justify-content-center bg-warning bg-opacity-10 text-warning rounded-3 me-3"
                             style="width: 42px; height: 42px;"
                         >
-
                             <i class="fas fa-key"></i>
-
                         </div>
 
                         <div>
@@ -794,11 +896,8 @@
                                 type="submit"
                                 class="btn btn-warning text-dark rounded-3 px-4"
                             >
-
                                 <i class="fas fa-key me-2"></i>
-
                                 Reset Password
-
                             </button>
 
                         </div>
@@ -824,9 +923,7 @@
                             class="d-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-3 me-3"
                             style="width: 42px; height: 42px;"
                         >
-
                             <i class="fas fa-exclamation-triangle"></i>
-
                         </div>
 
                         <div>
@@ -915,9 +1012,7 @@
                             class="d-flex align-items-center justify-content-center bg-dark bg-opacity-10 text-dark rounded-3 me-3"
                             style="width: 42px; height: 42px;"
                         >
-
                             <i class="fas fa-shield-alt"></i>
-
                         </div>
 
                         <div>

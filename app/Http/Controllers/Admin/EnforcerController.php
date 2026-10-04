@@ -221,7 +221,6 @@ class EnforcerController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-
             /*
             |--------------------------------------------------------------------------
             | Create New POSO Enforcer User Account
@@ -230,14 +229,19 @@ class EnforcerController extends Controller
 
             $user = User::create([
                 'role_id' => 2,
+
                 'name' => trim(
                     $request->first_name . ' ' . $request->last_name
                 ),
+
                 'username' => $request->username,
+
                 'email' => null,
+
                 'password' => Hash::make(
                     $request->password
                 ),
+
                 'account_status' => 'Active',
             ]);
 
@@ -249,12 +253,19 @@ class EnforcerController extends Controller
 
             Enforcer::create([
                 'user_id' => $user->id,
+
                 'badge_number' => $request->badge_number,
+
                 'first_name' => $request->first_name,
+
                 'middle_name' => $request->middle_name,
+
                 'last_name' => $request->last_name,
+
                 'contact_number' => $request->contact_number,
+
                 'email' => null,
+
                 'position' => $request->position,
             ]);
         });
@@ -312,12 +323,17 @@ class EnforcerController extends Controller
 
         User::create([
             'role_id' => $request->role_id,
+
             'name' => $request->name,
+
             'username' => $request->username,
+
             'email' => null,
+
             'password' => Hash::make(
                 $request->password
             ),
+
             'account_status' => 'Active',
         ]);
 
@@ -443,6 +459,7 @@ class EnforcerController extends Controller
      * This handles BOTH:
      *
      * 1. Existing Enforcer profiles.
+     *
      * 2. Existing POSO Enforcer User accounts without
      *    an Enforcer profile.
      *
@@ -469,7 +486,8 @@ class EnforcerController extends Controller
         ) {
             $userId = (int) substr($enforcer, 5);
 
-            $user = User::findOrFail($userId);
+            $user = User::with('enforcer')
+                ->findOrFail($userId);
 
             /*
             |--------------------------------------------------------------------------
@@ -528,14 +546,37 @@ class EnforcerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $enforcerModel = Enforcer::with('user')
-            ->findOrFail($enforcer);
+        /*
+        |--------------------------------------------------------------------------
+        | IMPORTANT FIX
+        |--------------------------------------------------------------------------
+        |
+        | Explicitly load both the Enforcer profile and its linked User.
+        |
+        | This guarantees that edit.blade.php receives the actual
+        | database values for the existing profile.
+        |
+        */
+
+        $enforcerModel = Enforcer::query()
+            ->with('user')
+            ->findOrFail((int) $enforcer);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Make sure the linked User relationship is available.
+        |--------------------------------------------------------------------------
+        */
+
+        $linkedUser = $enforcerModel->user;
 
         return view(
             'admin.enforcers.edit',
             [
                 'enforcer' => $enforcerModel,
-                'user' => $enforcerModel->user,
+
+                'user' => $linkedUser,
+
                 'creatingProfileForExistingUser' => false,
             ]
         );
@@ -591,7 +632,8 @@ class EnforcerController extends Controller
         ) {
             $userId = (int) substr($enforcer, 5);
 
-            $user = User::findOrFail($userId);
+            $user = User::with('enforcer')
+                ->findOrFail($userId);
 
             /*
             |--------------------------------------------------------------------------
@@ -687,16 +729,17 @@ class EnforcerController extends Controller
             */
 
             DB::transaction(function () use ($request, $user) {
-
                 Enforcer::create([
                     /*
                     |--------------------------------------------------------------------------
                     | IMPORTANT:
+                    |
                     | This is the EXISTING User ID.
                     |
                     | No new User::create() is performed here.
                     |--------------------------------------------------------------------------
                     */
+
                     'user_id' => $user->id,
 
                     'badge_number' => $request->badge_number,
@@ -744,8 +787,9 @@ class EnforcerController extends Controller
         |--------------------------------------------------------------------------
         */
 
-        $enforcerModel = Enforcer::with('user')
-            ->findOrFail($enforcer);
+        $enforcerModel = Enforcer::query()
+            ->with('user')
+            ->findOrFail((int) $enforcer);
 
         /*
         |--------------------------------------------------------------------------
@@ -811,7 +855,6 @@ class EnforcerController extends Controller
         */
 
         DB::transaction(function () use ($request, $enforcerModel) {
-
             /*
             |--------------------------------------------------------------------------
             | Update Enforcer Profile
@@ -871,7 +914,6 @@ class EnforcerController extends Controller
     public function destroy(Enforcer $enforcer)
     {
         DB::transaction(function () use ($enforcer) {
-
             /*
             |--------------------------------------------------------------------------
             | Delete Linked User Account
