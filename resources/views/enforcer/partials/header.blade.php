@@ -80,28 +80,9 @@
         </div>
 
 
-        <!-- Information Card -->
+        
 
-        <div class="mt-5 bg-white/15 backdrop-blur rounded-3xl p-4 border border-white/20">
-
-            <div class="flex items-center justify-between">
-
-                <div>
-
-                    <p class="text-white font-semibold">
-                        {{ $enforcer?->position ?? 'Traffic Enforcer' }}
-                    </p>
-
-                    <p class="text-blue-100 text-sm mt-1">
-                        Badge No.
-                        {{ $enforcer?->badge_number ?? 'N/A' }}
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
+        
 
     </div>
 
