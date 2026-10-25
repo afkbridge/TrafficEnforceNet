@@ -465,8 +465,8 @@ class ViolationController extends Controller
          */
         $validated['license_number'] =
             !empty($validated['license_number'])
-                ? strtoupper(trim($validated['license_number']))
-                : null;
+            ? strtoupper(trim($validated['license_number']))
+            : null;
 
         $validated['plate_number'] = strtoupper(
             trim($validated['plate_number'])
@@ -519,7 +519,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'other_vehicle_type' =>
-                            'Please specify the vehicle type when "Others" is selected.',
+                        'Please specify the vehicle type when "Others" is selected.',
                     ])
                     ->withInput();
             }
@@ -537,7 +537,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'location' =>
-                            'Please enter the violation location.',
+                        'Please enter the violation location.',
                     ])
                     ->withInput();
             }
@@ -581,7 +581,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'other_violation' =>
-                            'Please specify the other violation.',
+                        'Please specify the other violation.',
                     ])
                     ->withInput();
             }
@@ -591,9 +591,7 @@ class ViolationController extends Controller
          * --------------------------------------------------------------------------
          * PRIMARY = OFFICIAL VIOLATION
          * --------------------------------------------------------------------------
-         */
-
-        else {
+         */ else {
             if (
                 !ctype_digit(
                     (string) $validated['violation_type_id']
@@ -602,19 +600,19 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                            'The selected violation type is invalid.',
+                        'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
 
             $primaryViolationTypeId = (int)
-                $validated['violation_type_id'];
+            $validated['violation_type_id'];
 
             if ($primaryViolationTypeId <= 0) {
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                            'The selected violation type is invalid.',
+                        'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
@@ -628,7 +626,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                            'The selected violation type does not exist.',
+                        'The selected violation type does not exist.',
                     ])
                     ->withInput();
             }
@@ -684,7 +682,7 @@ class ViolationController extends Controller
                     return back()
                         ->withErrors([
                             'additional_violation_type_ids' =>
-                                'Please specify every additional "Other" violation.',
+                            'Please specify every additional "Other" violation.',
                         ])
                         ->withInput();
                 }
@@ -701,7 +699,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                            'An invalid additional violation type was selected.',
+                        'An invalid additional violation type was selected.',
                     ])
                     ->withInput();
             }
@@ -712,7 +710,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                            'An invalid additional violation type was selected.',
+                        'An invalid additional violation type was selected.',
                     ])
                     ->withInput();
             }
@@ -729,7 +727,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                            'One of the selected violation types is invalid.',
+                        'One of the selected violation types is invalid.',
                     ])
                     ->withInput();
             }
@@ -789,7 +787,7 @@ class ViolationController extends Controller
             if (!empty($validated['license_number'])) {
                 $driver = Driver::firstOrNew([
                     'license_number' =>
-                        $validated['license_number'],
+                    $validated['license_number'],
                 ]);
             } else {
                 /*
@@ -866,14 +864,14 @@ class ViolationController extends Controller
             $vehicle = Vehicle::firstOrCreate(
                 [
                     'plate_number' =>
-                        $validated['plate_number'],
+                    $validated['plate_number'],
                 ],
                 [
                     'driver_id' =>
-                        $driver->id,
+                    $driver->id,
 
                     'vehicle_type' =>
-                        $vehicleTypeToSave,
+                    $vehicleTypeToSave,
                 ]
             );
 
@@ -902,11 +900,11 @@ class ViolationController extends Controller
             if ($request->hasFile('ticket_image')) {
                 $ticketImagePath =
                     $request
-                        ->file('ticket_image')
-                        ->store(
-                            'violations/tickets',
-                            'public'
-                        );
+                    ->file('ticket_image')
+                    ->store(
+                        'violations/tickets',
+                        'public'
+                    );
             }
 
             /*
@@ -917,46 +915,46 @@ class ViolationController extends Controller
 
             $violation = Violation::create([
                 'ticket_number' =>
-                    $validated['ticket_number'],
+                $validated['ticket_number'],
 
                 'driver_id' =>
-                    $driver->id,
+                $driver->id,
 
                 'vehicle_id' =>
-                    $vehicle->id,
+                $vehicle->id,
 
                 'violation_type_id' =>
-                    $primaryViolationTypeId,
+                $primaryViolationTypeId,
 
                 'other_violation' =>
-                    $primaryOtherViolation,
+                $primaryOtherViolation,
 
                 'user_id' =>
-                    Auth::id(),
+                Auth::id(),
 
                 'violation_date' =>
-                    $validated['violation_date'],
+                $validated['violation_date'],
 
                 'violation_time' =>
-                    $validated['violation_time'],
+                $validated['violation_time'],
 
                 'location' =>
-                    $validated['location'] ?? null,
+                $validated['location'] ?? null,
 
                 'latitude' =>
-                    $validated['latitude'] ?? null,
+                $validated['latitude'] ?? null,
 
                 'longitude' =>
-                    $validated['longitude'] ?? null,
+                $validated['longitude'] ?? null,
 
                 'remarks' =>
-                    $validated['remarks'] ?? null,
+                $validated['remarks'] ?? null,
 
                 'ticket_image' =>
-                    $ticketImagePath,
+                $ticketImagePath,
 
                 'status' =>
-                    'Pending',
+                'Pending',
             ]);
 
             /*
@@ -987,10 +985,10 @@ class ViolationController extends Controller
             ) {
                 ViolationOtherType::create([
                     'violation_id' =>
-                        $violation->id,
+                    $violation->id,
 
                     'name' =>
-                        $otherName,
+                    $otherName,
                 ]);
             }
 
@@ -1013,10 +1011,10 @@ class ViolationController extends Controller
 
                     ViolationImage::create([
                         'violation_id' =>
-                            $violation->id,
+                        $violation->id,
 
                         'image_path' =>
-                            $imagePath,
+                        $imagePath,
                     ]);
                 }
             }
@@ -1293,8 +1291,8 @@ class ViolationController extends Controller
 
         $validated['middle_name'] =
             isset($validated['middle_name'])
-                ? trim($validated['middle_name'])
-                : null;
+            ? trim($validated['middle_name'])
+            : null;
 
         $validated['last_name'] =
             trim($validated['last_name']);
@@ -1305,8 +1303,8 @@ class ViolationController extends Controller
          */
         $validated['license_number'] =
             !empty($validated['license_number'])
-                ? strtoupper(trim($validated['license_number']))
-                : null;
+            ? strtoupper(trim($validated['license_number']))
+            : null;
 
         if (isset($validated['address'])) {
             $validated['address'] =
@@ -1385,7 +1383,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'other_violation' =>
-                            'Please specify the other violation.',
+                        'Please specify the other violation.',
                     ])
                     ->withInput();
             }
@@ -1395,9 +1393,7 @@ class ViolationController extends Controller
          * --------------------------------------------------------------------------
          * PRIMARY = OFFICIAL
          * --------------------------------------------------------------------------
-         */
-
-        else {
+         */ else {
             if (
                 !ctype_digit(
                     (string) $validated['violation_type_id']
@@ -1406,7 +1402,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                            'The selected violation type is invalid.',
+                        'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
@@ -1418,7 +1414,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                            'The selected violation type is invalid.',
+                        'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
@@ -1435,7 +1431,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'violation_type_id' =>
-                            'The selected violation type is invalid.',
+                        'The selected violation type is invalid.',
                     ])
                     ->withInput();
             }
@@ -1495,7 +1491,7 @@ class ViolationController extends Controller
                     return back()
                         ->withErrors([
                             'additional_violation_type_ids' =>
-                                'Please specify every additional "Other" violation.',
+                            'Please specify every additional "Other" violation.',
                         ])
                         ->withInput();
                 }
@@ -1517,7 +1513,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                            'An invalid additional violation type was selected.',
+                        'An invalid additional violation type was selected.',
                     ])
                     ->withInput();
             }
@@ -1529,7 +1525,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                            'An invalid additional violation type was selected.',
+                        'An invalid additional violation type was selected.',
                     ])
                     ->withInput();
             }
@@ -1546,7 +1542,7 @@ class ViolationController extends Controller
                 return back()
                     ->withErrors([
                         'additional_violation_type_ids' =>
-                            'One of the selected violation types is invalid.',
+                        'One of the selected violation types is invalid.',
                     ])
                     ->withInput();
             }
@@ -1557,7 +1553,7 @@ class ViolationController extends Controller
             if (
                 $primaryViolationTypeId !== null &&
                 $additionalTypeId ===
-                    $primaryViolationTypeId
+                $primaryViolationTypeId
             ) {
                 continue;
             }
@@ -1684,8 +1680,8 @@ class ViolationController extends Controller
                     } else {
                         $vehicle->vehicle_type =
                             $vehicleType !== ''
-                                ? $vehicleType
-                                : null;
+                            ? $vehicleType
+                            : null;
                     }
                 }
 
@@ -1795,10 +1791,10 @@ class ViolationController extends Controller
             ) {
                 ViolationOtherType::create([
                     'violation_id' =>
-                        $violation->id,
+                    $violation->id,
 
                     'name' =>
-                        $otherName,
+                    $otherName,
                 ]);
             }
         });
@@ -1839,13 +1835,15 @@ class ViolationController extends Controller
      */
     public function export(Request $request)
     {
+        $filters = $request->only([
+            'search',
+            'status',
+            'date_from',
+            'date_to',
+        ]);
+
         return Excel::download(
-            new ViolationsExport(
-                $request->search,
-                $request->status,
-                $request->date_from,
-                $request->date_to
-            ),
+            new ViolationsExport($filters),
             'traffic-violation-records.xlsx'
         );
     }

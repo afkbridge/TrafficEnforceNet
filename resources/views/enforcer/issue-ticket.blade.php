@@ -590,12 +590,7 @@
                                     </div>
 
 
-                                    <p id="licenseOcrMessage"
-                                        class="text-[9px] text-blue-600 mt-0.5">
-
-                                        🤖 OCR detected • Editable
-
-                                    </p>
+                                    
 
                                 </div>
 
@@ -982,12 +977,7 @@
                                     </div>
 
 
-                                    <p id="plateOcrMessage"
-                                        class="text-[9px] text-blue-600 mt-0.5">
-
-                                        🤖 OCR detected • Editable
-
-                                    </p>
+                                    
 
                                 </div>
 

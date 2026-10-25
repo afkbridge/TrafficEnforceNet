@@ -3,229 +3,154 @@
 namespace App\Exports;
 
 use App\Models\Violation;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class ViolationsExport implements FromCollection, WithHeadings
 {
-    protected $filter;
-    protected $date;
+    protected array $filters;
 
-    public function __construct($filter = null, $date = null)
+    public function __construct(array $filters = [])
     {
-        $this->filter = $filter;
-        $this->date = $date;
+        $this->filters = $filters;
     }
 
-    public function collection()
+    public function collection(): Collection
     {
-        $query = Violation::with([
+        $query = Violation::query()->with([
             'driver',
             'vehicle',
             'violationType',
             'violationTypes',
-            'user'
+            'violationOtherTypes',
+            'user',
         ]);
 
-        // ==========================================================
-        // FILTER TODAY'S VIOLATIONS
-        // ==========================================================
+        // SEARCH: match the POSO Admin search fields.
+        $search = trim((string) ($this->filters['search'] ?? ''));
 
-        if ($this->filter == 'today') {
-            $query->whereDate(
-                'violation_date',
-                today()
-            );
+        if ($search !== '') {
+            $query->where(function (Builder $q) use ($search) {
+                $q->where('ticket_number', 'like', "%{$search}%")
+                    ->orWhere('location', 'like', "%{$search}%")
+                    ->orWhereHas('driver', function (Builder $driver) use ($search) {
+                        $driver->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('middle_name', 'like', "%{$search}%")
+                            ->orWhere('license_number', 'like', "%{$search}%")
+                            ->orWhere('address', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('vehicle', function (Builder $vehicle) use ($search) {
+                        $vehicle->where('plate_number', 'like', "%{$search}%");
+                    });
+            });
         }
 
-        // ==========================================================
-        // FILTER SPECIFIC DATE
-        // ==========================================================
+        // STATUS
+        $status = trim((string) ($this->filters['status'] ?? ''));
 
-        if ($this->date) {
-            $query->whereDate(
-                'violation_date',
-                $this->date
-            );
+        if ($status !== '') {
+            $query->where('status', $status);
+        }
+
+        // DATE RANGE
+        $dateFrom = $this->filters['date_from'] ?? null;
+        $dateTo = $this->filters['date_to'] ?? null;
+
+        if ($dateFrom) {
+            $query->whereDate('violation_date', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereDate('violation_date', '<=', $dateTo);
         }
 
         return $query
-            ->orderBy('violation_date', 'desc')
-            ->orderBy('violation_time', 'desc')
+            ->orderByDesc('violation_date')
+            ->orderByDesc('violation_time')
             ->get()
             ->map(function ($violation) {
+                $driver = $violation->driver;
 
-                // ==================================================
-                // NAME
-                // FORMAT:
                 // SURNAME, FIRST NAME MIDDLE NAME
-                //
-                // Example:
-                // MENDOZA, REGINA BINUYA
-                // ==================================================
+                $surname = trim((string) ($driver->last_name ?? ''));
+                $firstName = trim((string) ($driver->first_name ?? ''));
+                $middleName = trim((string) ($driver->middle_name ?? ''));
 
-                $surname = trim(
-                    $violation->driver->last_name ?? ''
-                );
+                $name = $surname !== '' ? $surname : '';
 
-                $firstName = trim(
-                    $violation->driver->first_name ?? ''
-                );
-
-                $middleName = trim(
-                    $violation->driver->middle_name ?? ''
-                );
-
-                $violatorName = '';
-
-                if (!empty($surname)) {
-                    $violatorName .= $surname;
+                if ($firstName !== '') {
+                    $name .= ($name !== '' ? ', ' : '') . $firstName;
                 }
 
-                if (!empty($firstName)) {
+                if ($middleName !== '') {
+                    $name .= ($name !== '' ? ' ' : '') . $middleName;
+                }
 
-                    if (!empty($violatorName)) {
-                        $violatorName .= ', ';
+                if (trim($name) === '') {
+                    $name = 'N/A';
+                }
+
+                // Collect primary and additional violations.
+                $violationNames = [];
+
+                if ($violation->violationType?->name) {
+                    $violationNames[] = trim($violation->violationType->name);
+                }
+
+                if (!empty($violation->other_violation)) {
+                    $violationNames[] = trim($violation->other_violation);
+                }
+
+                foreach ($violation->violationTypes as $type) {
+                    if (!empty($type->name)) {
+                        $violationNames[] = trim($type->name);
                     }
-
-                    $violatorName .= $firstName;
                 }
 
-                if (!empty($middleName)) {
-
-                    if (
-                        !empty($firstName) ||
-                        !empty($surname)
-                    ) {
-                        $violatorName .= ' ';
+                foreach ($violation->violationOtherTypes as $type) {
+                    if (!empty($type->name)) {
+                        $violationNames[] = trim($type->name);
                     }
-
-                    $violatorName .= $middleName;
                 }
 
-                if (empty(trim($violatorName))) {
-                    $violatorName = 'N/A';
-                }
+                $violationNames = array_values(array_unique(array_filter(
+                    $violationNames,
+                    fn ($value) => $value !== ''
+                )));
 
-                // ==================================================
-                // VIOLATION
-                // SUPPORTS MULTIPLE VIOLATIONS
-                // ==================================================
+                $violationText = !empty($violationNames)
+                    ? implode(', ', $violationNames)
+                    : 'N/A';
 
-                $violationNames = $violation->violationTypes
-                    ->pluck('name')
-                    ->filter()
-                    ->unique()
-                    ->implode(', ');
-
-                if (empty($violationNames)) {
-
-                    $violationNames =
-                        $violation->violationType->name ?? '';
-
-                }
-
-                if (empty(trim($violationNames))) {
-                    $violationNames = 'N/A';
-                }
-
-                // ==================================================
                 // APPREHENDING OFFICER
-                // ==================================================
+                $officer = $violation->user?->name;
 
-                $apprehendingOfficer = 'N/A';
-
-                if ($violation->user) {
-
-                    if (!empty($violation->user->name)) {
-
-                        $apprehendingOfficer =
-                            $violation->user->name;
-
-                    } else {
-
-                        $apprehendingOfficer = trim(
-                            implode(
-                                ' ',
-                                array_filter([
-                                    $violation->user->first_name ?? null,
-                                    $violation->user->middle_name ?? null,
-                                    $violation->user->last_name ?? null,
-                                ])
-                            )
-                        );
-
-                        if (
-                            empty($apprehendingOfficer)
-                        ) {
-                            $apprehendingOfficer = 'N/A';
-                        }
-                    }
+                if (empty($officer) && $violation->user) {
+                    $officer = trim(implode(' ', array_filter([
+                        $violation->user->first_name ?? null,
+                        $violation->user->middle_name ?? null,
+                        $violation->user->last_name ?? null,
+                    ])));
                 }
 
-                // ==================================================
-                // RETURN EXCEL ROW
-                // ALL DATA IS UPPERCASE
-                // ==================================================
+                $officer = $officer ?: 'N/A';
 
+                // Keep the existing Excel column order and uppercase values.
                 return [
-
-                    // 1. DATE OF APPREHENSION
-                    strtoupper(
-                        $violation->violation_date ?? 'N/A'
-                    ),
-
-                    // 2. TICKET NUMBER
-                    strtoupper(
-                        $violation->ticket_number ?? 'N/A'
-                    ),
-
-                    // 3. VEHICLE TYPE
-                    strtoupper(
-                        $violation->vehicle->vehicle_type ?? 'N/A'
-                    ),
-
-                    // 4. PLATE NUMBER
-                    strtoupper(
-                        $violation->vehicle->plate_number ?? 'N/A'
-                    ),
-
-                    // 5. PLACE OF APPREHENSION
-                    strtoupper(
-                        $violation->location ?? 'N/A'
-                    ),
-
-                    // 6. VIOLATION
-                    strtoupper(
-                        $violationNames
-                    ),
-
-                    // 7. NAME
-                    // Example:
-                    // MENDOZA, REGINA BINUYA
-                    strtoupper(
-                        $violatorName
-                    ),
-
-                    // 8. ADDRESS
-                    strtoupper(
-                        $violation->driver->address ?? 'N/A'
-                    ),
-
-                    // 9. LICENSE NUMBER
-                    strtoupper(
-                        $violation->driver->license_number ?? 'N/A'
-                    ),
-
-                    // 10. APPREHENDING OFFICER
-                    strtoupper(
-                        $apprehendingOfficer
-                    ),
-
-                    // 11. REMARKS
-                    strtoupper(
-                        $violation->remarks ?? 'N/A'
-                    ),
+                    strtoupper((string) ($violation->violation_date ?? 'N/A')),
+                    strtoupper((string) ($violation->ticket_number ?? 'N/A')),
+                    strtoupper((string) ($violation->vehicle?->vehicle_type ?? 'N/A')),
+                    strtoupper((string) ($violation->vehicle?->plate_number ?? 'N/A')),
+                    strtoupper((string) ($violation->location ?? 'N/A')),
+                    strtoupper($violationText),
+                    strtoupper($name),
+                    strtoupper((string) ($driver?->address ?? 'N/A')),
+                    strtoupper((string) ($driver?->license_number ?? 'N/A')),
+                    strtoupper($officer),
+                    strtoupper((string) ($violation->remarks ?? 'N/A')),
                 ];
             });
     }
@@ -241,7 +166,7 @@ class ViolationsExport implements FromCollection, WithHeadings
             'Violation',
             'NAME',
             'Address',
-            'LICENSE N0',
+            'LICENSE NO',
             'Apprehending Officer',
             'Remarks',
         ];
